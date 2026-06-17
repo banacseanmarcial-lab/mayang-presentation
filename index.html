@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MindCare AI — A private space to breathe, reflect, and heal</title>
+<meta name="description" content="MindCare AI is a private, AI-guided mental wellness companion: check in, write it down, watch your patterns, and find real help when you need it.">
+<meta name="theme-color" content="#4C7C99">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- ambient animated background -->
+<div class="bg-field" aria-hidden="true">
+  <div class="bg-blob b1"></div>
+  <div class="bg-blob b2"></div>
+  <div class="bg-blob b3"></div>
+</div>
+
+<header class="site-header" id="siteHeader">
+  <div class="header-inner">
+    <a class="logo" href="#top">MindCare<span>AI</span></a>
+
+    <nav class="main-nav" aria-label="Primary">
+      <a href="#how-it-works">How it works</a>
+      <a href="#features">What's inside</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#learn">Learn</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-btn" id="themeToggle" aria-label="Switch to dark mode" aria-pressed="false">
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>
+      </button>
+
+      <div id="loggedOutActions" style="display:flex;gap:10px;">
+        <button class="btn btn-ghost" data-auth="signin">Sign in</button>
+        <button class="btn btn-primary" data-auth="signup">Get started</button>
+      </div>
+
+      <div id="loggedInActions" hidden>
+        <span class="user-chip"><span class="avatar" id="userInitials"></span><span id="userName"></span></span>
+        <button class="btn btn-ghost btn-sm" id="logoutBtn">Log out</button>
+      </div>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">☰</button>
+    </div>
+  </div>
+  <nav class="mobile-nav" id="mobileNav" aria-label="Mobile">
+    <a href="#how-it-works">How it works</a>
+    <a href="#features">What's inside</a>
+    <a href="#privacy">Privacy</a>
+    <a href="#learn">Learn</a>
+  </nav>
+</header>
+
+<main id="main">
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero" id="top">
+    <div class="hero-copy">
+      <p class="eyebrow">Private · 24/7 · AI-guided</p>
+      <h1>A quiet place to land, <em>before</em> you need anywhere else to go.</h1>
+      <p class="lede">MindCare AI is a private wellness companion for the days you're anxious, low, stressed, or just not okay — built for anyone who can't access therapy, or isn't ready to talk to a person yet.</p>
+      <div class="hero-ctas">
+        <button class="btn btn-primary" data-auth="signup">Create your free space</button>
+        <button class="btn btn-ghost" data-auth="signin">I already have an account</button>
+      </div>
+      <p class="hero-microcopy">No waitlists · No cost barrier · No judgment</p>
+    </div>
+
+    <div class="hero-orb-wrap">
+      <button class="orb" id="breathOrb" aria-pressed="false" aria-label="Start a guided breathing moment">
+        <span class="orb-ring r1" aria-hidden="true"></span>
+        <span class="orb-ring r2" aria-hidden="true"></span>
+        <span class="orb-ring r3" aria-hidden="true"></span>
+        <span class="orb-label" id="orbLabel">Breathe</span>
+      </button>
+      <p class="orb-caption" id="orbCaption">Tap the circle. Just breathe for a moment — no account needed.</p>
+    </div>
+  </section>
+
+  <!-- ===================== WELCOME / MOOD CHECK-IN (post sign-in) ===================== -->
+  <section class="welcome-panel" id="welcomePanel" hidden>
+    <div class="welcome-card">
+      <div class="welcome-text">
+        <h3 id="welcomeHeading">Welcome back.</h3>
+        <p>How are you feeling right now? This stays in your private check-in history.</p>
+        <p class="mood-note" id="moodNote" aria-live="polite"></p>
+      </div>
+      <div class="mood-row" role="group" aria-label="Select your current mood">
+        <button class="mood-btn" data-mood="Struggling" aria-pressed="false" aria-label="Struggling">😣</button>
+        <button class="mood-btn" data-mood="Low" aria-pressed="false" aria-label="Low">😕</button>
+        <button class="mood-btn" data-mood="Okay" aria-pressed="false" aria-label="Okay">😐</button>
+        <button class="mood-btn" data-mood="Good" aria-pressed="false" aria-label="Good">🙂</button>
+        <button class="mood-btn" data-mood="Great" aria-pressed="false" aria-label="Great">😄</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FEATURES ===================== -->
+  <section class="features" id="features">
+    <div class="section-head">
+      <p class="eyebrow">What's inside</p>
+      <h2>Everything starts with a safe place to talk.</h2>
+      <p>Then it goes deeper — at your pace.</p>
+    </div>
+    <div class="feature-grid">
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/>
+            <circle cx="9" cy="11" r="0.6" fill="currentColor" stroke="none"/>
+            <circle cx="12.5" cy="11" r="0.6" fill="currentColor" stroke="none"/>
+            <circle cx="16" cy="11" r="0.6" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <h3>Talk it through, any hour</h3>
+        <p>A supportive AI companion that's there at 3pm or 3am, with coping strategies and gentle reflection prompts — not just a chatbot script.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="3" width="14" height="18" rx="2"/>
+            <rect x="9" y="1.3" width="6" height="3" rx="1"/>
+            <path d="M9 13l2 2 4-4"/>
+          </svg>
+        </div>
+        <h3>Know where you stand</h3>
+        <p>Short, plain-language check-ins for anxiety, depression, and stress — with results you can actually understand, not clinical jargon.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="3" width="13" height="18" rx="1.5"/>
+            <line x1="4" y1="7.5" x2="17" y2="7.5"/>
+            <path d="M15 14l5-5 2 2-5 5h-2v-2z"/>
+          </svg>
+        </div>
+        <h3>Write it down, safely</h3>
+        <p>A private daily journal with mood tags and voice-to-text. Over time, MindCare gently surfaces patterns you might not notice yourself.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="21" x2="21" y2="21"/>
+            <rect x="5" y="13" width="3.4" height="7"/>
+            <rect x="10.3" y="8" width="3.4" height="12"/>
+            <rect x="15.6" y="4" width="3.4" height="16"/>
+          </svg>
+        </div>
+        <h3>Watch your patterns</h3>
+        <p>A calm dashboard of mood trends, a personal wellness score, and self-care tracking — so progress feels visible, not abstract.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20s-7-4.4-9.2-9A5 5 0 0 1 12 6a5 5 0 0 1 9.2 5C19 15.6 12 20 12 20z"/>
+          </svg>
+        </div>
+        <h3>Never alone in a hard moment</h3>
+        <p>If signs of real distress show up, MindCare says so gently — and points you toward trusted people and crisis resources, every time.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8" cy="8" r="3"/>
+            <circle cx="17" cy="9.5" r="2.4"/>
+            <path d="M2.3 20c0-3.5 2.5-6 5.7-6s5.7 2.5 5.7 6"/>
+            <path d="M14.3 20c0-2.6 1.8-4.6 4-4.6s4 2 4 4.6"/>
+          </svg>
+        </div>
+        <h3>Bring in a human, when ready</h3>
+        <p>Connect with volunteer mentors or request an appointment with a counselor — on your terms, with easy follow-ups.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== HOW IT WORKS ===================== -->
+  <section class="flow" id="how-it-works">
+    <div class="section-head">
+      <p class="eyebrow">How it works</p>
+      <h2>No app should ask more of you than you have to give.</h2>
+    </div>
+    <div class="flow-row">
+      <div class="flow-step">
+        <p class="flow-label">First</p>
+        <h3>Share, in your own words</h3>
+        <p>Open the companion or a quick check-in. Type, talk, or just sit with the breathing orb. There's no wrong way to start.</p>
+      </div>
+      <div class="flow-arrow" aria-hidden="true">
+        <svg viewBox="0 0 28 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="0" y1="7" x2="24" y2="7"/><path d="M18 1l6 6-6 6"/></svg>
+      </div>
+      <div class="flow-step">
+        <p class="flow-label">Then</p>
+        <h3>Reflect, with gentle structure</h3>
+        <p>MindCare reflects patterns back to you in your diary and dashboard — never a diagnosis, always a starting point for self-understanding.</p>
+      </div>
+      <div class="flow-arrow" aria-hidden="true">
+        <svg viewBox="0 0 28 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="0" y1="7" x2="24" y2="7"/><path d="M18 1l6 6-6 6"/></svg>
+      </div>
+      <div class="flow-step">
+        <p class="flow-label">Over time</p>
+        <h3>Grow, at your own pace</h3>
+        <p>Build small habits, learn what helps, and — if and when you want it — bring in a mentor or professional for the next step.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PRIVACY / SAFETY ===================== -->
+  <section class="privacy-band" id="privacy">
+    <div class="privacy-inner">
+      <div>
+        <p class="eyebrow">How we hold your trust</p>
+        <h2>Support that knows its limits.</h2>
+        <p>MindCare AI is built to help you understand your emotions — not to replace the people trained to treat them.</p>
+      </div>
+      <div class="privacy-list">
+        <div class="privacy-item"><span class="dot" aria-hidden="true"></span><p><strong>We never diagnose.</strong> Assessments offer a starting signal, not a medical conclusion.</p></div>
+        <div class="privacy-item"><span class="dot" aria-hidden="true"></span><p><strong>We're not a substitute for therapy.</strong> MindCare is a companion on the way to care, not a replacement for it.</p></div>
+        <div class="privacy-item"><span class="dot" aria-hidden="true"></span><p><strong>Your journal is encrypted and private</strong>, by default, always — yours alone unless you choose to share it.</p></div>
+        <div class="privacy-item"><span class="dot" aria-hidden="true"></span><p><strong>If things look serious, we say so</strong> — and point you toward real people and crisis resources, not just more app screens.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== LEARN ===================== -->
+  <section class="learn" id="learn">
+    <p class="eyebrow">Learning center</p>
+    <h2>Plain-language guides, when you want to understand more</h2>
+    <div class="pill-row">
+      <a class="pill" href="#">Anxiety</a>
+      <a class="pill" href="#">Depression</a>
+      <a class="pill" href="#">Stress management</a>
+      <a class="pill" href="#">Self-esteem</a>
+      <a class="pill" href="#">Emotional resilience</a>
+      <a class="pill" href="#">Sleep</a>
+      <a class="pill" href="#">Mindfulness</a>
+    </div>
+  </section>
+
+  <!-- ===================== FINAL CTA ===================== -->
+  <section class="cta-band">
+    <div class="cta-card">
+      <div>
+        <h2>Your first step doesn't have to be a big one.</h2>
+        <p>Free to start. Private by default. Yours whenever you need it.</p>
+      </div>
+      <button class="btn btn-primary" data-auth="signup">Create your free space</button>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="#features">Companion</a>
+          <a href="#features">Check-ins</a>
+          <a href="#features">Diary</a>
+          <a href="#features">Dashboard</a>
+        </div>
+        <div class="footer-col">
+          <h4>Support</h4>
+          <a href="#learn">Learning center</a>
+          <a href="#privacy">Privacy &amp; safety</a>
+          <a href="#how-it-works">How it works</a>
+        </div>
+      </div>
+      <p class="crisis-note">
+        <strong>If you're in immediate danger or crisis,</strong> please contact your local emergency number or a crisis line right away. MindCare AI offers support, not emergency care.
+      </p>
+    </div>
+    <hr class="divider">
+    <div class="footer-bottom">
+      <span>© 2026 MindCare AI. A private first step toward mental wellness.</span>
+      <span>Made with care, not a diagnosis.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ===================== AUTH MODAL ===================== -->
+<div class="modal-overlay" id="authOverlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <button class="modal-close" id="authClose" aria-label="Close dialog">×</button>
+
+    <div class="modal-tabs" role="tablist">
+      <button id="tabSignin" role="tab" aria-selected="true" class="active">Sign in</button>
+      <button id="tabSignup" role="tab" aria-selected="false">Create account</button>
+    </div>
+
+    <div id="signinPane">
+      <h2 id="authTitle">Welcome back</h2>
+      <p class="modal-sub">Log in to pick up right where you left off.</p>
+      <div class="form-status" id="signinStatus" role="status" aria-live="polite"></div>
+
+      <form id="signinForm" novalidate>
+        <div class="field" id="siEmailField">
+          <label for="siEmail">Email</label>
+          <input type="email" id="siEmail" autocomplete="email" placeholder="you@example.com">
+          <p class="field-error">Enter a valid email address.</p>
+        </div>
+
+        <div class="field" id="siPasswordField">
+          <label for="siPassword">Password</label>
+          <div class="input-wrap">
+            <input type="password" id="siPassword" autocomplete="current-password" placeholder="••••••••">
+            <button type="button" class="pw-toggle" data-target="siPassword">Show</button>
+          </div>
+          <p class="field-error">Enter your password.</p>
+        </div>
+
+        <div class="form-foot">
+          <label class="field-row" style="margin:0;"><input type="checkbox" id="siRemember"><span>Remember me</span></label>
+          <a href="#" id="forgotLink">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+      </form>
+
+      <p class="switch-note">New to MindCare? <button type="button" id="goSignup">Create a free account</button></p>
+    </div>
+
+    <div id="signupPane" hidden>
+      <h2>Create your space</h2>
+      <p class="modal-sub">Free, private, and yours alone.</p>
+      <div class="form-status" id="signupStatus" role="status" aria-live="polite"></div>
+
+      <form id="signupForm" novalidate>
+        <div class="field" id="suNameField">
+          <label for="suName">Name</label>
+          <input type="text" id="suName" autocomplete="name" placeholder="What should we call you?">
+          <p class="field-error">Tell us your name (at least 2 characters).</p>
+        </div>
+
+        <div class="field" id="suEmailField">
+          <label for="suEmail">Email</label>
+          <input type="email" id="suEmail" autocomplete="email" placeholder="you@example.com">
+          <p class="field-error">Enter a valid email address.</p>
+        </div>
+
+        <div class="field" id="suPasswordField">
+          <label for="suPassword">Password</label>
+          <div class="input-wrap">
+            <input type="password" id="suPassword" autocomplete="new-password" placeholder="Create a password">
+            <button type="button" class="pw-toggle" data-target="suPassword">Show</button>
+          </div>
+          <ul class="pw-checklist">
+            <li id="ruleLen">At least 8 characters</li>
+            <li id="ruleMix">A letter and a number</li>
+          </ul>
+          <p class="field-error">Your password needs at least 8 characters, with a letter and a number.</p>
+        </div>
+
+        <div class="field" id="suConfirmField">
+          <label for="suConfirm">Confirm password</label>
+          <div class="input-wrap">
+            <input type="password" id="suConfirm" autocomplete="new-password" placeholder="Type it again">
+            <button type="button" class="pw-toggle" data-target="suConfirm">Show</button>
+          </div>
+          <p class="field-error">Passwords don't match yet.</p>
+        </div>
+
+        <div class="field-row" style="margin-bottom:20px;">
+          <input type="checkbox" id="suTerms">
+          <label for="suTerms">I understand MindCare AI offers wellness support, not medical diagnosis or emergency care.</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Create account</button>
+      </form>
+
+      <p class="switch-note">Already have a space? <button type="button" id="goSignin">Sign in</button></p>
+    </div>
+
+    <p class="sr-only" id="authLiveRegion" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/script.js" defer></script>
+</body>
+</html>
