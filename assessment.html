@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Assessment | MindCare AI</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div id="bg"></div>
+
+<div id="loader">
+<div class="loader-text">
+🧠 MindCare AI
+</div>
+</div>
+
+<div class="ai-orb"></div>
+
+<nav class="navbar">
+
+<div class="logo">
+🧠 MindCare AI
+</div>
+
+<ul class="nav-links">
+
+<li><a href="dashboard.html">Dashboard</a></li>
+<li><a href="ai-chat.html">AI Chat</a></li>
+<li><a href="journal.html">Journal</a></li>
+<li><a href="profile.html">Profile</a></li>
+<li><a href="settings.html">Settings</a></li>
+<li><a href="logout.html">Logout</a></li>
+
+</ul>
+
+</nav>
+
+<div class="form-container glass">
+
+<h1>🧠 Mental Health Assessment</h1>
+
+<p>
+Answer honestly to receive a wellness score.
+</p>
+
+<br>
+
+<label>How often have you felt anxious recently?</label>
+
+<select id="q1">
+
+<option value="0">Not at all</option>
+<option value="1">Several days</option>
+<option value="2">More than half the days</option>
+<option value="3">Nearly every day</option>
+
+</select>
+
+<label>How often have you felt stressed?</label>
+
+<select id="q2">
+
+<option value="0">Not at all</option>
+<option value="1">Several days</option>
+<option value="2">More than half the days</option>
+<option value="3">Nearly every day</option>
+
+</select>
+
+<label>How often have you felt emotionally overwhelmed?</label>
+
+<select id="q3">
+
+<option value="0">Not at all</option>
+<option value="1">Several days</option>
+<option value="2">More than half the days</option>
+<option value="3">Nearly every day</option>
+
+</select>
+
+<button onclick="calculatePremiumAssessment()">
+
+Calculate Assessment
+
+</button>
+
+<br><br>
+
+<h2 id="result"></h2>
+
+<p id="recommendation"></p>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>

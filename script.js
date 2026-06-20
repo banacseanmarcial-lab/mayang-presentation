@@ -1,334 +1,482 @@
-(function(){
-  "use strict";
+// =====================
+// LOADER
+// =====================
 
-  /* ============================================================
-     STATE (in-memory only — resets on reload; no backend yet)
-  ============================================================ */
-  var users = [];        // {name, email, password}
-  var currentUser = null;
-  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var lastFocusedEl = null;
+window.addEventListener("load",()=>{
 
-  /* ============================================================
-     THEME TOGGLE
-  ============================================================ */
-  var root = document.documentElement;
-  var themeToggle = document.getElementById('themeToggle');
-  function setTheme(mode){
-    root.setAttribute('data-theme', mode);
-    themeToggle.setAttribute('aria-pressed', mode === 'dark' ? 'true' : 'false');
-    themeToggle.setAttribute('aria-label', mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
-  }
-  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  setTheme(prefersDark ? 'dark' : 'light');
-  themeToggle.addEventListener('click', function(){
-    setTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-  });
+const loader=
+document.getElementById("loader");
 
-  /* ============================================================
-     HEADER SCROLL STATE
-  ============================================================ */
-  var header = document.getElementById('siteHeader');
-  function onScroll(){
-    if(window.scrollY > 8){ header.classList.add('scrolled'); }
-    else{ header.classList.remove('scrolled'); }
-  }
-  document.addEventListener('scroll', onScroll, {passive:true});
-  onScroll();
+if(loader){
 
-  /* ============================================================
-     MOBILE NAV
-  ============================================================ */
-  var navToggle = document.getElementById('navToggle');
-  var mobileNav = document.getElementById('mobileNav');
-  navToggle.addEventListener('click', function(){
-    var open = mobileNav.classList.toggle('open');
-    navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-  });
-  mobileNav.querySelectorAll('a').forEach(function(a){
-    a.addEventListener('click', function(){ mobileNav.classList.remove('open'); });
-  });
+setTimeout(()=>{
 
-  /* ============================================================
-     BREATHING ORB
-  ============================================================ */
-  var orb = document.getElementById('breathOrb');
-  var orbLabel = document.getElementById('orbLabel');
-  var orbCaption = document.getElementById('orbCaption');
-  var breathing = false;
-  var breathTimer = null;
+loader.style.opacity="0";
 
-  function breathCycle(){
-    orbLabel.textContent = 'Breathe in';
-    orbCaption.textContent = 'In slowly through your nose…';
-    breathTimer = setTimeout(function(){
-      if(!breathing) return;
-      orbLabel.textContent = 'Breathe out';
-      orbCaption.textContent = 'Out gently through your mouth…';
-      breathTimer = setTimeout(function(){
-        if(!breathing) return;
-        breathCycle();
-      }, 4000);
-    }, 4000);
-  }
+setTimeout(()=>{
 
-  orb.addEventListener('click', function(){
-    breathing = !breathing;
-    orb.setAttribute('aria-pressed', breathing ? 'true' : 'false');
-    if(breathing){
-      orb.classList.add('active');
-      if(reduceMotion){
-        orbLabel.textContent = 'Breathing';
-        orbCaption.textContent = 'Tap again to stop. Breathe at your own pace.';
-      } else {
-        breathCycle();
-      }
-    } else {
-      orb.classList.remove('active');
-      clearTimeout(breathTimer);
-      orbLabel.textContent = 'Breathe';
-      orbCaption.textContent = 'Tap the circle. Just breathe for a moment — no account needed.';
-    }
-  });
+loader.style.display="none";
 
-  /* ============================================================
-     TOAST
-  ============================================================ */
-  var toastEl = document.getElementById('toast');
-  var toastTimer = null;
-  function showToast(msg){
-    toastEl.textContent = msg;
-    toastEl.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 3200);
-  }
+},800);
 
-  /* ============================================================
-     AUTH MODAL — open / close / tabs
-  ============================================================ */
-  var overlay = document.getElementById('authOverlay');
-  var modal = overlay.querySelector('.modal');
-  var tabSignin = document.getElementById('tabSignin');
-  var tabSignup = document.getElementById('tabSignup');
-  var signinPane = document.getElementById('signinPane');
-  var signupPane = document.getElementById('signupPane');
+},1000);
 
-  function showPane(which){
-    var signinOn = which === 'signin';
-    signinPane.hidden = !signinOn;
-    signupPane.hidden = signinOn;
-    tabSignin.classList.toggle('active', signinOn);
-    tabSignup.classList.toggle('active', !signinOn);
-    tabSignin.setAttribute('aria-selected', signinOn ? 'true' : 'false');
-    tabSignup.setAttribute('aria-selected', signinOn ? 'false' : 'true');
-    var firstInput = (signinOn ? signinPane : signupPane).querySelector('input');
-    if(firstInput) setTimeout(function(){ firstInput.focus(); }, 60);
-  }
+}
 
-  function openAuth(which){
-    lastFocusedEl = document.activeElement;
-    overlay.hidden = false;
-    showPane(which || 'signin');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeAuth(){
-    overlay.hidden = true;
-    document.body.style.overflow = '';
-    clearStatus('signinStatus');
-    clearStatus('signupStatus');
-    if(lastFocusedEl) lastFocusedEl.focus();
-  }
+loadProfile();
+loadJournal();
 
-  document.querySelectorAll('[data-auth]').forEach(function(btn){
-    btn.addEventListener('click', function(){ openAuth(btn.getAttribute('data-auth')); });
-  });
-  document.getElementById('authClose').addEventListener('click', closeAuth);
-  overlay.addEventListener('click', function(e){ if(e.target === overlay) closeAuth(); });
-  document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape' && !overlay.hidden) closeAuth();
-  });
-  tabSignin.addEventListener('click', function(){ showPane('signin'); });
-  tabSignup.addEventListener('click', function(){ showPane('signup'); });
-  document.getElementById('goSignup').addEventListener('click', function(){ showPane('signup'); });
-  document.getElementById('goSignin').addEventListener('click', function(){ showPane('signin'); });
-  document.getElementById('forgotLink').addEventListener('click', function(e){
-    e.preventDefault();
-    setStatus('signinStatus', "Password reset isn't available in this demo yet — sign in with the password you created.", 'error');
-  });
+});
 
-  /* ============================================================
-     VALIDATION HELPERS
-  ============================================================ */
-  function setFieldError(fieldId, hasError){
-    document.getElementById(fieldId).classList.toggle('has-error', hasError);
-  }
-  function isValidEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); }
-  function passwordRules(v){
-    return { len: v.length >= 8, mix: /[A-Za-z]/.test(v) && /\d/.test(v) };
-  }
-  function setStatus(id, msg, kind){
-    var el = document.getElementById(id);
-    el.textContent = msg;
-    el.className = 'form-status show ' + kind;
-  }
-  function clearStatus(id){
-    var el = document.getElementById(id);
-    el.className = 'form-status';
-    el.textContent = '';
-  }
-  function initials(name){
-    var parts = name.trim().split(/\s+/);
-    var a = parts[0] ? parts[0][0] : '';
-    var b = parts.length > 1 ? parts[parts.length-1][0] : '';
-    return (a+b).toUpperCase();
-  }
+// =====================
+// DARK MODE
+// =====================
 
-  /* password show/hide toggles */
-  document.querySelectorAll('.pw-toggle').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      var input = document.getElementById(btn.getAttribute('data-target'));
-      var show = input.type === 'password';
-      input.type = show ? 'text' : 'password';
-      btn.textContent = show ? 'Hide' : 'Show';
-    });
-  });
+function toggleDarkMode(){
 
-  /* live password checklist on signup */
-  var suPassword = document.getElementById('suPassword');
-  var ruleLen = document.getElementById('ruleLen');
-  var ruleMix = document.getElementById('ruleMix');
-  suPassword.addEventListener('input', function(){
-    var r = passwordRules(suPassword.value);
-    ruleLen.classList.toggle('met', r.len);
-    ruleMix.classList.toggle('met', r.mix);
-  });
+document.body.classList.toggle("dark");
 
-  /* ============================================================
-     SIGN UP
-  ============================================================ */
-  document.getElementById('signupForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    clearStatus('signupStatus');
+localStorage.setItem(
+"theme",
+document.body.classList.contains("dark")
+);
 
-    var name = document.getElementById('suName').value.trim();
-    var email = document.getElementById('suEmail').value.trim();
-    var password = document.getElementById('suPassword').value;
-    var confirm = document.getElementById('suConfirm').value;
-    var terms = document.getElementById('suTerms').checked;
+}
 
-    var nameOk = name.length >= 2;
-    var emailOk = isValidEmail(email);
-    var rules = passwordRules(password);
-    var passOk = rules.len && rules.mix;
-    var confirmOk = confirm.length > 0 && confirm === password;
+window.addEventListener("load",()=>{
 
-    setFieldError('suNameField', !nameOk);
-    setFieldError('suEmailField', !emailOk);
-    setFieldError('suPasswordField', !passOk);
-    setFieldError('suConfirmField', !confirmOk);
+if(
+localStorage.getItem("theme")
+==="true"
+){
+document.body.classList.add("dark");
+}
 
-    if(!nameOk){ document.getElementById('suName').focus(); return; }
-    if(!emailOk){ document.getElementById('suEmail').focus(); return; }
-    if(!passOk){ document.getElementById('suPassword').focus(); return; }
-    if(!confirmOk){ document.getElementById('suConfirm').focus(); return; }
+});
 
-    if(!terms){
-      setStatus('signupStatus', 'Please confirm you understand what MindCare AI is (and isn\'t) before continuing.', 'error');
-      return;
-    }
+// =====================
+// LOGIN
+// =====================
 
-    var exists = users.some(function(u){ return u.email.toLowerCase() === email.toLowerCase(); });
-    if(exists){
-      setStatus('signupStatus', 'An account with that email already exists. Try signing in instead.', 'error');
-      setFieldError('suEmailField', true);
-      return;
-    }
+const loginForm =
+document.getElementById("loginForm");
 
-    users.push({ name:name, email:email, password:password });
-    logIn(name, email);
-    setStatus('signupStatus', 'Account created. Welcome to MindCare AI.', 'success');
-    showToast('Welcome, ' + name.split(' ')[0] + '! Your space is ready.');
-    setTimeout(closeAuth, 700);
-    e.target.reset();
-    ruleLen.classList.remove('met'); ruleMix.classList.remove('met');
-  });
+if(loginForm){
 
-  /* ============================================================
-     SIGN IN
-  ============================================================ */
-  document.getElementById('signinForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    clearStatus('signinStatus');
+loginForm.addEventListener("submit",e=>{
 
-    var email = document.getElementById('siEmail').value.trim();
-    var password = document.getElementById('siPassword').value;
+e.preventDefault();
 
-    var emailOk = isValidEmail(email);
-    var passOk = password.length > 0;
-    setFieldError('siEmailField', !emailOk);
-    setFieldError('siPasswordField', !passOk);
-    if(!emailOk){ document.getElementById('siEmail').focus(); return; }
-    if(!passOk){ document.getElementById('siPassword').focus(); return; }
+alert("Login Successful");
 
-    var user = users.find(function(u){ return u.email.toLowerCase() === email.toLowerCase(); });
-    if(!user){
-      setStatus('signinStatus', "We couldn't find an account with that email. Try creating one instead.", 'error');
-      setFieldError('siEmailField', true);
-      return;
-    }
-    if(user.password !== password){
-      setStatus('signinStatus', "That password doesn't match. Please try again.", 'error');
-      setFieldError('siPasswordField', true);
-      return;
-    }
+window.location.href =
+"dashboard.html";
 
-    logIn(user.name, user.email);
-    setStatus('signinStatus', 'Signed in. Good to see you again.', 'success');
-    showToast('Welcome back, ' + user.name.split(' ')[0] + '.');
-    setTimeout(closeAuth, 500);
-    e.target.reset();
-  });
+});
 
-  /* ============================================================
-     SESSION: LOG IN / LOG OUT
-  ============================================================ */
-  var loggedOutActions = document.getElementById('loggedOutActions');
-  var loggedInActions = document.getElementById('loggedInActions');
-  var userNameEl = document.getElementById('userName');
-  var userInitialsEl = document.getElementById('userInitials');
-  var welcomePanel = document.getElementById('welcomePanel');
-  var welcomeHeading = document.getElementById('welcomeHeading');
-  var moodNote = document.getElementById('moodNote');
+}
 
-  function logIn(name, email){
-    currentUser = { name:name, email:email };
-    loggedOutActions.style.display = 'none';
-    loggedInActions.hidden = false;
-    userNameEl.textContent = name.split(' ')[0];
-    userInitialsEl.textContent = initials(name);
-    welcomeHeading.textContent = 'Welcome back, ' + name.split(' ')[0] + '.';
-    welcomePanel.hidden = false;
-    moodNote.textContent = '';
-    document.querySelectorAll('.mood-btn').forEach(function(b){ b.setAttribute('aria-pressed','false'); });
-  }
+// =====================
+// SIGNUP
+// =====================
 
-  function logOut(){
-    currentUser = null;
-    loggedOutActions.style.display = 'flex';
-    loggedInActions.hidden = true;
-    welcomePanel.hidden = true;
-    showToast("You've been logged out.");
-  }
+const signupForm =
+document.getElementById("signupForm");
 
-  document.getElementById('logoutBtn').addEventListener('click', logOut);
+if(signupForm){
 
-  /* mood check-in (illustrative only) */
-  document.querySelectorAll('.mood-btn').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      document.querySelectorAll('.mood-btn').forEach(function(b){ b.setAttribute('aria-pressed','false'); });
-      btn.setAttribute('aria-pressed','true');
-      moodNote.textContent = 'Logged as "' + btn.getAttribute('data-mood') + '" — thanks for checking in.';
-    });
-  });
+signupForm.addEventListener("submit",e=>{
 
-})();
+e.preventDefault();
+
+const password =
+document.getElementById("password").value;
+
+const confirm =
+document.getElementById("confirmPassword").value;
+
+if(password !== confirm){
+
+alert("Passwords do not match");
+return;
+
+}
+
+alert("Account Created");
+
+window.location.href =
+"dashboard.html";
+
+});
+
+}
+
+// =====================
+// AI CHAT
+// =====================
+
+function sendMessage(){
+
+const input =
+document.getElementById("messageInput");
+
+const messages =
+document.getElementById("messages");
+
+if(!input || !messages) return;
+
+const text =
+input.value.trim();
+
+if(text==="") return;
+
+messages.innerHTML +=
+`<p><strong>You:</strong> ${text}</p>`;
+
+setTimeout(()=>{
+
+const replies=[
+
+"Thank you for sharing that with me.",
+
+"I'm here to listen. Tell me more.",
+
+"That sounds important. How are you feeling about it?",
+
+"Your feelings matter.",
+
+"Taking time to reflect is a positive step."
+
+];
+
+const reply=
+replies[
+Math.floor(
+Math.random()*replies.length
+)
+];
+
+messages.innerHTML +=
+`<p><strong>MindCare AI:</strong> ${reply}</p>`;
+
+messages.scrollTop =
+messages.scrollHeight;
+
+},1000);
+
+detectRisk(text);
+
+input.value="";
+
+}
+
+function detectRisk(message){
+
+const warningWords=[
+"hopeless",
+"give up",
+"suicide",
+"end my life"
+];
+
+const risk=
+warningWords.some(word=>
+message.toLowerCase().includes(word)
+);
+
+if(risk){
+
+alert(
+"Please reach out to a trusted adult, counselor, mental health professional, or local emergency service if you feel unsafe."
+);
+
+}
+
+}
+
+// Enter Key
+
+window.addEventListener("load",()=>{
+
+const chatInput =
+document.getElementById("messageInput");
+
+if(chatInput){
+
+chatInput.addEventListener(
+"keypress",
+function(e){
+
+if(e.key==="Enter"){
+
+e.preventDefault();
+
+sendMessage();
+
+}
+
+}
+);
+
+}
+
+});
+
+// =====================
+// ASSESSMENT
+// =====================
+
+function calculatePremiumAssessment(){
+
+const q1=
+Number(document.getElementById("q1").value);
+
+const q2=
+Number(document.getElementById("q2").value);
+
+const q3=
+Number(document.getElementById("q3").value);
+
+const total=q1+q2+q3;
+
+let result="";
+let recommendation="";
+
+if(total<=2){
+
+result="Minimal";
+recommendation=
+"Continue healthy self-care habits.";
+
+}
+else if(total<=4){
+
+result="Mild";
+recommendation=
+"Practice mindfulness and journaling.";
+
+}
+else if(total<=6){
+
+result="Moderate";
+recommendation=
+"Monitor stress levels and seek support if needed.";
+
+}
+else{
+
+result="High";
+recommendation=
+"Consider speaking with a counselor or trusted support person.";
+
+}
+
+document.getElementById("result")
+.innerText=
+"Assessment Result: "+result;
+
+document.getElementById("recommendation")
+.innerText=
+recommendation;
+
+}
+
+// =====================
+// JOURNAL
+// =====================
+
+function saveJournal(){
+
+const mood=
+document.getElementById("mood").value;
+
+const entry=
+document.getElementById("journalEntry").value;
+
+if(entry.trim()==="") return;
+
+const data={
+mood,
+entry,
+date:new Date().toLocaleString()
+};
+
+localStorage.setItem(
+"mindcareJournal",
+JSON.stringify(data)
+);
+
+loadJournal();
+
+alert("Journal Saved");
+
+}
+
+function loadJournal(){
+
+const saved=
+localStorage.getItem("mindcareJournal");
+
+if(
+saved &&
+document.getElementById("savedEntry")
+){
+
+const data=
+JSON.parse(saved);
+
+document.getElementById("savedEntry")
+.innerHTML=
+
+`<strong>${data.date}</strong>
+<br><br>
+${data.mood}
+<br><br>
+${data.entry}`;
+
+}
+
+}
+
+// =====================
+// PROFILE
+// =====================
+
+function saveProfile(){
+
+const profile={
+
+name:
+document.getElementById("profileName").value,
+
+age:
+document.getElementById("profileAge").value,
+
+gender:
+document.getElementById("profileGender").value
+
+};
+
+localStorage.setItem(
+"profile",
+JSON.stringify(profile)
+);
+
+alert("Profile Updated");
+
+}
+
+function loadProfile(){
+
+const saved=
+localStorage.getItem("profile");
+
+if(
+saved &&
+document.getElementById("profileName")
+){
+
+const profile=
+JSON.parse(saved);
+
+document.getElementById("profileName").value=
+profile.name || "";
+
+document.getElementById("profileAge").value=
+profile.age || "";
+
+document.getElementById("profileGender").value=
+profile.gender || "";
+
+}
+
+}
+
+// =====================
+// THREE JS BACKGROUND
+// =====================
+
+if(
+document.getElementById("bg")
+&& typeof THREE !== "undefined"
+){
+
+const scene=new THREE.Scene();
+
+const camera=
+new THREE.PerspectiveCamera(
+75,
+window.innerWidth/window.innerHeight,
+0.1,
+1000
+);
+
+const renderer=
+new THREE.WebGLRenderer({
+alpha:true,
+antialias:true
+});
+
+renderer.setSize(
+window.innerWidth,
+window.innerHeight
+);
+
+document
+.getElementById("bg")
+.appendChild(renderer.domElement);
+
+camera.position.z=30;
+
+const geometry=
+new THREE.SphereGeometry(
+0.15,
+16,
+16
+);
+
+const material=
+new THREE.MeshBasicMaterial({
+color:0x60a5fa
+});
+
+for(let i=0;i<500;i++){
+
+const particle=
+new THREE.Mesh(
+geometry,
+material
+);
+
+particle.position.x=
+(Math.random()-0.5)*60;
+
+particle.position.y=
+(Math.random()-0.5)*60;
+
+particle.position.z=
+(Math.random()-0.5)*60;
+
+scene.add(particle);
+
+}
+
+function animate(){
+
+requestAnimationFrame(
+animate
+);
+
+scene.rotation.y+=0.0008;
+scene.rotation.x+=0.0003;
+
+renderer.render(
+scene,
+camera
+);
+
+}
+
+animate();
+
+}

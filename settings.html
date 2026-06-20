@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>MindCare AI Premium</title>
+<title>Settings | MindCare AI</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -32,52 +32,62 @@
 
 <ul class="nav-links">
 
-<li><a href="index.html">Home</a></li>
-
 <li><a href="dashboard.html">Dashboard</a></li>
-
 <li><a href="ai-chat.html">AI Chat</a></li>
-
 <li><a href="assessment.html">Assessment</a></li>
-
 <li><a href="journal.html">Journal</a></li>
-
 <li><a href="profile.html">Profile</a></li>
-
-<li><a href="settings.html">Settings</a></li>
-
 <li><a href="logout.html">Logout</a></li>
 
 </ul>
 
 </nav>
 
-<section class="hero">
+<div class="form-container glass">
 
-<h1>MindCare AI</h1>
+<h1>⚙ Settings</h1>
 
-<p>
+<br>
 
-Your AI-powered mental wellness companion.
-
-Track emotions, chat with AI,
-monitor your well-being,
-and improve your mental health journey.
-
-</p>
+<button onclick="toggleDarkMode()">
+🌙 Toggle Dark Mode
+</button>
 
 <br><br>
 
-<a href="signup.html" class="btn">
+<div class="glass" style="padding:20px;">
 
-Get Started
+<h3>Notifications</h3>
 
-</a>
+<label>
 
-</section>
+<input type="checkbox">
+
+ Enable Notifications
+
+</label>
+
+</div>
+
+<br>
+
+<div class="glass" style="padding:20px;">
+
+<h3>Privacy</h3>
+
+<label>
+
+<input type="checkbox">
+
+ Private Journal Mode
+
+</label>
+
+</div>
+
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
 <script src="script.js"></script>
 
 </body>

@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>MindCare AI Premium</title>
+<title>Journal | MindCare AI</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -32,52 +32,68 @@
 
 <ul class="nav-links">
 
-<li><a href="index.html">Home</a></li>
-
 <li><a href="dashboard.html">Dashboard</a></li>
-
 <li><a href="ai-chat.html">AI Chat</a></li>
-
 <li><a href="assessment.html">Assessment</a></li>
-
-<li><a href="journal.html">Journal</a></li>
-
 <li><a href="profile.html">Profile</a></li>
-
 <li><a href="settings.html">Settings</a></li>
-
 <li><a href="logout.html">Logout</a></li>
 
 </ul>
 
 </nav>
 
-<section class="hero">
+<div class="form-container glass">
 
-<h1>MindCare AI</h1>
+<h1>📔 Personal Journal</h1>
 
 <p>
-
-Your AI-powered mental wellness companion.
-
-Track emotions, chat with AI,
-monitor your well-being,
-and improve your mental health journey.
-
+Record your thoughts and track your emotions.
 </p>
+
+<br>
+
+<label>Select Mood</label>
+
+<select id="mood">
+
+<option>😊 Happy</option>
+<option>😌 Calm</option>
+<option>😔 Sad</option>
+<option>😰 Anxious</option>
+<option>😴 Tired</option>
+
+</select>
+
+<textarea
+id="journalEntry"
+rows="8"
+placeholder="Write about your day, feelings, thoughts, or goals...">
+</textarea>
+
+<button onclick="saveJournal()">
+
+Save Journal Entry
+
+</button>
 
 <br><br>
 
-<a href="signup.html" class="btn">
+<div class="glass" style="padding:20px;">
 
-Get Started
+<h2>Saved Entry</h2>
 
-</a>
+<div id="savedEntry">
 
-</section>
+No journal entry yet.
+
+</div>
+
+</div>
+
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
 <script src="script.js"></script>
 
 </body>

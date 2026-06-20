@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>MindCare AI Premium</title>
+<title>AI Chat | MindCare AI</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -32,49 +32,50 @@
 
 <ul class="nav-links">
 
-<li><a href="index.html">Home</a></li>
-
 <li><a href="dashboard.html">Dashboard</a></li>
-
-<li><a href="ai-chat.html">AI Chat</a></li>
-
 <li><a href="assessment.html">Assessment</a></li>
-
 <li><a href="journal.html">Journal</a></li>
-
 <li><a href="profile.html">Profile</a></li>
-
 <li><a href="settings.html">Settings</a></li>
-
 <li><a href="logout.html">Logout</a></li>
 
 </ul>
 
 </nav>
 
-<section class="hero">
+<div class="chat-container glass">
 
-<h1>MindCare AI</h1>
+<h1>🤖 MindCare AI Companion</h1>
 
 <p>
-
-Your AI-powered mental wellness companion.
-
-Track emotions, chat with AI,
-monitor your well-being,
-and improve your mental health journey.
-
+Share your thoughts, emotions, and experiences in a safe space.
 </p>
 
-<br><br>
+<br>
 
-<a href="signup.html" class="btn">
+<div id="messages">
 
-Get Started
+<p>
+<strong>MindCare AI:</strong>
+Hello 👋 How are you feeling today?
+</p>
 
-</a>
+</div>
 
-</section>
+<br>
+
+<input
+type="text"
+id="messageInput"
+placeholder="Type your message here...">
+
+<br>
+
+<button onclick="sendMessage()">
+Send Message
+</button>
+
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
