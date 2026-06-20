@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emotion Feed | MindCare AI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div id="bg"></div>
+
+  <div id="loader">
+    <div class="loader-text">🧠 MindCare AI</div>
+  </div>
+
+  <!-- AI Orb links to chat -->
+  <div class="ai-orb" onclick="window.location.href='ai-chat.html'" title="Open AI Chat"></div>
+
+  <nav class="navbar">
+    <div class="logo">🧠 MindCare AI</div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="emotion-feed.html">Emotion Feed</a></li>
+      <li><a href="ai-chat.html">AI Chat</a></li>
+      <li><a href="journal.html">Journal</a></li>
+      <li>
+        <button onclick="toggleDarkMode()" style="padding:8px 16px; font-size:0.85rem;">
+          🌙 Dark Mode
+        </button>
+      </li>
+    </ul>
+  </nav>
+
+  <main>
+
+    <div class="form-container glass">
+
+      <h1>How Are You Feeling Today?</h1>
+      <p style="color:var(--subtext); margin-top:8px;">
+        Pick an emotion below to get personalized quotes, tips, and a reflection prompt.
+      </p>
+
+      <div class="emotion-grid">
+        <button onclick="showEmotion('happy')">😊 Happy</button>
+        <button onclick="showEmotion('sad')">😔 Sad</button>
+        <button onclick="showEmotion('stressed')">😰 Stressed</button>
+        <button onclick="showEmotion('doubt')">🤔 Doubt</button>
+        <button onclick="showEmotion('guilt')">😞 Guilt</button>
+        <button onclick="showEmotion('fear')">😨 Fear</button>
+        <button onclick="showEmotion('anger')">😡 Anger</button>
+        <button onclick="showEmotion('disgust')">🤢 Disgust</button>
+        <button onclick="showEmotion('surprise')">😲 Surprise</button>
+        <button onclick="showEmotion('excited')">🤩 Excited</button>
+        <button onclick="showEmotion('depressed')">🌧 Depressed</button>
+      </div>
+
+      <!-- Feed result renders here -->
+      <div id="emotionFeed" class="glass emotion-feed">
+        Select an emotion above to see your personalized feed.
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FIX: was script.js — correct file is main.js -->
+  <script src="script.js"></script>
+
+</body>
+</html>

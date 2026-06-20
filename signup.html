@@ -1,106 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Sign Up | MindCare AI</title>
-
-<link rel="stylesheet" href="style.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up | MindCare AI</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<div id="bg"></div>
+  <div id="bg"></div>
 
-<div id="loader">
-<div class="loader-text">
-🧠 MindCare AI
-</div>
-</div>
+  <div id="loader">
+    <div class="loader-text">🧠 MindCare AI</div>
+  </div>
 
-<div class="ai-orb"></div>
+  <nav class="navbar">
+    <div class="logo">🧠 MindCare AI</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="sign in.html">Login</a></li>
+    </ul>
+  </nav>
 
-<nav class="navbar">
+  <div class="form-container glass">
+    <h2>Create Account 🌱</h2>
+    <p style="color:var(--subtext); margin-bottom:20px;">Start your mental wellness journey today.</p>
 
-<div class="logo">
-🧠 MindCare AI
-</div>
+    <form id="signupForm">
+      <label>Full Name</label>
+      <input type="text" placeholder="Your name" required>
 
-<ul class="nav-links">
+      <label>Email</label>
+      <input type="email" placeholder="you@email.com" required>
 
-<li><a href="index.html">Home</a></li>
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Create a password" required>
 
-<li><a href="login.html">Login</a></li>
+      <label>Confirm Password</label>
+      <input type="password" id="confirmPassword" placeholder="Repeat your password" required>
 
-</ul>
+      <br>
+      <button type="submit" style="width:100%;">Create Account</button>
+    </form>
 
-</nav>
+    <p style="margin-top:20px; color:var(--subtext); text-align:center;">
+      Already have an account? <a href="sign in.html" style="color:var(--secondary);">Login</a>
+    </p>
+  </div>
 
-<div class="form-container glass">
-
-<h2>Create Your Account</h2>
-
-<p>Start your mental wellness journey today.</p>
-
-<br>
-
-<form id="signupForm">
-
-<input
-type="text"
-id="fullname"
-placeholder="Full Name"
-required>
-
-<input
-type="email"
-id="email"
-placeholder="Email Address"
-required>
-
-<input
-type="password"
-id="password"
-placeholder="Password"
-required>
-
-<input
-type="password"
-id="confirmPassword"
-placeholder="Confirm Password"
-required>
-
-<button type="submit">
-
-Create Account
-
-</button>
-
-</form>
-
-<br>
-
-<p>
-
-Already have an account?
-
-<a href="login.html">
-
-Login Here
-
-</a>
-
-</p>
-
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-<script src="script.js"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

@@ -1,191 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Profile | MindCare AI</title>
-
-<link rel="stylesheet" href="style.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile | MindCare AI</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<div id="bg"></div>
+  <div id="bg"></div>
 
-<div id="loader">
-<div class="loader-text">
-🧠 MindCare AI
-</div>
-</div>
+  <div id="loader">
+    <div class="loader-text">🧠 MindCare AI</div>
+  </div>
 
-<div class="ai-orb"></div>
+  <div class="ai-orb" onclick="window.location.href='ai-chat.html'" title="Open AI Chat"></div>
 
-<nav class="navbar">
+  <nav class="navbar">
+    <div class="logo">🧠 MindCare AI</div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="emotion-feed.html">Emotion Feed</a></li>
+      <li><a href="ai-chat.html">AI Chat</a></li>
+      <li><a href="journal.html">Journal</a></li>
+      <li><a href="assessment.html">Assessment</a></li>
+      <li><a href="profile.html">Profile</a></li>
+      <li>
+        <button onclick="toggleDarkMode()" style="padding:8px 16px; font-size:0.85rem;">
+          🌙 Dark Mode
+        </button>
+      </li>
+    </ul>
+  </nav>
 
-<div class="logo">
-🧠 MindCare AI
-</div>
+  <main>
+    <div class="form-container glass">
 
-<ul class="nav-links">
+      <div style="text-align:center; margin-bottom:30px;">
+        <!-- Profile Image -->
+        <img src="Copilot_20260620_135635.png" 
+             alt="Profile Image" 
+             width="150" 
+             height="150" 
+             style="border-radius:50%; margin:20px;">
 
-<li><a href="dashboard.html">Dashboard</a></li>
-<li><a href="ai-chat.html">AI Chat</a></li>
-<li><a href="assessment.html">Assessment</a></li>
-<li><a href="journal.html">Journal</a></li>
-<li><a href="settings.html">Settings</a></li>
-<li><a href="logout.html">Logout</a></li>
+        <h2>My Profile</h2>
+        <p style="color:var(--subtext);">Manage your personal information</p>
+      </div>
 
-</ul>
+      <label>Full Name</label>
+      <input type="text" id="profileName" placeholder="Your name">
 
-</nav>
+      <label>Age</label>
+      <input type="number" id="profileAge" placeholder="Your age" min="1" max="120">
 
-<div class="form-container glass">
+      <label>Gender</label>
+      <select id="profileGender">
+        <option value="">Prefer not to say</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="nonbinary">Non-binary</option>
+        <option value="other">Other</option>
+      </select>
 
-<h1>👤 My Profile</h1>
+      <br>
+      <button onclick="saveProfile()" style="width:100%;">💾 Save Profile</button>
 
-<div style="text-align:center;">
+      <hr style="border-color:var(--border); margin:30px 0;">
 
-<img
-src="https://via.placeholder.com/150"
-id="profileImage"
-style="
-width:150px;
-height:150px;
-border-radius:50%;
-margin:20px;
-border:4px solid #60a5fa;
-">
+      <div style="text-align:center;">
+        <a href="logout.html" class="btn" style="
+          background:rgba(239,68,68,.15);
+          border:1px solid rgba(239,68,68,.3);
+          color:#f87171;
+        ">
+          🚪 Logout
+        </a>
+      </div>
 
-</div>
+    </div>
+  </main>
 
-<input
-type="text"
-id="profileName"
-placeholder="Full Name">
+  <footer>
+    <p>© 2025 MindCare AI Premium</p>
+  </footer>
 
-<input
-type="number"
-id="profileAge"
-placeholder="Age">
-
-<select id="profileGender">
-
-<option>Male</option>
-<option>Female</option>
-<option>Other</option>
-<option>Prefer Not To Say</option>
-
-</select>
-
-<button onclick="saveProfile()">
-
-Update Profile
-
-</button>
-
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="script.js"></script>
-
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-
-<head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Profile | MindCare AI</title>
-
-<link rel="stylesheet" href="style.css">
-
-</head>
-
-<body>
-
-<div id="bg"></div>
-
-<div id="loader">
-<div class="loader-text">
-🧠 MindCare AI
-</div>
-</div>
-
-<div class="ai-orb"></div>
-
-<nav class="navbar">
-
-<div class="logo">
-🧠 MindCare AI
-</div>
-
-<ul class="nav-links">
-
-<li><a href="dashboard.html">Dashboard</a></li>
-<li><a href="ai-chat.html">AI Chat</a></li>
-<li><a href="assessment.html">Assessment</a></li>
-<li><a href="journal.html">Journal</a></li>
-<li><a href="settings.html">Settings</a></li>
-<li><a href="logout.html">Logout</a></li>
-
-</ul>
-
-</nav>
-
-<div class="form-container glass">
-
-<h1>👤 My Profile</h1>
-
-<div style="text-align:center;">
-
-<img
-src="https://via.placeholder.com/150"
-id="profileImage"
-style="
-width:150px;
-height:150px;
-border-radius:50%;
-margin:20px;
-border:4px solid #60a5fa;
-">
-
-</div>
-
-<input
-type="text"
-id="profileName"
-placeholder="Full Name">
-
-<input
-type="number"
-id="profileAge"
-placeholder="Age">
-
-<select id="profileGender">
-
-<option>Male</option>
-<option>Female</option>
-<option>Other</option>
-<option>Prefer Not To Say</option>
-
-</select>
-
-<button onclick="saveProfile()">
-
-Update Profile
-
-</button>
-
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="script.js"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

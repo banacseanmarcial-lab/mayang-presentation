@@ -2,83 +2,161 @@
 <html lang="en">
 
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>MindCare AI Premium</title>
-
-<link rel="stylesheet" href="style.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MindCare AI Premium</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div id="bg"></div>
+  <!-- 3D Background -->
+  <div id="bg"></div>
 
-<div id="loader">
-<div class="loader-text">
-🧠 MindCare AI
-</div>
-</div>
+  <!-- Loader -->
+  <div id="loader">
+    <div class="loader-text">🧠 MindCare AI</div>
+  </div>
 
-<div class="ai-orb"></div>
+  <!-- Floating AI Orb -->
+  <div class="ai-orb" onclick="window.location.href='ai-chat.html'" title="Open AI Chat"></div>
 
-<nav class="navbar">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">🧠 MindCare AI</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="emotion-feed.html">Emotion Feed</a></li>
+      <li><a href="sign in.html">Login</a></li>
+      <li><a href="signup.html">Sign Up</a></li>
+      <li>
+        <button onclick="toggleDarkMode()" style="padding:8px 16px; font-size:0.85rem;">
+          🌙 Dark Mode
+        </button>
+      </li>
+    </ul>
+  </nav>
 
-<div class="logo">
-🧠 MindCare AI
-</div>
+  <!-- Hero Section -->
+  <section class="hero">
 
-<ul class="nav-links">
+    <h1>🧠 MindCare AI</h1>
 
-<li><a href="index.html">Home</a></li>
+    <p>
+      Your AI-powered mental wellness companion.
+      <br><br>
+      Track emotions, chat with AI, monitor your well-being,
+      and improve your mental health journey.
+    </p>
 
-<li><a href="dashboard.html">Dashboard</a></li>
+    <br>
 
-<li><a href="ai-chat.html">AI Chat</a></li>
+    <div class="hero-buttons">
+      <a href="signup.html" class="btn">🚀 Get Started</a>
+      <a href="sign in.html" class="btn" style="background:rgba(255,255,255,.1); backdrop-filter:blur(10px);">🔐 Login</a>
+      <a href="emotion-feed.html" class="btn" style="background:rgba(96,165,250,.15); border:1px solid rgba(96,165,250,.3);">💖 Emotion Feed</a>
+    </div>
 
-<li><a href="assessment.html">Assessment</a></li>
+    <br><br>
 
-<li><a href="journal.html">Journal</a></li>
+    <!-- Stats counter -->
+    <div style="display:flex; gap:40px; flex-wrap:wrap; justify-content:center; color:var(--subtext);">
+      <div style="text-align:center;">
+        <div style="font-size:2rem; font-weight:800; color:var(--secondary);">
+          <span id="counter">0</span>+
+        </div>
+        <div>Active Users</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:2rem; font-weight:800; color:var(--secondary);">98%</div>
+        <div>Satisfaction Rate</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:2rem; font-weight:800; color:var(--secondary);">24/7</div>
+        <div>AI Support</div>
+      </div>
+    </div>
 
-<li><a href="profile.html">Profile</a></li>
+  </section>
 
-<li><a href="settings.html">Settings</a></li>
+  <!-- Features -->
+  <section class="premium-section">
 
-<li><a href="logout.html">Logout</a></li>
+    <h2 style="text-align:center; margin-bottom:10px;">✨ Premium Features</h2>
+    <p style="text-align:center; color:var(--subtext); margin-bottom:10px;">
+      Everything you need for your mental wellness journey.
+    </p>
 
-</ul>
+    <div class="premium-grid">
 
-</nav>
+      <div class="card glass">
+        <h2>🤖 AI Companion</h2>
+        <p>24/7 emotional support, reflection and wellness guidance.</p>
+        <br>
+        <a href="ai-chat.html" class="btn" style="padding:10px 20px; font-size:0.85rem;">Open Chat</a>
+      </div>
 
-<section class="hero">
+      <div class="card glass">
+        <h2>💖 Emotion Feed</h2>
+        <p>TikTok-style emotional feed based on how you feel.</p>
+        <br>
+        <a href="emotion-feed.html" class="btn" style="padding:10px 20px; font-size:0.85rem;">Open Feed</a>
+      </div>
 
-<h1>MindCare AI</h1>
+      <div class="card glass">
+        <h2>📔 Smart Journal</h2>
+        <p>Track moods and emotional growth over time.</p>
+        <br>
+        <a href="journal.html" class="btn" style="padding:10px 20px; font-size:0.85rem;">Open Journal</a>
+      </div>
 
-<p>
+      <div class="card glass">
+        <h2>📊 Analytics</h2>
+        <p>Visualize emotional patterns and progress.</p>
+        <br>
+        <a href="dashboard.html" class="btn" style="padding:10px 20px; font-size:0.85rem;">View Dashboard</a>
+      </div>
 
-Your AI-powered mental wellness companion.
+      <div class="card glass">
+        <h2>🧘 Assessments</h2>
+        <p>Mental wellness assessments with personalized recommendations.</p>
+        <br>
+        <a href="assessment.html" class="btn" style="padding:10px 20px; font-size:0.85rem;">Take Assessment</a>
+      </div>
 
-Track emotions, chat with AI,
-monitor your well-being,
-and improve your mental health journey.
+      <div class="card glass">
+        <h2>🎵 Mood Playlists</h2>
+        <p>Emotion-based playlists for relaxation and focus.</p>
+        <br>
+        <a href="emotion-feed.html" class="btn" style="padding:10px 20px; font-size:0.85rem;">Browse Playlists</a>
+      </div>
 
-</p>
+    </div>
 
-<br><br>
+  </section>
 
-<a href="signup.html" class="btn">
+  <!-- About -->
+  <section class="daily-checkin-wrapper">
+    <div class="daily-checkin glass">
+      <h2>💙 Why MindCare AI?</h2>
+      <p style="color:var(--subtext); line-height:1.8; margin-top:12px;">
+        MindCare AI provides a safe, private, and supportive space for emotional well-being.
+        Track your emotions, journal your thoughts, chat with AI, and discover personalized
+        wellness content — all in one place.
+      </p>
+      <br>
+      <a href="signup.html" class="btn">🚀 Start Your Journey</a>
+    </div>
+  </section>
 
-Get Started
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 MindCare AI Premium</p>
+  </footer>
 
-</a>
-
-</section>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-<script src="script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="script.js"></script>
 
 </body>
 </html>

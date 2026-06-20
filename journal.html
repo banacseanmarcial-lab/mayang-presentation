@@ -1,100 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Journal | MindCare AI</title>
-
-<link rel="stylesheet" href="style.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Journal | MindCare AI</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<div id="bg"></div>
+  <div id="bg"></div>
 
-<div id="loader">
-<div class="loader-text">
-🧠 MindCare AI
-</div>
-</div>
+  <div id="loader">
+    <div class="loader-text">🧠 MindCare AI</div>
+  </div>
 
-<div class="ai-orb"></div>
+  <div class="ai-orb" onclick="window.location.href='ai-chat.html'" title="Open AI Chat"></div>
 
-<nav class="navbar">
+  <nav class="navbar">
+    <div class="logo">🧠 MindCare AI</div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="emotion-feed.html">Emotion Feed</a></li>
+      <li><a href="ai-chat.html">AI Chat</a></li>
+      <li><a href="journal.html">Journal</a></li>
+      <li><a href="assessment.html">Assessment</a></li>
+      <li><a href="profile.html">Profile</a></li>
+      <li>
+        <button onclick="toggleDarkMode()" style="padding:8px 16px; font-size:0.85rem;">
+          🌙 Dark Mode
+        </button>
+      </li>
+    </ul>
+  </nav>
 
-<div class="logo">
-🧠 MindCare AI
-</div>
+  <main>
+    <div class="daily-checkin glass" style="margin-top:120px;">
 
-<ul class="nav-links">
+      <h2>📔 My Journal</h2>
+      <p style="color:var(--subtext); margin-bottom:24px;">
+        Reflect on your day. Your entries are saved privately on this device.
+      </p>
 
-<li><a href="dashboard.html">Dashboard</a></li>
-<li><a href="ai-chat.html">AI Chat</a></li>
-<li><a href="assessment.html">Assessment</a></li>
-<li><a href="profile.html">Profile</a></li>
-<li><a href="settings.html">Settings</a></li>
-<li><a href="logout.html">Logout</a></li>
+      <label>How are you feeling?</label>
+      <select id="mood">
+        <option value="😊 Happy">😊 Happy</option>
+        <option value="😔 Sad">😔 Sad</option>
+        <option value="😰 Stressed">😰 Stressed</option>
+        <option value="🤔 Doubtful">🤔 Doubtful</option>
+        <option value="😞 Guilty">😞 Guilty</option>
+        <option value="😨 Fearful">😨 Fearful</option>
+        <option value="😡 Angry">😡 Angry</option>
+        <option value="🤩 Excited">🤩 Excited</option>
+        <option value="🌧 Depressed">🌧 Depressed</option>
+      </select>
 
-</ul>
+      <label>Write your thoughts</label>
+      <textarea
+        id="journalEntry"
+        rows="6"
+        placeholder="What's on your mind today?..."
+      ></textarea>
 
-</nav>
+      <button onclick="saveJournal()" style="width:100%;">💾 Save Entry</button>
 
-<div class="form-container glass">
+      <hr style="border-color:var(--border); margin:30px 0;">
 
-<h1>📔 Personal Journal</h1>
+      <h3 style="margin-bottom:12px;">📖 Past Entries</h3>
+      <div id="savedEntry">
+        <em style="color:var(--subtext);">No journal entries yet.</em>
+      </div>
 
-<p>
-Record your thoughts and track your emotions.
-</p>
+    </div>
+  </main>
 
-<br>
+  <footer>
+    <p>© 2025 MindCare AI Premium</p>
+  </footer>
 
-<label>Select Mood</label>
-
-<select id="mood">
-
-<option>😊 Happy</option>
-<option>😌 Calm</option>
-<option>😔 Sad</option>
-<option>😰 Anxious</option>
-<option>😴 Tired</option>
-
-</select>
-
-<textarea
-id="journalEntry"
-rows="8"
-placeholder="Write about your day, feelings, thoughts, or goals...">
-</textarea>
-
-<button onclick="saveJournal()">
-
-Save Journal Entry
-
-</button>
-
-<br><br>
-
-<div class="glass" style="padding:20px;">
-
-<h2>Saved Entry</h2>
-
-<div id="savedEntry">
-
-No journal entry yet.
-
-</div>
-
-</div>
-
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="script.js"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
