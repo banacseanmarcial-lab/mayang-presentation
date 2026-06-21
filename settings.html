@@ -1,94 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Settings | MindCare AI</title>
-
-<link rel="stylesheet" href="style.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings | MindCare AI</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<div id="bg"></div>
+  <div id="bg"></div>
 
-<div id="loader">
-<div class="loader-text">
-🧠 MindCare AI
-</div>
-</div>
+  <div id="loader">
+    <div class="loader-text">🧠 MindCare AI</div>
+  </div>
 
-<div class="ai-orb"></div>
+  <nav class="navbar">
+    <div class="logo">🧠 MindCare AI</div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="profile.html">Profile</a></li>
+      <li><a href="settings.html">Settings</a></li>
+      <li>
+        <button onclick="toggleDarkMode()" style="padding:8px 16px; font-size:0.85rem;">
+          🌙 Dark Mode
+        </button>
+      </li>
+    </ul>
+  </nav>
 
-<nav class="navbar">
+  <main>
+    <div class="form-container glass">
 
-<div class="logo">
-🧠 MindCare AI
-</div>
+      <h2>⚙️ Settings</h2>
+      <p style="color:var(--subtext); margin-bottom:28px;">Customize your MindCare experience.</p>
 
-<ul class="nav-links">
+      <!-- Appearance -->
+      <h3 style="margin-bottom:14px; color:var(--secondary);">🎨 Appearance</h3>
 
-<li><a href="dashboard.html">Dashboard</a></li>
-<li><a href="ai-chat.html">AI Chat</a></li>
-<li><a href="assessment.html">Assessment</a></li>
-<li><a href="journal.html">Journal</a></li>
-<li><a href="profile.html">Profile</a></li>
-<li><a href="logout.html">Logout</a></li>
+      <div style="
+        display:flex; justify-content:space-between;
+        align-items:center; padding:16px;
+        background:var(--card); border-radius:14px;
+        border:1px solid var(--border); margin-bottom:12px;
+      ">
+        <div>
+          <strong>Dark Mode</strong>
+          <p style="color:var(--subtext); font-size:0.85rem; margin-top:2px;">Switch to a darker interface</p>
+        </div>
+        <button onclick="toggleDarkMode()" style="padding:10px 20px; font-size:0.85rem;">
+          Toggle
+        </button>
+      </div>
 
-</ul>
+      <hr style="border-color:var(--border); margin:24px 0;">
 
-</nav>
+      <!-- Notifications -->
+      <h3 style="margin-bottom:14px; color:var(--secondary);">🔔 Notifications</h3>
 
-<div class="form-container glass">
+      <div style="
+        display:flex; justify-content:space-between;
+        align-items:center; padding:16px;
+        background:var(--card); border-radius:14px;
+        border:1px solid var(--border); margin-bottom:12px;
+      ">
+        <div>
+          <strong>Daily Check-In Reminder</strong>
+          <p style="color:var(--subtext); font-size:0.85rem; margin-top:2px;">Get reminded to log your mood daily</p>
+        </div>
+        <button style="padding:10px 20px; font-size:0.85rem;" onclick="alert('Notification settings saved!')">
+          Enable
+        </button>
+      </div>
 
-<h1>⚙ Settings</h1>
+      <hr style="border-color:var(--border); margin:24px 0;">
 
-<br>
+      <!-- Data -->
+      <h3 style="margin-bottom:14px; color:var(--secondary);">🗂 Data</h3>
 
-<button onclick="toggleDarkMode()">
-🌙 Toggle Dark Mode
-</button>
+      <div style="
+        display:flex; justify-content:space-between;
+        align-items:center; padding:16px;
+        background:var(--card); border-radius:14px;
+        border:1px solid var(--border); margin-bottom:12px;
+      ">
+        <div>
+          <strong>Clear All Data</strong>
+          <p style="color:var(--subtext); font-size:0.85rem; margin-top:2px;">Delete journal, profile, and mood history</p>
+        </div>
+        <button
+          style="
+            padding:10px 20px; font-size:0.85rem;
+            background:rgba(239,68,68,.15);
+            border:1px solid rgba(239,68,68,.3);
+            color:#f87171;
+          "
+          onclick="if(confirm('Clear all saved data? This cannot be undone.')) { localStorage.clear(); alert('All data cleared.'); }"
+        >
+          Clear
+        </button>
+      </div>
 
-<br><br>
+    </div>
+  </main>
 
-<div class="glass" style="padding:20px;">
+  <footer>
+    <p>© 2025 MindCare AI Premium</p>
+  </footer>
 
-<h3>Notifications</h3>
-
-<label>
-
-<input type="checkbox">
-
- Enable Notifications
-
-</label>
-
-</div>
-
-<br>
-
-<div class="glass" style="padding:20px;">
-
-<h3>Privacy</h3>
-
-<label>
-
-<input type="checkbox">
-
- Private Journal Mode
-
-</label>
-
-</div>
-
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="script.js"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="script.js"></script>
+  <script src="subscription.js"></script>
 </body>
 </html>

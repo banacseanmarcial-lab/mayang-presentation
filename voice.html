@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="style.css">
   <style>
 
-    /* ── PAGE LAYOUT ── */
     .voice-page {
       min-height: 100vh;
       display: flex;
@@ -19,233 +18,139 @@
       gap: 32px;
     }
 
-    .voice-title h1 {
-      font-size: 2.4rem;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
+    .voice-title h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 8px; }
+    .voice-title p  { color: var(--subtext); font-size: 1rem; max-width: 480px; margin: 0 auto; }
 
-    .voice-title p {
-      color: var(--subtext);
-      font-size: 1rem;
-      max-width: 480px;
-      margin: 0 auto;
-    }
-
-    /* ── SIRI ORB ── */
+    /* ── ORB ── */
     .voice-orb {
-      width: 160px;
-      height: 160px;
+      width: 160px; height: 160px;
       border-radius: 50%;
       cursor: pointer;
       position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       font-size: 3.2rem;
       user-select: none;
       transition: transform 0.2s;
       flex-shrink: 0;
     }
+    .voice-orb:active { transform: scale(0.93); }
 
-    .voice-orb:active {
-      transform: scale(0.93);
-    }
-
-    /* IDLE — soft blue pulse */
     .orb-idle {
-      background: radial-gradient(circle at 35% 35%,
-        #93c5fd, #3b82f6 50%, #1d4ed8);
-      box-shadow:
-        0 0 40px rgba(59,130,246,0.5),
-        0 0 80px rgba(59,130,246,0.2);
+      background: radial-gradient(circle at 35% 35%, #93c5fd, #3b82f6 50%, #1d4ed8);
+      box-shadow: 0 0 40px rgba(59,130,246,0.5), 0 0 80px rgba(59,130,246,0.2);
       animation: orbPulseIdle 3s ease-in-out infinite;
     }
-
     @keyframes orbPulseIdle {
-      0%, 100% { box-shadow: 0 0 40px rgba(59,130,246,0.5), 0 0 80px rgba(59,130,246,0.2); transform: scale(1); }
-      50%       { box-shadow: 0 0 60px rgba(59,130,246,0.7), 0 0 120px rgba(59,130,246,0.3); transform: scale(1.04); }
+      0%,100% { box-shadow: 0 0 40px rgba(59,130,246,0.5), 0 0 80px rgba(59,130,246,0.2); transform: scale(1); }
+      50%      { box-shadow: 0 0 60px rgba(59,130,246,0.7), 0 0 120px rgba(59,130,246,0.3); transform: scale(1.04); }
     }
 
-    /* LISTENING — rainbow Siri-style spin */
     .orb-listening {
-      background: radial-gradient(circle at 35% 35%,
-        #f472b6, #a855f7 30%, #3b82f6 60%, #06b6d4);
-      box-shadow:
-        0 0 0 0 rgba(168,85,247,0.6),
-        0 0 60px rgba(168,85,247,0.4);
+      background: radial-gradient(circle at 35% 35%, #f472b6, #a855f7 30%, #3b82f6 60%, #06b6d4);
       animation: orbListening 1s ease-in-out infinite;
     }
-
     @keyframes orbListening {
       0%   { transform: scale(1);    box-shadow: 0 0 0 0   rgba(168,85,247,0.6), 0 0 60px rgba(168,85,247,0.3); }
       50%  { transform: scale(1.08); box-shadow: 0 0 0 18px rgba(168,85,247,0),  0 0 80px rgba(168,85,247,0.5); }
       100% { transform: scale(1);    box-shadow: 0 0 0 0   rgba(168,85,247,0.6), 0 0 60px rgba(168,85,247,0.3); }
     }
 
-    /* SPEAKING — green wave ripple */
     .orb-speaking {
-      background: radial-gradient(circle at 35% 35%,
-        #6ee7b7, #10b981 50%, #065f46);
-      box-shadow:
-        0 0 0 0 rgba(16,185,129,0.6),
-        0 0 60px rgba(16,185,129,0.4);
+      background: radial-gradient(circle at 35% 35%, #6ee7b7, #10b981 50%, #065f46);
       animation: orbSpeaking 0.6s ease-in-out infinite alternate;
     }
-
     @keyframes orbSpeaking {
       0%   { transform: scale(1);    box-shadow: 0 0 30px rgba(16,185,129,0.4); }
       100% { transform: scale(1.06); box-shadow: 0 0 70px rgba(16,185,129,0.7); }
     }
 
-    /* THINKING — orange spin */
     .orb-thinking {
-      background: radial-gradient(circle at 35% 35%,
-        #fde68a, #f59e0b 50%, #b45309);
+      background: radial-gradient(circle at 35% 35%, #fde68a, #f59e0b 50%, #b45309);
       box-shadow: 0 0 50px rgba(245,158,11,0.5);
       animation: orbSpin 1s linear infinite;
     }
-
     @keyframes orbSpin {
       from { transform: rotate(0deg) scale(1.02); }
       to   { transform: rotate(360deg) scale(1.02); }
     }
 
-    /* ── RIPPLE RINGS ── */
+    /* ── RINGS ── */
     .orb-rings {
       position: absolute;
-      width: 160px;
-      height: 160px;
+      width: 160px; height: 160px;
       border-radius: 50%;
       pointer-events: none;
     }
-
     .orb-ring {
-      position: absolute;
-      inset: 0;
+      position: absolute; inset: 0;
       border-radius: 50%;
       border: 2px solid rgba(255,255,255,0.25);
       animation: ringExpand 2s ease-out infinite;
       opacity: 0;
     }
-
     .orb-ring:nth-child(2) { animation-delay: 0.6s; }
     .orb-ring:nth-child(3) { animation-delay: 1.2s; }
-
     @keyframes ringExpand {
       0%   { transform: scale(1);   opacity: 0.6; }
-      100% { transform: scale(1.9); opacity: 0;   }
+      100% { transform: scale(1.9); opacity: 0; }
     }
 
-    /* ── STATUS TEXT ── */
     #voiceLabel {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--subtext);
-      letter-spacing: 0.03em;
-      min-height: 24px;
-      transition: color 0.3s;
+      font-size: 1rem; font-weight: 600;
+      color: var(--subtext); letter-spacing: 0.03em;
+      min-height: 24px; transition: color 0.3s;
     }
-
-    .orb-listening ~ #voiceLabel,
     body:has(.orb-listening) #voiceLabel { color: #c084fc; }
     body:has(.orb-speaking)  #voiceLabel { color: #6ee7b7; }
     body:has(.orb-thinking)  #voiceLabel { color: #fde68a; }
 
-    /* ── TRANSCRIPT BOX ── */
     #voiceTranscript {
-      min-height: 36px;
-      font-size: 1.05rem;
-      font-style: italic;
-      color: var(--text);
-      max-width: 520px;
-      line-height: 1.6;
+      min-height: 36px; font-size: 1.05rem; font-style: italic;
+      color: var(--text); max-width: 520px; line-height: 1.6;
       padding: 12px 20px;
       background: rgba(255,255,255,0.05);
-      border-radius: 16px;
-      border: 1px solid var(--border);
+      border-radius: 16px; border: 1px solid var(--border);
       transition: opacity 0.3s;
     }
 
-    /* ── CONTROLS ── */
-    .voice-controls {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
+    .voice-controls { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
     .voice-btn {
-      padding: 12px 24px;
-      border-radius: 30px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1px solid var(--border);
+      padding: 12px 24px; border-radius: 30px;
+      font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; border: 1px solid var(--border);
       transition: transform 0.2s, background 0.2s;
     }
-
     .voice-btn:hover { transform: translateY(-2px); }
+    .btn-mic    { background: linear-gradient(135deg, #3b82f6, #a855f7); border: none; color: white; }
+    .btn-stop   { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.3); color: #f87171; }
+    .btn-manual { background: rgba(255,255,255,0.07); color: var(--text); }
 
-    .btn-mic {
-      background: linear-gradient(135deg, #3b82f6, #a855f7);
-      border: none;
-      color: white;
-    }
-
-    .btn-stop {
-      background: rgba(239,68,68,0.15);
-      border-color: rgba(239,68,68,0.3);
-      color: #f87171;
-    }
-
-    .btn-manual {
-      background: rgba(255,255,255,0.07);
-      color: var(--text);
-    }
-
-    /* ── EMOTION MINI FEED (shows below after detection) ── */
     #voiceEmotionResult {
-      width: 100%;
-      max-width: 640px;
-      opacity: 0;
-      transition: opacity 0.5s ease;
+      width: 100%; max-width: 640px;
+      opacity: 0; transition: opacity 0.5s ease;
     }
+    #voiceEmotionResult.visible { opacity: 1; }
 
-    #voiceEmotionResult.visible {
-      opacity: 1;
-    }
+    .voice-tip { font-size: 0.8rem; color: var(--subtext); max-width: 400px; }
 
-    /* ── TIPS ── */
-    .voice-tip {
-      font-size: 0.8rem;
-      color: var(--subtext);
-      max-width: 400px;
-    }
-
-    /* ── MOBILE ── */
     @media (max-width: 480px) {
-      .voice-orb { width: 130px; height: 130px; font-size: 2.6rem; }
-      .orb-rings { width: 130px; height: 130px; }
+      .voice-orb  { width: 130px; height: 130px; font-size: 2.6rem; }
+      .orb-rings  { width: 130px; height: 130px; }
       .voice-title h1 { font-size: 1.8rem; }
     }
-
   </style>
 </head>
 <body>
 
   <div id="bg"></div>
-
-  <div id="loader">
-    <div class="loader-text">🧠 MindCare AI</div>
-  </div>
+  <div id="loader"><div class="loader-text">🧠 MindCare AI</div></div>
 
   <nav class="navbar">
     <div class="logo">🧠 MindCare AI</div>
     <ul class="nav-links">
       <li><a href="dashboard.html">Dashboard</a></li>
       <li><a href="emotion-feed.html">Emotion Feed</a></li>
-      <li><a href="voice.html">Voice AI</a></li>
+      <li><a href="voice.html">🎙️ Voice AI</a></li>
       <li><a href="ai-chat.html">AI Chat</a></li>
       <li><a href="journal.html">Journal</a></li>
       <li>
@@ -258,13 +163,11 @@
 
   <main class="voice-page">
 
-    <!-- Title -->
     <div class="voice-title">
       <h1>🎙️ MindCare Voice AI</h1>
       <p>Tap the orb and tell me how you're feeling. I'll listen, understand, and respond — just like Siri.</p>
     </div>
 
-    <!-- Siri Orb -->
     <div style="position:relative; display:flex; align-items:center; justify-content:center;">
       <div class="orb-rings" id="orbRings">
         <div class="orb-ring"></div>
@@ -274,110 +177,133 @@
       <div class="voice-orb orb-idle" id="voiceOrb">🧠</div>
     </div>
 
-    <!-- Status label -->
     <div id="voiceLabel">Tap to speak</div>
 
-    <!-- What you said -->
     <div id="voiceTranscript">Say how you're feeling — like "I feel sad" or "I'm really stressed"</div>
 
-    <!-- Buttons -->
     <div class="voice-controls">
-      <button class="voice-btn btn-mic" onclick="VoiceAI.startListening()">
-        🎤 Speak
-      </button>
-      <button class="voice-btn btn-stop" onclick="VoiceAI.stopAll()">
-        ⏹ Stop
-      </button>
-      <button class="voice-btn btn-manual" onclick="window.location.href='emotion-feed.html'">
-        👆 Pick Manually
-      </button>
+      <button class="voice-btn btn-mic"    onclick="VoiceAI.startListening()">🎤 Speak</button>
+      <button class="voice-btn btn-stop"   onclick="VoiceAI.stopAll()">⏹ Stop</button>
+      <button class="voice-btn btn-manual" onclick="window.location.href='emotion-feed.html'">👆 Pick Manually</button>
     </div>
 
-    <!-- Tip -->
     <p class="voice-tip">
       💡 Works best on <strong>Chrome</strong> or <strong>Edge</strong>. Allow microphone access when prompted.
     </p>
 
-    <!-- Emotion result (populated by JS after detection) -->
     <div id="voiceEmotionResult" class="glass" style="padding:30px; border-radius:20px;">
-      <div id="emotionFeed" class="emotion-feed" style="padding:0; margin:0; background:none; border:none;">
-      </div>
+      <div id="emotionFeed" class="emotion-feed" style="padding:0; margin:0; background:none; border:none;"></div>
+    </div>
+
+    <!-- Debug panel — shows what's happening under the hood -->
+    <div id="debugPanel" style="
+      width:100%; max-width:640px;
+      background:rgba(0,0,0,0.4);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:14px; padding:16px;
+      font-family:monospace; font-size:0.78rem;
+      color:#94a3b8; text-align:left;
+      max-height:160px; overflow-y:auto;
+    ">
+      <div style="color:#60a5fa; font-weight:700; margin-bottom:6px;">🛠 Debug Log</div>
+      <div id="debugLog">Waiting to start...</div>
     </div>
 
   </main>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="script.js"></script>
-
   <script>
-    // FIX: render the voice-page emotion card directly using emotionData
-    // (defined globally in script.js), instead of calling the dashboard's
-    // showEmotion(), which requires #emotionGrid — an element that doesn't
-    // exist on this page and would just bail out silently.
-    //
-    // The previous version reassigned showEmotion with:
-    //   const _origShowEmotion = showEmotion;
-    //   function showEmotion(emotion) { _origShowEmotion(emotion); ... }
-    // Because function declarations are hoisted above the const line,
-    // _origShowEmotion ended up pointing at the NEW function itself —
-    // calling showEmotion() recursively called itself forever, threw a
-    // stack overflow, and left the orb stuck on "Processing...".
+    // Debug logger — writes to the panel and console
+    function debugLog(msg) {
+      console.log("[VoiceAI]", msg);
+      const el = document.getElementById("debugLog");
+      if (!el) return;
+      const line = document.createElement("div");
+      line.textContent = new Date().toLocaleTimeString() + " — " + msg;
+      el.appendChild(line);
+      el.scrollTop = el.scrollHeight;
+    }
+    // Expose globally so script.js VoiceAI can call it
+    window.debugLog = debugLog;
 
-    function renderVoiceEmotion(emotion) {
+    // On voice.html, override showEmotion so it renders into #emotionFeed
+    // WITHOUT looking for #emotionGrid (which only exists on emotion-feed.html)
+    window.showEmotion = function(emotion) {
       const data = (typeof emotionData !== "undefined") ? emotionData[emotion] : null;
       const feed = document.getElementById("emotionFeed");
-      const result = document.getElementById("voiceEmotionResult");
-      if (!data || !feed || !result) return;
+      if (!data || !feed) return;
 
-      const q = data.quotes[0];
+      const q     = data.quotes[Math.floor(Math.random() * data.quotes.length)];
+      const total = data.quotes.length;
+
+      feed.style.opacity    = "0";
+      feed.style.transition = "opacity 0.4s ease";
 
       feed.innerHTML = `
-        <div class="feed-header" style="border-left: 4px solid ${data.color}; padding-left: 16px; margin-bottom: 24px;">
+        <div class="feed-header" style="border-left:4px solid ${data.color}; padding-left:16px; margin-bottom:24px;">
           <h2 style="font-size:2rem; color:${data.color};">${data.label}</h2>
         </div>
-
         <div class="feed-section">
-          <div class="feed-label">💬 Quote</div>
-          <blockquote class="feed-quote">
-            <span>"${q.text}"</span>
-            <footer>— ${q.author}</footer>
+          <div class="feed-label">💬 Quote
+            <span id="feed-quote-hint" style="margin-left:10px;font-size:0.72rem;color:var(--secondary);font-weight:600;">
+              Tap for next quote (1/${total})
+            </span>
+          </div>
+          <blockquote class="feed-quote feed-quote-tappable"
+            onclick="voiceCycleQuote('${emotion}')" style="cursor:pointer;" title="Tap for next quote">
+            <span id="feed-quote-text" style="transition:opacity 0.25s ease;">"${q.text}"</span>
+            <footer><span id="feed-quote-author" style="transition:opacity 0.25s ease;">— ${q.author}</span></footer>
           </blockquote>
         </div>
-
         <div class="feed-section">
           <div class="feed-label">🎵 Suggested Playlist</div>
           <div class="feed-playlist">${data.playlist}</div>
         </div>
-
         <div class="feed-section">
           <div class="feed-label">✅ What to Do Now</div>
-          <ul class="feed-tips">
-            ${data.tips.map(t => `<li>${t}</li>`).join("")}
-          </ul>
+          <ul class="feed-tips">${data.tips.map(t => `<li>${t}</li>`).join("")}</ul>
         </div>
-
         <div class="feed-section">
           <div class="feed-label">🧠 AI Reflection Prompt</div>
           <div class="feed-prompt">${data.prompt}</div>
         </div>
       `;
 
-      result.classList.add("visible");
-      setTimeout(() => {
-        result.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 400);
+      setTimeout(() => { feed.style.opacity = "1"; }, 50);
+
+      const resultEl = document.getElementById("voiceEmotionResult");
+      if (resultEl) {
+        resultEl.classList.add("visible");
+        setTimeout(() => resultEl.scrollIntoView({ behavior: "smooth", block: "start" }), 400);
+      }
 
       localStorage.setItem("selectedEmotion", emotion);
       localStorage.setItem("currentMood", emotion);
-    }
-
-    // Override showEmotion ONLY for this page (voice.html), so VoiceAI's
-    // call to showEmotion() renders the card above instead of trying to
-    // touch the (nonexistent on this page) emotion grid.
-    window.showEmotion = function (emotion) {
-      renderVoiceEmotion(emotion);
     };
+
+    // Tap-to-cycle quotes on voice page
+    const voiceQuoteIndex = {};
+    function voiceCycleQuote(emotion) {
+      const data = emotionData[emotion];
+      if (!data) return;
+      voiceQuoteIndex[emotion] = ((voiceQuoteIndex[emotion] ?? 0) + 1) % data.quotes.length;
+      const q       = data.quotes[voiceQuoteIndex[emotion]];
+      const textEl  = document.getElementById("feed-quote-text");
+      const authEl  = document.getElementById("feed-quote-author");
+      const hintEl  = document.getElementById("feed-quote-hint");
+      if (!textEl) return;
+      textEl.style.opacity = "0"; authEl.style.opacity = "0";
+      setTimeout(() => {
+        textEl.textContent = `"${q.text}"`;
+        authEl.textContent = `— ${q.author}`;
+        if (hintEl) hintEl.textContent = `Tap for next quote (${voiceQuoteIndex[emotion]+1}/${data.quotes.length})`;
+        textEl.style.opacity = "1"; authEl.style.opacity = "1";
+      }, 250);
+    }
   </script>
 
+  <script src="subscription.js"></script>
+  <script>MindCareSub.guard();</script>
 </body>
 </html>

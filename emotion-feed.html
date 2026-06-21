@@ -1,22 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Emotion Feed | MindCare AI</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
   <div id="bg"></div>
+  <div id="loader"><div class="loader-text">🧠 MindCare AI</div></div>
 
-  <div id="loader">
-    <div class="loader-text">🧠 MindCare AI</div>
-  </div>
-
-  <!-- AI Orb links to chat -->
   <div class="ai-orb" onclick="window.location.href='ai-chat.html'" title="Open AI Chat"></div>
 
   <nav class="navbar">
@@ -36,7 +30,6 @@
   </nav>
 
   <main>
-
     <div class="form-container glass">
 
       <h1>How Are You Feeling Today?</h1>
@@ -58,17 +51,17 @@
         <button onclick="showEmotion('depressed')">🌧 Depressed</button>
       </div>
 
-      <!-- Feed result renders here -->
       <div id="emotionFeed" class="glass emotion-feed">
         Select an emotion above to see your personalized feed.
       </div>
 
     </div>
-
   </main>
 
-  <!-- FIX: was script.js — correct file is main.js -->
+  <!-- Three.js first, then script.js ONCE -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="script.js"></script>
 
+  <script src="subscription.js"></script>
 </body>
 </html>
