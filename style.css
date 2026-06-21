@@ -772,3 +772,34 @@ body.dark .feed-tips li {
   background: rgba(96, 165, 250, .25);
   box-shadow: 0 0 12px rgba(96, 165, 250, .3);
 }
+
+/* =====================
+   TAPPABLE QUOTE
+   ===================== */
+
+.feed-quote-tappable {
+  position: relative;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.feed-quote-tappable:hover {
+  background: rgba(96, 165, 250, .08);
+  transform: scale(1.01);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.feed-quote-tappable:active {
+  transform: scale(0.98);
+}
+
+#feed-quote-text,
+#feed-quote-author {
+  display: block;
+  transition: opacity 0.25s ease;
+}
+
+/* Emotion grid — dimmed non-selected buttons */
+.emotion-grid button {
+  transition: opacity 0.3s, transform 0.3s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}

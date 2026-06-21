@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice AI | MindCare AI Premium</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+
+    /* ── PAGE LAYOUT ── */
+    .voice-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 20px 60px;
+      text-align: center;
+      gap: 32px;
+    }
+
+    .voice-title h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .voice-title p {
+      color: var(--subtext);
+      font-size: 1rem;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* ── SIRI ORB ── */
+    .voice-orb {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.2rem;
+      user-select: none;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    .voice-orb:active {
+      transform: scale(0.93);
+    }
+
+    /* IDLE — soft blue pulse */
+    .orb-idle {
+      background: radial-gradient(circle at 35% 35%,
+        #93c5fd, #3b82f6 50%, #1d4ed8);
+      box-shadow:
+        0 0 40px rgba(59,130,246,0.5),
+        0 0 80px rgba(59,130,246,0.2);
+      animation: orbPulseIdle 3s ease-in-out infinite;
+    }
+
+    @keyframes orbPulseIdle {
+      0%, 100% { box-shadow: 0 0 40px rgba(59,130,246,0.5), 0 0 80px rgba(59,130,246,0.2); transform: scale(1); }
+      50%       { box-shadow: 0 0 60px rgba(59,130,246,0.7), 0 0 120px rgba(59,130,246,0.3); transform: scale(1.04); }
+    }
+
+    /* LISTENING — rainbow Siri-style spin */
+    .orb-listening {
+      background: radial-gradient(circle at 35% 35%,
+        #f472b6, #a855f7 30%, #3b82f6 60%, #06b6d4);
+      box-shadow:
+        0 0 0 0 rgba(168,85,247,0.6),
+        0 0 60px rgba(168,85,247,0.4);
+      animation: orbListening 1s ease-in-out infinite;
+    }
+
+    @keyframes orbListening {
+      0%   { transform: scale(1);    box-shadow: 0 0 0 0   rgba(168,85,247,0.6), 0 0 60px rgba(168,85,247,0.3); }
+      50%  { transform: scale(1.08); box-shadow: 0 0 0 18px rgba(168,85,247,0),  0 0 80px rgba(168,85,247,0.5); }
+      100% { transform: scale(1);    box-shadow: 0 0 0 0   rgba(168,85,247,0.6), 0 0 60px rgba(168,85,247,0.3); }
+    }
+
+    /* SPEAKING — green wave ripple */
+    .orb-speaking {
+      background: radial-gradient(circle at 35% 35%,
+        #6ee7b7, #10b981 50%, #065f46);
+      box-shadow:
+        0 0 0 0 rgba(16,185,129,0.6),
+        0 0 60px rgba(16,185,129,0.4);
+      animation: orbSpeaking 0.6s ease-in-out infinite alternate;
+    }
+
+    @keyframes orbSpeaking {
+      0%   { transform: scale(1);    box-shadow: 0 0 30px rgba(16,185,129,0.4); }
+      100% { transform: scale(1.06); box-shadow: 0 0 70px rgba(16,185,129,0.7); }
+    }
+
+    /* THINKING — orange spin */
+    .orb-thinking {
+      background: radial-gradient(circle at 35% 35%,
+        #fde68a, #f59e0b 50%, #b45309);
+      box-shadow: 0 0 50px rgba(245,158,11,0.5);
+      animation: orbSpin 1s linear infinite;
+    }
+
+    @keyframes orbSpin {
+      from { transform: rotate(0deg) scale(1.02); }
+      to   { transform: rotate(360deg) scale(1.02); }
+    }
+
+    /* ── RIPPLE RINGS ── */
+    .orb-rings {
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .orb-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.25);
+      animation: ringExpand 2s ease-out infinite;
+      opacity: 0;
+    }
+
+    .orb-ring:nth-child(2) { animation-delay: 0.6s; }
+    .orb-ring:nth-child(3) { animation-delay: 1.2s; }
+
+    @keyframes ringExpand {
+      0%   { transform: scale(1);   opacity: 0.6; }
+      100% { transform: scale(1.9); opacity: 0;   }
+    }
+
+    /* ── STATUS TEXT ── */
+    #voiceLabel {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--subtext);
+      letter-spacing: 0.03em;
+      min-height: 24px;
+      transition: color 0.3s;
+    }
+
+    .orb-listening ~ #voiceLabel,
+    body:has(.orb-listening) #voiceLabel { color: #c084fc; }
+    body:has(.orb-speaking)  #voiceLabel { color: #6ee7b7; }
+    body:has(.orb-thinking)  #voiceLabel { color: #fde68a; }
+
+    /* ── TRANSCRIPT BOX ── */
+    #voiceTranscript {
+      min-height: 36px;
+      font-size: 1.05rem;
+      font-style: italic;
+      color: var(--text);
+      max-width: 520px;
+      line-height: 1.6;
+      padding: 12px 20px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      transition: opacity 0.3s;
+    }
+
+    /* ── CONTROLS ── */
+    .voice-controls {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .voice-btn {
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .voice-btn:hover { transform: translateY(-2px); }
+
+    .btn-mic {
+      background: linear-gradient(135deg, #3b82f6, #a855f7);
+      border: none;
+      color: white;
+    }
+
+    .btn-stop {
+      background: rgba(239,68,68,0.15);
+      border-color: rgba(239,68,68,0.3);
+      color: #f87171;
+    }
+
+    .btn-manual {
+      background: rgba(255,255,255,0.07);
+      color: var(--text);
+    }
+
+    /* ── EMOTION MINI FEED (shows below after detection) ── */
+    #voiceEmotionResult {
+      width: 100%;
+      max-width: 640px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    #voiceEmotionResult.visible {
+      opacity: 1;
+    }
+
+    /* ── TIPS ── */
+    .voice-tip {
+      font-size: 0.8rem;
+      color: var(--subtext);
+      max-width: 400px;
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 480px) {
+      .voice-orb { width: 130px; height: 130px; font-size: 2.6rem; }
+      .orb-rings { width: 130px; height: 130px; }
+      .voice-title h1 { font-size: 1.8rem; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="bg"></div>
+
+  <div id="loader">
+    <div class="loader-text">🧠 MindCare AI</div>
+  </div>
+
+  <nav class="navbar">
+    <div class="logo">🧠 MindCare AI</div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="emotion-feed.html">Emotion Feed</a></li>
+      <li><a href="voice.html">Voice AI</a></li>
+      <li><a href="ai-chat.html">AI Chat</a></li>
+      <li><a href="journal.html">Journal</a></li>
+      <li>
+        <button onclick="toggleDarkMode()" style="padding:8px 16px; font-size:0.85rem;">
+          🌙 Dark Mode
+        </button>
+      </li>
+    </ul>
+  </nav>
+
+  <main class="voice-page">
+
+    <!-- Title -->
+    <div class="voice-title">
+      <h1>🎙️ MindCare Voice AI</h1>
+      <p>Tap the orb and tell me how you're feeling. I'll listen, understand, and respond — just like Siri.</p>
+    </div>
+
+    <!-- Siri Orb -->
+    <div style="position:relative; display:flex; align-items:center; justify-content:center;">
+      <div class="orb-rings" id="orbRings">
+        <div class="orb-ring"></div>
+        <div class="orb-ring"></div>
+        <div class="orb-ring"></div>
+      </div>
+      <div class="voice-orb orb-idle" id="voiceOrb">🧠</div>
+    </div>
+
+    <!-- Status label -->
+    <div id="voiceLabel">Tap to speak</div>
+
+    <!-- What you said -->
+    <div id="voiceTranscript">Say how you're feeling — like "I feel sad" or "I'm really stressed"</div>
+
+    <!-- Buttons -->
+    <div class="voice-controls">
+      <button class="voice-btn btn-mic" onclick="VoiceAI.startListening()">
+        🎤 Speak
+      </button>
+      <button class="voice-btn btn-stop" onclick="VoiceAI.stopAll()">
+        ⏹ Stop
+      </button>
+      <button class="voice-btn btn-manual" onclick="window.location.href='emotion-feed.html'">
+        👆 Pick Manually
+      </button>
+    </div>
+
+    <!-- Tip -->
+    <p class="voice-tip">
+      💡 Works best on <strong>Chrome</strong> or <strong>Edge</strong>. Allow microphone access when prompted.
+    </p>
+
+    <!-- Emotion result (populated by JS after detection) -->
+    <div id="voiceEmotionResult" class="glass" style="padding:30px; border-radius:20px;">
+      <div id="emotionFeed" class="emotion-feed" style="padding:0; margin:0; background:none; border:none;">
+      </div>
+    </div>
+
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="script.js"></script>
+
+  <script>
+    // Override showEmotion to also show the result card on voice page
+    const _origShowEmotion = showEmotion;
+    function showEmotion(emotion) {
+      _origShowEmotion(emotion);
+      const result = document.getElementById("voiceEmotionResult");
+      if (result) {
+        result.classList.add("visible");
+        setTimeout(() => {
+          result.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 400);
+      }
+    }
+  </script>
+
+</body>
+</html>

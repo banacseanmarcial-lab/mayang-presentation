@@ -237,12 +237,20 @@ function loadProfile() {
 // EMOTION FEED
 // =====================
 
+// Tracks current quote index per emotion
+const quoteIndexMap = {};
+
 const emotionData = {
   happy: {
     label: "😊 Happy",
     color: "#facc15",
-    quote: "Happiness is not something ready-made. It comes from your own actions.",
-    author: "Dalai Lama",
+    quotes: [
+      { text: "Happiness is not something ready-made. It comes from your own actions.", author: "Dalai Lama" },
+      { text: "The most wasted of days is one without laughter.", author: "E.E. Cummings" },
+      { text: "Joy is not in things; it is in us.", author: "Richard Wagner" },
+      { text: "Happiness is a warm cup of tea and a quiet moment.", author: "Unknown" },
+      { text: "Count your age by friends, not years. Count your life by smiles, not tears.", author: "John Lennon" }
+    ],
     tips: [
       "Share your joy — call or message someone you care about.",
       "Write down 3 things making you happy right now.",
@@ -254,8 +262,13 @@ const emotionData = {
   sad: {
     label: "😔 Sad",
     color: "#60a5fa",
-    quote: "Even the darkest night will end and the sun will rise.",
-    author: "Victor Hugo",
+    quotes: [
+      { text: "Even the darkest night will end and the sun will rise.", author: "Victor Hugo" },
+      { text: "Tears are words that the heart can't say.", author: "Unknown" },
+      { text: "It's okay to not be okay — just don't stay there.", author: "Unknown" },
+      { text: "Grief is the price we pay for love.", author: "Queen Elizabeth II" },
+      { text: "You are allowed to be both a masterpiece and a work in progress.", author: "Sophia Bush" }
+    ],
     tips: [
       "Allow yourself to feel — suppressing sadness makes it last longer.",
       "Step outside for even 10 minutes of fresh air.",
@@ -267,8 +280,13 @@ const emotionData = {
   stressed: {
     label: "😰 Stressed",
     color: "#f97316",
-    quote: "You don't have to control your thoughts. You just have to stop letting them control you.",
-    author: "Dan Millman",
+    quotes: [
+      { text: "You don't have to control your thoughts. You just have to stop letting them control you.", author: "Dan Millman" },
+      { text: "Almost everything will work again if you unplug it for a few minutes — including you.", author: "Anne Lamott" },
+      { text: "Stress is caused by being here but wanting to be there.", author: "Eckhart Tolle" },
+      { text: "Take a deep breath. It's just a bad day, not a bad life.", author: "Unknown" },
+      { text: "You were not made for a life of constant rushing.", author: "Unknown" }
+    ],
     tips: [
       "Try box breathing: inhale 4s, hold 4s, exhale 4s, hold 4s.",
       "Write down everything on your mind — empty it out of your head.",
@@ -280,8 +298,13 @@ const emotionData = {
   doubt: {
     label: "🤔 Doubt",
     color: "#a78bfa",
-    quote: "Doubt is not a pleasant condition, but certainty is an absurd one.",
-    author: "Voltaire",
+    quotes: [
+      { text: "Doubt is not a pleasant condition, but certainty is an absurd one.", author: "Voltaire" },
+      { text: "The only way to get rid of doubt is to take action.", author: "Unknown" },
+      { text: "Doubt kills more dreams than failure ever will.", author: "Suzy Kassem" },
+      { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+      { text: "When in doubt, don't. But when ready, go all in.", author: "Unknown" }
+    ],
     tips: [
       "List the evidence for and against what you're doubting.",
       "Talk it through with someone you trust.",
@@ -293,8 +316,13 @@ const emotionData = {
   guilt: {
     label: "😞 Guilt",
     color: "#94a3b8",
-    quote: "Guilt is not a response to anger; it is a response to one's own actions.",
-    author: "Audre Lorde",
+    quotes: [
+      { text: "Guilt is not a response to anger; it is a response to one's own actions.", author: "Audre Lorde" },
+      { text: "Forgive yourself for not knowing what you didn't know before you learned it.", author: "Maya Angelou" },
+      { text: "You can't undo the past, but you can choose who you become because of it.", author: "Unknown" },
+      { text: "Guilt is just anger directed at ourselves.", author: "Peter McWilliams" },
+      { text: "Be gentle with yourself. You are a child of the universe.", author: "Max Ehrmann" }
+    ],
     tips: [
       "Ask yourself: is this guilt productive (motivating change) or toxic (just painful)?",
       "Apologize or make amends if it's within your power.",
@@ -306,8 +334,13 @@ const emotionData = {
   fear: {
     label: "😨 Fear",
     color: "#818cf8",
-    quote: "Fear is only as deep as the mind allows.",
-    author: "Japanese Proverb",
+    quotes: [
+      { text: "Fear is only as deep as the mind allows.", author: "Japanese Proverb" },
+      { text: "Do one thing every day that scares you.", author: "Eleanor Roosevelt" },
+      { text: "Fear is a reaction. Courage is a decision.", author: "Winston Churchill" },
+      { text: "Everything you've ever wanted is on the other side of fear.", author: "George Addair" },
+      { text: "You gain strength every time you face something that frightens you.", author: "Unknown" }
+    ],
     tips: [
       "Name the fear out loud or in writing — vague fears grow, named fears shrink.",
       "Ask: what is the realistic worst-case scenario, and could I handle it?",
@@ -319,8 +352,13 @@ const emotionData = {
   anger: {
     label: "😡 Anger",
     color: "#ef4444",
-    quote: "Speak when you are angry and you will make the best speech you will ever regret.",
-    author: "Ambrose Bierce",
+    quotes: [
+      { text: "Speak when you are angry and you will make the best speech you will ever regret.", author: "Ambrose Bierce" },
+      { text: "Anger is an acid that can do more harm to the vessel in which it is stored than anything on which it is poured.", author: "Mark Twain" },
+      { text: "For every minute you remain angry, you give up sixty seconds of peace of mind.", author: "Ralph Waldo Emerson" },
+      { text: "Holding onto anger is like drinking poison and expecting the other person to die.", author: "Buddha" },
+      { text: "Anger is one letter short of danger.", author: "Eleanor Roosevelt" }
+    ],
     tips: [
       "Pause before reacting — even 60 seconds changes your response.",
       "Physical movement (walk, workout) burns off anger energy fast.",
@@ -332,8 +370,13 @@ const emotionData = {
   disgust: {
     label: "🤢 Disgust",
     color: "#84cc16",
-    quote: "What we see depends mainly on what we look for.",
-    author: "John Lubbock",
+    quotes: [
+      { text: "What we see depends mainly on what we look for.", author: "John Lubbock" },
+      { text: "The world is a mirror — it reflects what you bring to it.", author: "Unknown" },
+      { text: "When something repels you, it often reveals something you value deeply.", author: "Unknown" },
+      { text: "Strong reactions are signals worth listening to.", author: "Unknown" },
+      { text: "Our disgust is sometimes our integrity speaking.", author: "Unknown" }
+    ],
     tips: [
       "Step away from what's triggering the feeling if possible.",
       "Reflect on whether this reaction reveals a value you hold strongly.",
@@ -345,8 +388,13 @@ const emotionData = {
   surprise: {
     label: "😲 Surprise",
     color: "#fb923c",
-    quote: "Life is full of surprises, but never when you need one.",
-    author: "Bill Watterson",
+    quotes: [
+      { text: "Life is full of surprises, but never when you need one.", author: "Bill Watterson" },
+      { text: "The universe is under no obligation to make sense to you.", author: "Neil deGrasse Tyson" },
+      { text: "Life is what happens when you're busy making other plans.", author: "John Lennon" },
+      { text: "Stay open — the best things in life are unexpected.", author: "Unknown" },
+      { text: "Wonder is the beginning of wisdom.", author: "Socrates" }
+    ],
     tips: [
       "Give yourself a moment before reacting — good or bad surprise both deserve space.",
       "Curiosity is the best response to the unexpected.",
@@ -358,8 +406,13 @@ const emotionData = {
   excited: {
     label: "🤩 Excited",
     color: "#f59e0b",
-    quote: "Enthusiasm is the electricity of life.",
-    author: "Gordon Parks",
+    quotes: [
+      { text: "Enthusiasm is the electricity of life.", author: "Gordon Parks" },
+      { text: "Nothing great was ever achieved without enthusiasm.", author: "Ralph Waldo Emerson" },
+      { text: "Act enthusiastic and you will be enthusiastic.", author: "Dale Carnegie" },
+      { text: "Energy and persistence conquer all things.", author: "Benjamin Franklin" },
+      { text: "Your excitement is a compass pointing toward your purpose.", author: "Unknown" }
+    ],
     tips: [
       "Channel this energy into starting something you've been putting off.",
       "Share your excitement — it's contagious and connects people.",
@@ -371,8 +424,13 @@ const emotionData = {
   depressed: {
     label: "🌧 Depressed",
     color: "#475569",
-    quote: "Even the darkest night will end and the sun will rise.",
-    author: "Victor Hugo",
+    quotes: [
+      { text: "Even the darkest night will end and the sun will rise.", author: "Victor Hugo" },
+      { text: "You don't have to be positive all the time. It's perfectly okay to feel sad.", author: "Lori Deschene" },
+      { text: "Out of suffering have emerged the strongest souls.", author: "Kahlil Gibran" },
+      { text: "This too shall pass.", author: "Persian Adage" },
+      { text: "You are not alone. You are seen. You matter.", author: "Unknown" }
+    ],
     tips: [
       "You don't have to feel better right now — just focus on the next hour.",
       "Try to do one very small thing: drink water, open a window, take a shower.",
@@ -383,51 +441,179 @@ const emotionData = {
   }
 };
 
+function cycleQuote(emotion) {
+  const data = emotionData[emotion];
+  if (!data) return;
+
+  // Advance index
+  quoteIndexMap[emotion] = ((quoteIndexMap[emotion] ?? 0) + 1) % data.quotes.length;
+  const q = data.quotes[quoteIndexMap[emotion]];
+
+  const quoteEl = document.getElementById("feed-quote-text");
+  const authorEl = document.getElementById("feed-quote-author");
+  const hintEl = document.getElementById("feed-quote-hint");
+
+  if (!quoteEl) return;
+
+  // Fade out → update → fade in
+  quoteEl.style.opacity = "0";
+  authorEl.style.opacity = "0";
+
+  setTimeout(() => {
+    quoteEl.textContent = `"${q.text}"`;
+    authorEl.textContent = `— ${q.author}`;
+    // Update hint to show current position
+    const total = data.quotes.length;
+    const current = (quoteIndexMap[emotion] ?? 0) + 1;
+    if (hintEl) hintEl.textContent = `Tap for next quote (${current}/${total})`;
+    quoteEl.style.opacity = "1";
+    authorEl.style.opacity = "1";
+  }, 250);
+}
+
+function resetEmotionGrid() {
+  const grid = document.getElementById("emotionGrid");
+  if (!grid) return;
+
+  // Show all buttons again with fade-in
+  const buttons = grid.querySelectorAll("button");
+  buttons.forEach(btn => {
+    btn.classList.remove("active", "hidden-emotion");
+    btn.style.opacity = "1";
+    btn.style.transform = "scale(1)";
+    btn.style.display = "";
+  });
+
+  // Remove change button if present
+  const changeBtn = document.getElementById("changeEmotionBtn");
+  if (changeBtn) changeBtn.remove();
+
+  // Clear feed
+  const feed = document.getElementById("emotionFeed");
+  if (feed) {
+    feed.style.opacity = "0";
+    setTimeout(() => {
+      feed.innerHTML = "Select an emotion above to see your personalized feed.";
+      feed.style.opacity = "1";
+    }, 250);
+  }
+}
+
 function showEmotion(emotion) {
   const feed = document.getElementById("emotionFeed");
-  if (!feed) return;
+  const grid = document.getElementById("emotionGrid");
+  if (!feed || !grid) return;
 
   const data = emotionData[emotion];
   if (!data) return;
 
-  // Highlight the active button
-  document.querySelectorAll(".emotion-grid button").forEach(btn => {
-    btn.classList.remove("active");
+  // Reset quote index
+  quoteIndexMap[emotion] = 0;
+  const q = data.quotes[0];
+  const total = data.quotes.length;
+
+  // Step 1: fade out all non-selected buttons
+  const allBtns = grid.querySelectorAll("button");
+  allBtns.forEach(btn => {
+    const isSelected = btn.getAttribute("onclick") === `showEmotion('${emotion}')`;
+    if (!isSelected) {
+      btn.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+      btn.style.opacity = "0";
+      btn.style.transform = "scale(0.8)";
+    } else {
+      btn.style.transition = "transform 0.3s ease";
+      btn.style.transform = "scale(1.05)";
+      btn.classList.add("active");
+    }
   });
-  const activeBtn = document.querySelector(`[onclick="showEmotion('${emotion}')"]`);
-  if (activeBtn) activeBtn.classList.add("active");
 
-  // Render the full feed card
-  feed.innerHTML = `
-    <div class="feed-header" style="border-left: 4px solid ${data.color}; padding-left: 16px; margin-bottom: 24px;">
-      <h2 style="font-size:2rem; color:${data.color};">${data.label}</h2>
-    </div>
+  // Step 2: after fade, hide them and shrink grid to one button
+  setTimeout(() => {
+    allBtns.forEach(btn => {
+      const isSelected = btn.getAttribute("onclick") === `showEmotion('${emotion}')`;
+      if (!isSelected) {
+        btn.style.display = "none";
+      }
+    });
 
-    <div class="feed-section">
-      <div class="feed-label">💬 Quote</div>
-      <blockquote class="feed-quote">
-        "${data.quote}"
-        <footer>— ${data.author}</footer>
-      </blockquote>
-    </div>
+    // Add "Change Emotion" button below selected if not already there
+    if (!document.getElementById("changeEmotionBtn")) {
+      const changeBtn = document.createElement("button");
+      changeBtn.id = "changeEmotionBtn";
+      changeBtn.textContent = "↩ Change Emotion";
+      changeBtn.onclick = resetEmotionGrid;
+      changeBtn.style.cssText = `
+        margin-top: 14px;
+        width: 100%;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.15);
+        color: var(--subtext);
+        font-size: 0.85rem;
+        padding: 10px 20px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: background 0.2s;
+      `;
+      changeBtn.onmouseover = () => changeBtn.style.background = "rgba(255,255,255,0.14)";
+      changeBtn.onmouseout = () => changeBtn.style.background = "rgba(255,255,255,0.08)";
+      grid.after(changeBtn);
+    }
 
-    <div class="feed-section">
-      <div class="feed-label">🎵 Suggested Playlist</div>
-      <div class="feed-playlist">${data.playlist}</div>
-    </div>
+    // Step 3: fade in the feed content
+    feed.style.opacity = "0";
+    feed.style.transition = "opacity 0.4s ease";
 
-    <div class="feed-section">
-      <div class="feed-label">✅ What to Do Now</div>
-      <ul class="feed-tips">
-        ${data.tips.map(t => `<li>${t}</li>`).join("")}
-      </ul>
-    </div>
+    feed.innerHTML = `
+      <div class="feed-header" style="border-left: 4px solid ${data.color}; padding-left: 16px; margin-bottom: 24px;">
+        <h2 style="font-size:2rem; color:${data.color};">${data.label}</h2>
+      </div>
 
-    <div class="feed-section">
-      <div class="feed-label">🧠 AI Reflection Prompt</div>
-      <div class="feed-prompt">${data.prompt}</div>
-    </div>
-  `;
+      <div class="feed-section">
+        <div class="feed-label">💬 Quote
+          <span id="feed-quote-hint" style="
+            margin-left:10px; font-size:0.72rem;
+            color:var(--secondary); font-weight:600;
+            letter-spacing:0; text-transform:none;
+          ">Tap for next quote (1/${total})</span>
+        </div>
+        <blockquote
+          class="feed-quote feed-quote-tappable"
+          onclick="cycleQuote('${emotion}')"
+          title="Tap for next quote"
+          style="cursor:pointer;"
+        >
+          <span id="feed-quote-text" style="transition: opacity 0.25s ease;">"${q.text}"</span>
+          <footer>
+            <span id="feed-quote-author" style="transition: opacity 0.25s ease;">— ${q.author}</span>
+          </footer>
+        </blockquote>
+      </div>
+
+      <div class="feed-section">
+        <div class="feed-label">🎵 Suggested Playlist</div>
+        <div class="feed-playlist">${data.playlist}</div>
+      </div>
+
+      <div class="feed-section">
+        <div class="feed-label">✅ What to Do Now</div>
+        <ul class="feed-tips">
+          ${data.tips.map(t => `<li>${t}</li>`).join("")}
+        </ul>
+      </div>
+
+      <div class="feed-section">
+        <div class="feed-label">🧠 AI Reflection Prompt</div>
+        <div class="feed-prompt">${data.prompt}</div>
+      </div>
+    `;
+
+    setTimeout(() => {
+      feed.style.opacity = "1";
+      // Scroll to feed
+      feed.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+
+  }, 300);
 
   localStorage.setItem("selectedEmotion", emotion);
   localStorage.setItem("currentMood", emotion);
@@ -516,4 +702,231 @@ if (document.getElementById("bg") && typeof THREE !== "undefined") {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
+}
+
+// =====================
+// SIRI-STYLE VOICE AI
+// =====================
+
+const VoiceAI = (() => {
+
+  let recognition = null;
+  let synth = window.speechSynthesis;
+  let isListening = false;
+  let isSpeaking = false;
+
+  // Emotion keywords — what the user might say
+  const emotionKeywords = {
+    happy:    ["happy", "joy", "joyful", "great", "good", "wonderful", "excited about", "amazing", "fantastic", "cheerful", "blessed", "grateful"],
+    sad:      ["sad", "unhappy", "cry", "crying", "tears", "heartbroken", "lonely", "lost", "miss", "grief", "down", "low", "blue"],
+    stressed: ["stressed", "stress", "overwhelmed", "anxious", "anxiety", "pressure", "too much", "cannot cope", "can't cope", "burnout", "exhausted", "overloaded"],
+    doubt:    ["doubt", "unsure", "uncertain", "confused", "don't know", "not sure", "lost", "unclear", "second guess", "hesitant"],
+    guilt:    ["guilty", "guilt", "regret", "sorry", "ashamed", "shame", "my fault", "blame myself", "bad person", "mistake"],
+    fear:     ["scared", "fear", "afraid", "terrified", "nervous", "frightened", "panic", "worried", "worry", "phobia", "dread"],
+    anger:    ["angry", "anger", "mad", "furious", "frustrated", "rage", "irritated", "annoyed", "hate", "livid", "upset"],
+    disgust:  ["disgusted", "disgust", "gross", "sick", "revolted", "appalled", "repulsed", "nauseated"],
+    surprise: ["surprised", "shocked", "unexpected", "didn't expect", "wow", "unbelievable", "astonished", "amazed"],
+    excited:  ["excited", "thrilled", "pumped", "hyped", "can't wait", "looking forward", "enthusiastic", "energized"],
+    depressed:["depressed", "depression", "hopeless", "worthless", "empty", "numb", "no point", "give up", "dark", "can't go on"]
+  };
+
+  // Greeting responses
+  const greetings = [
+    "Hi! I'm MindCare AI. How are you feeling right now?",
+    "Hello! I'm here for you. Tell me, how are you feeling today?",
+    "Hey there. I'm your MindCare companion. What's on your mind?",
+    "Welcome back. How is your heart feeling today?"
+  ];
+
+  // Fallback when no emotion detected
+  const fallbacks = [
+    "I didn't quite catch that. Could you tell me how you're feeling? You can say something like sad, happy, stressed, or anxious.",
+    "Hmm, I didn't catch an emotion. Try saying how you feel — like happy, sad, scared, or overwhelmed.",
+    "I'm listening but couldn't detect an emotion. Try saying — I feel sad, or I am stressed.",
+    "Could you say that again? Tell me an emotion like happy, angry, excited, or depressed."
+  ];
+
+  function detectEmotion(transcript) {
+    const lower = transcript.toLowerCase();
+    for (const [emotion, keywords] of Object.entries(emotionKeywords)) {
+      if (keywords.some(k => lower.includes(k))) {
+        return emotion;
+      }
+    }
+    return null;
+  }
+
+  function speak(text, onEnd) {
+    if (!synth) return;
+    synth.cancel();
+    isSpeaking = true;
+    setOrbState("speaking");
+
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 0.95;
+    utter.pitch = 1.1;
+    utter.volume = 1;
+
+    // Pick a good voice — prefer female English
+    const voices = synth.getVoices();
+    const preferred = voices.find(v =>
+      (v.name.includes("Samantha") || v.name.includes("Google UK English Female") ||
+       v.name.includes("Microsoft Zira") || v.name.includes("Karen") ||
+       v.name.includes("Moira") || v.name.includes("Victoria")) && v.lang.startsWith("en")
+    ) || voices.find(v => v.lang.startsWith("en"));
+
+    if (preferred) utter.voice = preferred;
+
+    utter.onend = () => {
+      isSpeaking = false;
+      setOrbState("idle");
+      if (onEnd) onEnd();
+    };
+    utter.onerror = () => {
+      isSpeaking = false;
+      setOrbState("idle");
+    };
+
+    synth.speak(utter);
+  }
+
+  function setOrbState(state) {
+    const orb = document.getElementById("voiceOrb");
+    const label = document.getElementById("voiceLabel");
+    const transcript = document.getElementById("voiceTranscript");
+    if (!orb) return;
+
+    orb.className = "voice-orb";
+
+    if (state === "idle") {
+      orb.classList.add("orb-idle");
+      if (label) label.textContent = "Tap to speak";
+    } else if (state === "listening") {
+      orb.classList.add("orb-listening");
+      if (label) label.textContent = "Listening...";
+      if (transcript) transcript.textContent = "";
+    } else if (state === "speaking") {
+      orb.classList.add("orb-speaking");
+      if (label) label.textContent = "MindCare AI is speaking...";
+    } else if (state === "thinking") {
+      orb.classList.add("orb-thinking");
+      if (label) label.textContent = "Processing...";
+    }
+  }
+
+  function showTranscript(text) {
+    const el = document.getElementById("voiceTranscript");
+    if (el) el.textContent = `"${text}"`;
+  }
+
+  function startListening() {
+    if (isListening || isSpeaking) return;
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Voice recognition is not supported in this browser. Please use Chrome or Edge.");
+      return;
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      isListening = true;
+      setOrbState("listening");
+    };
+
+    recognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      showTranscript(transcript);
+      setOrbState("thinking");
+
+      setTimeout(() => {
+        const emotion = detectEmotion(transcript);
+        if (emotion) {
+          const data = emotionData[emotion];
+          const q = data.quotes[0];
+          const tip = data.tips[0];
+
+          // Trigger the visual feed
+          if (typeof showEmotion === "function") showEmotion(emotion);
+
+          // Build spoken response
+          const response = `I can hear that you're feeling ${data.label.replace(/[^\w\s]/g, "")}. ${q.text} — ${q.author} said that. Remember: ${tip} Take a breath. I'm here with you.`;
+          speak(response);
+        } else {
+          const fallback = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+          speak(fallback, () => {
+            setTimeout(() => startListening(), 800);
+          });
+        }
+      }, 400);
+    };
+
+    recognition.onerror = (e) => {
+      isListening = false;
+      setOrbState("idle");
+      if (e.error === "not-allowed") {
+        const el = document.getElementById("voiceTranscript");
+        if (el) el.textContent = "Microphone access denied. Please allow mic access in your browser.";
+      }
+    };
+
+    recognition.onend = () => {
+      isListening = false;
+    };
+
+    recognition.start();
+  }
+
+  function stopAll() {
+    if (recognition) recognition.abort();
+    if (synth) synth.cancel();
+    isListening = false;
+    isSpeaking = false;
+    setOrbState("idle");
+  }
+
+  function greet() {
+    const msg = greetings[Math.floor(Math.random() * greetings.length)];
+    speak(msg, () => {
+      setTimeout(() => startListening(), 600);
+    });
+  }
+
+  function init() {
+    const orb = document.getElementById("voiceOrb");
+    if (!orb) return;
+
+    setOrbState("idle");
+
+    orb.addEventListener("click", () => {
+      if (isSpeaking) {
+        stopAll();
+      } else if (isListening) {
+        if (recognition) recognition.stop();
+        setOrbState("idle");
+      } else {
+        startListening();
+      }
+    });
+
+    // Load voices (Chrome needs this)
+    if (synth.onvoiceschanged !== undefined) {
+      synth.onvoiceschanged = () => {};
+    }
+
+    // Auto-greet after short delay
+    setTimeout(() => greet(), 1200);
+  }
+
+  return { init, startListening, stopAll, speak, greet };
+
+})();
+
+// Init voice AI on voice page
+if (document.getElementById("voiceOrb")) {
+  window.addEventListener("load", () => VoiceAI.init());
 }
