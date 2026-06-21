@@ -257,6 +257,7 @@ const emotionData = {
       "Do something creative while your energy is high."
     ],
     playlist: "Upbeat Pop & Feel-Good Hits",
+    spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0",
     prompt: "What made you smile the most today, and how can you bring more of that into tomorrow?"
   },
   sad: {
@@ -275,6 +276,7 @@ const emotionData = {
       "Reach out to a trusted friend or write your thoughts down."
     ],
     playlist: "Gentle & Healing Acoustic",
+    spotifyUrl: "https://open.spotify.com/playlist/7ABD15iASBIpPP5uJ5awvq",
     prompt: "What is this sadness trying to tell you? Is there something you need right now?"
   },
   stressed: {
@@ -293,6 +295,7 @@ const emotionData = {
       "Tackle one small task to break the overwhelm cycle."
     ],
     playlist: "Lo-Fi Focus & Calm",
+    spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DX9uKNf5jGX6m",
     prompt: "What is the ONE thing stressing you most right now, and what is one step you can take today?"
   },
   doubt: {
@@ -311,6 +314,7 @@ const emotionData = {
       "Remember: doubt means you care about getting it right."
     ],
     playlist: "Thoughtful Indie & Reflection",
+    spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DWYtDSKIiDhua",
     prompt: "What would you do if you knew you couldn't fail? What's holding you back from trying?"
   },
   guilt: {
@@ -329,6 +333,7 @@ const emotionData = {
       "Forgive yourself — you are human, and growth requires mistakes."
     ],
     playlist: "Soothing Piano & Reflection",
+    spotifyUrl: "https://open.spotify.com/playlist/3hstVxyKHTqOs2wlIl6RbI",
     prompt: "What do you need to forgive yourself for today? Write it down, and then let it go."
   },
   fear: {
@@ -347,6 +352,7 @@ const emotionData = {
       "Take one small action toward the thing you fear."
     ],
     playlist: "Grounding & Ambient Calm",
+    spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DXaImRpG7HXqp",
     prompt: "What are you afraid of right now, and what is one tiny step you could take to face it?"
   },
   anger: {
@@ -365,6 +371,7 @@ const emotionData = {
       "Journal what triggered you before addressing it with anyone."
     ],
     playlist: "High-Energy Release Beats",
+    spotifyUrl: "https://open.spotify.com/playlist/1xdEaBisiJRDotBWbQGmnd",
     prompt: "What is the real need underneath this anger? What boundary was crossed?"
   },
   disgust: {
@@ -383,6 +390,7 @@ const emotionData = {
       "Ground yourself with something clean, calm, and familiar."
     ],
     playlist: "Fresh Start & Cleansing Ambient",
+    spotifyUrl: "https://open.spotify.com/playlist/0okKcRyYEwq8guFxzAPtlB",
     prompt: "What does this feeling reveal about what matters to you and the standards you hold?"
   },
   surprise: {
@@ -401,6 +409,7 @@ const emotionData = {
       "Write down what happened while it's fresh."
     ],
     playlist: "Curious & Uplifting Discovery Mix",
+    spotifyUrl: "https://open.spotify.com/playlist/1WAQIk6Vkbc9MDlmul0wuk",
     prompt: "How did this surprise change your perspective, even slightly?"
   },
   excited: {
@@ -419,6 +428,7 @@ const emotionData = {
       "Write down what you're excited about to revisit on harder days."
     ],
     playlist: "Feel-Good Energy Anthems",
+    spotifyUrl: "https://open.spotify.com/playlist/0deORnapZgrxFY4nsKr9JA",
     prompt: "What is this excitement pointing you toward? How can you keep this momentum going?"
   },
   depressed: {
@@ -437,6 +447,7 @@ const emotionData = {
       "Consider speaking with a counselor or mental health professional."
     ],
     playlist: "Gentle Comfort & Healing Sounds",
+    spotifyUrl: "https://open.spotify.com/playlist/3RJhsyXXNoZ5kFP6kGCHmV",
     prompt: "What does your body need most right now — rest, connection, movement, or nourishment?"
   }
 };
@@ -591,7 +602,15 @@ function showEmotion(emotion) {
 
       <div class="feed-section">
         <div class="feed-label">🎵 Suggested Playlist</div>
-        <div class="feed-playlist">${data.playlist}</div>
+        <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+          <div class="feed-playlist">${data.playlist}</div>
+          <a href="${data.spotifyUrl}" target="_blank" rel="noopener" class="spotify-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;">
+              <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+            </svg>
+            Open in Spotify
+          </a>
+        </div>
       </div>
 
       <div class="feed-section">
@@ -710,27 +729,32 @@ if (document.getElementById("bg") && typeof THREE !== "undefined") {
 
 const VoiceAI = (() => {
 
-  let recognition = null;
-  let synth = window.speechSynthesis;
-  let isListening = false;
-  let isSpeaking = false;
+  let recognition    = null;
+  let synth          = window.speechSynthesis;
+  let isListening    = false;
+  let isSpeaking     = false;
+  let resultReceived = false;
 
-  // Emotion keywords — what the user might say
+  // Safe debug logger — works even on pages without the debug panel
+  function debugLog(msg) {
+    if (typeof window.debugLog === "function") window.debugLog(msg);
+    else console.log("[VoiceAI]", msg);
+  }
+
   const emotionKeywords = {
-    happy:    ["happy", "joy", "joyful", "great", "good", "wonderful", "excited about", "amazing", "fantastic", "cheerful", "blessed", "grateful"],
-    sad:      ["sad", "unhappy", "cry", "crying", "tears", "heartbroken", "lonely", "lost", "miss", "grief", "down", "low", "blue"],
-    stressed: ["stressed", "stress", "overwhelmed", "anxious", "anxiety", "pressure", "too much", "cannot cope", "can't cope", "burnout", "exhausted", "overloaded"],
-    doubt:    ["doubt", "unsure", "uncertain", "confused", "don't know", "not sure", "lost", "unclear", "second guess", "hesitant"],
-    guilt:    ["guilty", "guilt", "regret", "sorry", "ashamed", "shame", "my fault", "blame myself", "bad person", "mistake"],
-    fear:     ["scared", "fear", "afraid", "terrified", "nervous", "frightened", "panic", "worried", "worry", "phobia", "dread"],
-    anger:    ["angry", "anger", "mad", "furious", "frustrated", "rage", "irritated", "annoyed", "hate", "livid", "upset"],
-    disgust:  ["disgusted", "disgust", "gross", "sick", "revolted", "appalled", "repulsed", "nauseated"],
-    surprise: ["surprised", "shocked", "unexpected", "didn't expect", "wow", "unbelievable", "astonished", "amazed"],
-    excited:  ["excited", "thrilled", "pumped", "hyped", "can't wait", "looking forward", "enthusiastic", "energized"],
-    depressed:["depressed", "depression", "hopeless", "worthless", "empty", "numb", "no point", "give up", "dark", "can't go on"]
+    happy:     ["happy","joy","joyful","great","good","wonderful","amazing","fantastic","cheerful","blessed","grateful","fine","doing well"],
+    sad:       ["sad","unhappy","cry","crying","tears","heartbroken","lonely","miss","grief","down","low","blue","upset","miserable","depressing"],
+    stressed:  ["stressed","stress","overwhelmed","anxious","anxiety","pressure","too much","cannot cope","can't cope","burnout","exhausted","overloaded","tension"],
+    doubt:     ["doubt","unsure","uncertain","confused","don't know","not sure","unclear","second guess","hesitant","indecisive"],
+    guilt:     ["guilty","guilt","regret","sorry","ashamed","shame","my fault","blame myself","mistake","did wrong"],
+    fear:      ["scared","fear","afraid","terrified","nervous","frightened","panic","worried","worry","phobia","dread","anxious about"],
+    anger:     ["angry","anger","mad","furious","frustrated","rage","irritated","annoyed","hate","livid","pissed"],
+    disgust:   ["disgusted","disgust","gross","sick","revolted","appalled","repulsed","nauseated","yuck"],
+    surprise:  ["surprised","shocked","unexpected","wow","unbelievable","astonished","amazed","can't believe"],
+    excited:   ["excited","thrilled","pumped","hyped","can't wait","looking forward","enthusiastic","energized","stoked"],
+    depressed: ["depressed","depression","hopeless","worthless","empty","numb","no point","give up","dark","can't go on","no motivation","meaningless"]
   };
 
-  // Greeting responses
   const greetings = [
     "Hi! I'm MindCare AI. How are you feeling right now?",
     "Hello! I'm here for you. Tell me, how are you feeling today?",
@@ -738,79 +762,43 @@ const VoiceAI = (() => {
     "Welcome back. How is your heart feeling today?"
   ];
 
-  // Fallback when no emotion detected
   const fallbacks = [
-    "I didn't quite catch that. Could you tell me how you're feeling? You can say something like sad, happy, stressed, or anxious.",
-    "Hmm, I didn't catch an emotion. Try saying how you feel — like happy, sad, scared, or overwhelmed.",
-    "I'm listening but couldn't detect an emotion. Try saying — I feel sad, or I am stressed.",
-    "Could you say that again? Tell me an emotion like happy, angry, excited, or depressed."
+    "I didn't quite catch that. Try saying something like — I feel sad, or I am really stressed.",
+    "Hmm, I couldn't detect an emotion. Say something like — happy, sad, scared, or overwhelmed.",
+    "Could you say that again? Tell me how you feel — angry, excited, depressed, or anxious.",
+    "I'm listening. Try saying — I feel lonely, or I'm feeling really anxious today."
   ];
+
+  // ── Helpers ──
 
   function detectEmotion(transcript) {
     const lower = transcript.toLowerCase();
     for (const [emotion, keywords] of Object.entries(emotionKeywords)) {
-      if (keywords.some(k => lower.includes(k))) {
-        return emotion;
-      }
+      if (keywords.some(k => lower.includes(k))) return emotion;
     }
     return null;
   }
 
-  function speak(text, onEnd) {
-    if (!synth) return;
-    synth.cancel();
-    isSpeaking = true;
-    setOrbState("speaking");
-
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.rate = 0.95;
-    utter.pitch = 1.1;
-    utter.volume = 1;
-
-    // Pick a good voice — prefer female English
-    const voices = synth.getVoices();
-    const preferred = voices.find(v =>
-      (v.name.includes("Samantha") || v.name.includes("Google UK English Female") ||
-       v.name.includes("Microsoft Zira") || v.name.includes("Karen") ||
-       v.name.includes("Moira") || v.name.includes("Victoria")) && v.lang.startsWith("en")
-    ) || voices.find(v => v.lang.startsWith("en"));
-
-    if (preferred) utter.voice = preferred;
-
-    utter.onend = () => {
-      isSpeaking = false;
-      setOrbState("idle");
-      if (onEnd) onEnd();
-    };
-    utter.onerror = () => {
-      isSpeaking = false;
-      setOrbState("idle");
-    };
-
-    synth.speak(utter);
-  }
-
   function setOrbState(state) {
-    const orb = document.getElementById("voiceOrb");
+    const orb   = document.getElementById("voiceOrb");
     const label = document.getElementById("voiceLabel");
-    const transcript = document.getElementById("voiceTranscript");
+    const trans = document.getElementById("voiceTranscript");
     if (!orb) return;
 
     orb.className = "voice-orb";
-
     if (state === "idle") {
       orb.classList.add("orb-idle");
       if (label) label.textContent = "Tap to speak";
     } else if (state === "listening") {
       orb.classList.add("orb-listening");
       if (label) label.textContent = "Listening...";
-      if (transcript) transcript.textContent = "";
+      if (trans && trans.textContent === "") trans.textContent = "Say how you're feeling...";
     } else if (state === "speaking") {
       orb.classList.add("orb-speaking");
       if (label) label.textContent = "MindCare AI is speaking...";
     } else if (state === "thinking") {
       orb.classList.add("orb-thinking");
-      if (label) label.textContent = "Processing...";
+      if (label) label.textContent = "Understanding...";
     }
   }
 
@@ -819,63 +807,173 @@ const VoiceAI = (() => {
     if (el) el.textContent = `"${text}"`;
   }
 
+  function getVoice() {
+    const voices = synth.getVoices();
+    return (
+      voices.find(v => v.name.includes("Samantha") && v.lang.startsWith("en")) ||
+      voices.find(v => v.name.includes("Google UK English Female")) ||
+      voices.find(v => v.name.includes("Microsoft Zira")) ||
+      voices.find(v => v.name.includes("Karen")) ||
+      voices.find(v => v.lang.startsWith("en-")) ||
+      voices[0]
+    );
+  }
+
+  function speak(text, onEnd) {
+    if (!synth) { if (onEnd) onEnd(); return; }
+
+    // Always cancel first and wait a tick — Chrome needs this gap
+    synth.cancel();
+
+    setTimeout(() => {
+      isSpeaking = true;
+      setOrbState("speaking");
+      debugLog("Speaking: " + text.substring(0, 60) + "...");
+
+      const doSpeak = () => {
+        const utter  = new SpeechSynthesisUtterance(text);
+        utter.rate   = 0.9;
+        utter.pitch  = 1.0;
+        utter.volume = 1;
+
+        const voice  = getVoice();
+        if (voice) { utter.voice = voice; debugLog("Voice: " + voice.name); }
+        else { debugLog("Voice: default"); }
+
+        let ended = false;
+        const finish = () => {
+          if (ended) return;
+          ended     = true;
+          isSpeaking = false;
+          setOrbState("idle");
+          debugLog("Speech done.");
+          if (onEnd) onEnd();
+        };
+
+        utter.onend   = finish;
+        utter.onerror = (e) => {
+          debugLog("Speech error: " + e.error);
+          if (e.error === "interrupted") return;
+          finish();
+        };
+
+        synth.speak(utter);
+
+        // Chrome watchdog — if still speaking after 30s something froze
+        const watchdog = setInterval(() => {
+          if (!synth.speaking) { clearInterval(watchdog); finish(); }
+          else if (synth.paused) synth.resume();
+        }, 500);
+
+        // Hard timeout safety — 60 seconds max
+        setTimeout(() => { clearInterval(watchdog); finish(); }, 60000);
+      };
+
+      if (synth.getVoices().length === 0) {
+        debugLog("Waiting for voices...");
+        synth.onvoiceschanged = () => { synth.onvoiceschanged = null; doSpeak(); };
+      } else {
+        doSpeak();
+      }
+    }, 150); // wait 150ms after cancel before speaking
+  }
+
+  // ── Core: listen ──
+
   function startListening() {
     if (isListening || isSpeaking) return;
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert("Voice recognition is not supported in this browser. Please use Chrome or Edge.");
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      alert("Voice recognition is not supported. Please use Chrome or Edge.");
       return;
     }
 
-    recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+    resultReceived = false;
+    recognition    = new SR();
+    recognition.lang             = "en-US";
+    recognition.interimResults   = false;
+    recognition.maxAlternatives  = 3;
+    recognition.continuous       = false;
 
     recognition.onstart = () => {
-      isListening = true;
+      isListening    = true;
+      resultReceived = false;
       setOrbState("listening");
+      debugLog("Mic started — listening...");
     };
 
     recognition.onresult = (e) => {
-      const transcript = e.results[0][0].transcript;
+      resultReceived = true;
+      isListening    = false;
+
+      // Merge all alternatives for better accuracy
+      const transcript = Array.from(e.results[0])
+        .map(r => r.transcript).join(" ");
+
+      debugLog("Heard: " + transcript);
       showTranscript(transcript);
       setOrbState("thinking");
 
-      setTimeout(() => {
-        const emotion = detectEmotion(transcript);
-        if (emotion) {
-          const data = emotionData[emotion];
-          const q = data.quotes[0];
-          const tip = data.tips[0];
+      const emotion = detectEmotion(transcript);
+      debugLog("Emotion detected: " + (emotion || "none"));
 
-          // Trigger the visual feed
-          if (typeof showEmotion === "function") showEmotion(emotion);
+      if (emotion) {
+        const data = emotionData[emotion];
+        const q    = data.quotes[Math.floor(Math.random() * data.quotes.length)];
+        const tip  = data.tips[0];
+        const name = data.label.replace(/[^\w\s]/g, "").trim();
 
-          // Build spoken response
-          const response = `I can hear that you're feeling ${data.label.replace(/[^\w\s]/g, "")}. ${q.text} — ${q.author} said that. Remember: ${tip} Take a breath. I'm here with you.`;
-          speak(response);
-        } else {
-          const fallback = fallbacks[Math.floor(Math.random() * fallbacks.length)];
-          speak(fallback, () => {
-            setTimeout(() => startListening(), 800);
-          });
+        // Render the emotion feed card
+        if (typeof window.showEmotion === "function") {
+          setTimeout(() => window.showEmotion(emotion), 200);
         }
-      }, 400);
+
+        // Show result panel on voice page
+        const resultEl = document.getElementById("voiceEmotionResult");
+        if (resultEl) {
+          setTimeout(() => {
+            resultEl.classList.add("visible");
+            resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 500);
+        }
+
+        const response = `I hear you. You are feeling ${name}. Here is a thought for you: ${q.text}, by ${q.author}. Here is something that might help: ${tip}. You are not alone. I am here with you.`;
+        setTimeout(() => speak(response), 300);
+
+      } else {
+        const fallback = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+        setTimeout(() => {
+          speak(fallback, () => setTimeout(() => startListening(), 800));
+        }, 300);
+      }
     };
 
     recognition.onerror = (e) => {
-      isListening = false;
-      setOrbState("idle");
+      isListening    = false;
+      resultReceived = true; // prevent onend from showing "nothing heard"
+      debugLog("Recognition error: " + e.error);
+      const trans    = document.getElementById("voiceTranscript");
+
       if (e.error === "not-allowed") {
-        const el = document.getElementById("voiceTranscript");
-        if (el) el.textContent = "Microphone access denied. Please allow mic access in your browser.";
+        setOrbState("idle");
+        if (trans) trans.textContent = "Microphone access denied. Please allow mic access in your browser settings.";
+      } else if (e.error === "no-speech") {
+        setOrbState("idle");
+        if (trans) trans.textContent = "No speech detected. Tap the orb and try again.";
+      } else {
+        setOrbState("idle");
       }
     };
 
     recognition.onend = () => {
       isListening = false;
+      debugLog("Recognition ended. resultReceived=" + resultReceived);
+      if (!resultReceived) {
+        setOrbState("idle");
+        const trans = document.getElementById("voiceTranscript");
+        if (trans) trans.textContent = "I didn't hear anything. Tap the orb and try again.";
+      }
     };
 
     recognition.start();
@@ -884,16 +982,14 @@ const VoiceAI = (() => {
   function stopAll() {
     if (recognition) recognition.abort();
     if (synth) synth.cancel();
-    isListening = false;
-    isSpeaking = false;
+    isListening  = false;
+    isSpeaking   = false;
     setOrbState("idle");
   }
 
   function greet() {
     const msg = greetings[Math.floor(Math.random() * greetings.length)];
-    speak(msg, () => {
-      setTimeout(() => startListening(), 600);
-    });
+    speak(msg, () => setTimeout(() => startListening(), 700));
   }
 
   function init() {
@@ -902,31 +998,24 @@ const VoiceAI = (() => {
 
     setOrbState("idle");
 
+    // Preload voices
+    synth.getVoices();
+    if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = () => {};
+
     orb.addEventListener("click", () => {
-      if (isSpeaking) {
-        stopAll();
-      } else if (isListening) {
-        if (recognition) recognition.stop();
-        setOrbState("idle");
-      } else {
-        startListening();
-      }
+      if (isSpeaking)      { stopAll(); }
+      else if (isListening){ recognition.stop(); setOrbState("idle"); }
+      else                 { startListening(); }
     });
 
-    // Load voices (Chrome needs this)
-    if (synth.onvoiceschanged !== undefined) {
-      synth.onvoiceschanged = () => {};
-    }
-
-    // Auto-greet after short delay
-    setTimeout(() => greet(), 1200);
+    setTimeout(() => greet(), 1000);
   }
 
   return { init, startListening, stopAll, speak, greet };
 
 })();
 
-// Init voice AI on voice page
+// Init only on voice page
 if (document.getElementById("voiceOrb")) {
   window.addEventListener("load", () => VoiceAI.init());
 }
