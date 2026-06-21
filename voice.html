@@ -310,18 +310,73 @@
   <script src="script.js"></script>
 
   <script>
-    // Override showEmotion to also show the result card on voice page
-    const _origShowEmotion = showEmotion;
-    function showEmotion(emotion) {
-      _origShowEmotion(emotion);
+    // FIX: render the voice-page emotion card directly using emotionData
+    // (defined globally in script.js), instead of calling the dashboard's
+    // showEmotion(), which requires #emotionGrid — an element that doesn't
+    // exist on this page and would just bail out silently.
+    //
+    // The previous version reassigned showEmotion with:
+    //   const _origShowEmotion = showEmotion;
+    //   function showEmotion(emotion) { _origShowEmotion(emotion); ... }
+    // Because function declarations are hoisted above the const line,
+    // _origShowEmotion ended up pointing at the NEW function itself —
+    // calling showEmotion() recursively called itself forever, threw a
+    // stack overflow, and left the orb stuck on "Processing...".
+
+    function renderVoiceEmotion(emotion) {
+      const data = (typeof emotionData !== "undefined") ? emotionData[emotion] : null;
+      const feed = document.getElementById("emotionFeed");
       const result = document.getElementById("voiceEmotionResult");
-      if (result) {
-        result.classList.add("visible");
-        setTimeout(() => {
-          result.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 400);
-      }
+      if (!data || !feed || !result) return;
+
+      const q = data.quotes[0];
+
+      feed.innerHTML = `
+        <div class="feed-header" style="border-left: 4px solid ${data.color}; padding-left: 16px; margin-bottom: 24px;">
+          <h2 style="font-size:2rem; color:${data.color};">${data.label}</h2>
+        </div>
+
+        <div class="feed-section">
+          <div class="feed-label">💬 Quote</div>
+          <blockquote class="feed-quote">
+            <span>"${q.text}"</span>
+            <footer>— ${q.author}</footer>
+          </blockquote>
+        </div>
+
+        <div class="feed-section">
+          <div class="feed-label">🎵 Suggested Playlist</div>
+          <div class="feed-playlist">${data.playlist}</div>
+        </div>
+
+        <div class="feed-section">
+          <div class="feed-label">✅ What to Do Now</div>
+          <ul class="feed-tips">
+            ${data.tips.map(t => `<li>${t}</li>`).join("")}
+          </ul>
+        </div>
+
+        <div class="feed-section">
+          <div class="feed-label">🧠 AI Reflection Prompt</div>
+          <div class="feed-prompt">${data.prompt}</div>
+        </div>
+      `;
+
+      result.classList.add("visible");
+      setTimeout(() => {
+        result.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 400);
+
+      localStorage.setItem("selectedEmotion", emotion);
+      localStorage.setItem("currentMood", emotion);
     }
+
+    // Override showEmotion ONLY for this page (voice.html), so VoiceAI's
+    // call to showEmotion() renders the card above instead of trying to
+    // touch the (nonexistent on this page) emotion grid.
+    window.showEmotion = function (emotion) {
+      renderVoiceEmotion(emotion);
+    };
   </script>
 
 </body>
