@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crisis Help | MindCare AI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="bg"></div>
+  <div id="loader"><div class="loader-text">🧠 MindCare AI</div></div>
+
+  <nav class="navbar">
+    <div class="logo">🧠 MindCare AI</div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="breathing.html">🫁 Breathing</a></li>
+      <li><a href="crisis.html">💙 Crisis Help</a></li>
+      <li><button onclick="toggleDarkMode()" style="padding:8px 16px;font-size:0.85rem;">🌙 Dark Mode</button></li>
+    </ul>
+  </nav>
+
+  <main style="max-width:760px;margin:0 auto;padding:130px 24px 60px;">
+
+    <div style="text-align:center;margin-bottom:40px;">
+      <h1 style="font-size:2.2rem;margin-bottom:12px;">💙 You Are Not Alone</h1>
+      <p style="color:var(--subtext);font-size:1.05rem;line-height:1.7;max-width:520px;margin:0 auto;">
+        If you're struggling right now, please reach out. These resources are free, confidential, and available for Filipinos in crisis.
+      </p>
+    </div>
+
+    <!-- Emergency banner -->
+    <div style="padding:18px 24px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:16px;margin-bottom:28px;text-align:center;">
+      <strong style="color:#f87171;font-size:1.05rem;">🚨 If you are in immediate danger, call the Philippine emergency number <a href="tel:911" style="color:#f87171;text-decoration:underline;">911</a> right now.</strong>
+    </div>
+
+    <!-- PH Hotlines -->
+    <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:40px;">
+
+      <!-- NCMH -->
+      <div class="glass" style="padding:22px 28px;border-radius:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div style="font-weight:700;font-size:1.05rem;">🏥 NCMH Crisis Hotline</div>
+            <div style="color:var(--subtext);font-size:0.85rem;margin-top:4px;">National Center for Mental Health — Available 24/7</div>
+            <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;">
+              <a href="tel:1553" style="font-size:0.82rem;padding:4px 12px;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.25);border-radius:20px;color:#60a5fa;text-decoration:none;">📞 1553 (Landline)</a>
+              <a href="tel:09178998727" style="font-size:0.82rem;padding:4px 12px;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.25);border-radius:20px;color:#60a5fa;text-decoration:none;">📱 0917-899-8727</a>
+              <a href="tel:09663514518" style="font-size:0.82rem;padding:4px 12px;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.25);border-radius:20px;color:#60a5fa;text-decoration:none;">📱 0966-351-4518</a>
+            </div>
+          </div>
+          <a href="tel:1553" class="btn" style="padding:10px 22px;font-size:0.9rem;flex-shrink:0;">📞 Call 1553</a>
+        </div>
+      </div>
+
+      <!-- HOPELINE -->
+      <div class="glass" style="padding:22px 28px;border-radius:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div style="font-weight:700;font-size:1.05rem;">🌟 Hopeline PH</div>
+            <div style="color:var(--subtext);font-size:0.85rem;margin-top:4px;">Natasha Goulbourn Foundation — 24/7 Suicide Prevention</div>
+            <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;">
+              <a href="tel:2919" style="font-size:0.82rem;padding:4px 12px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.25);border-radius:20px;color:#c084fc;text-decoration:none;">📞 2919 (Globe/TM)</a>
+              <a href="tel:09175584673" style="font-size:0.82rem;padding:4px 12px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.25);border-radius:20px;color:#c084fc;text-decoration:none;">📱 0917-558-4673</a>
+              <a href="tel:09188734673" style="font-size:0.82rem;padding:4px 12px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.25);border-radius:20px;color:#c084fc;text-decoration:none;">📱 0918-873-4673</a>
+            </div>
+          </div>
+          <a href="tel:2919" class="btn" style="padding:10px 22px;font-size:0.9rem;flex-shrink:0;">📞 Call Hopeline</a>
+        </div>
+      </div>
+
+      <!-- In Touch -->
+      <div class="glass" style="padding:22px 28px;border-radius:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div style="font-weight:700;font-size:1.05rem;">🤝 In Touch Crisis Line</div>
+            <div style="color:var(--subtext);font-size:0.85rem;margin-top:4px;">Free & anonymous — 24/7 emotional support</div>
+            <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;">
+              <a href="tel:028893760" style="font-size:0.82rem;padding:4px 12px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);border-radius:20px;color:#6ee7b7;text-decoration:none;">📞 (02) 8893-7603</a>
+              <a href="tel:09178001123" style="font-size:0.82rem;padding:4px 12px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);border-radius:20px;color:#6ee7b7;text-decoration:none;">📱 0917-800-1123</a>
+            </div>
+          </div>
+          <a href="tel:028893760" class="btn" style="padding:10px 22px;font-size:0.9rem;flex-shrink:0;">📞 Call Now</a>
+        </div>
+      </div>
+
+      <!-- Tawag Paglaum (Visayas) -->
+      <div class="glass" style="padding:22px 28px;border-radius:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div style="font-weight:700;font-size:1.05rem;">🌊 Tawag Paglaum – Centro Bisaya</div>
+            <div style="color:var(--subtext);font-size:0.85rem;margin-top:4px;">24/7 crisis support — Visayas region (also serves nationwide)</div>
+            <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;">
+              <a href="tel:09399375433" style="font-size:0.82rem;padding:4px 12px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);border-radius:20px;color:#fde68a;text-decoration:none;">📱 0939-937-5433 (Smart)</a>
+              <a href="tel:09276541629" style="font-size:0.82rem;padding:4px 12px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);border-radius:20px;color:#fde68a;text-decoration:none;">📱 0927-654-1629 (Globe)</a>
+            </div>
+          </div>
+          <a href="tel:09399375433" class="btn" style="padding:10px 22px;font-size:0.9rem;flex-shrink:0;">📞 Call Now</a>
+        </div>
+      </div>
+
+      <!-- DSWD -->
+      <div class="glass" style="padding:22px 28px;border-radius:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div style="font-weight:700;font-size:1.05rem;">🏛️ DSWD Crisis Intervention Unit</div>
+            <div style="color:var(--subtext);font-size:0.85rem;margin-top:4px;">Department of Social Welfare and Development</div>
+            <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;">
+              <a href="tel:09178993781" style="font-size:0.82rem;padding:4px 12px;background:rgba(251,146,60,0.12);border:1px solid rgba(251,146,60,0.25);border-radius:20px;color:#fb923c;text-decoration:none;">📱 0917-899-3781</a>
+            </div>
+          </div>
+          <a href="tel:09178993781" class="btn" style="padding:10px 22px;font-size:0.9rem;flex-shrink:0;">📞 Call DSWD</a>
+        </div>
+      </div>
+
+      <!-- Bantay Bata (children) -->
+      <div class="glass" style="padding:22px 28px;border-radius:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div style="font-weight:700;font-size:1.05rem;">🧒 Bantay Bata 163</div>
+            <div style="color:var(--subtext);font-size:0.85rem;margin-top:4px;">Child helpline — abuse, domestic violence, child protection (7AM–7PM)</div>
+            <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;">
+              <a href="tel:163" style="font-size:0.82rem;padding:4px 12px;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.25);border-radius:20px;color:#60a5fa;text-decoration:none;">📞 163</a>
+            </div>
+          </div>
+          <a href="tel:163" class="btn" style="padding:10px 22px;font-size:0.9rem;flex-shrink:0;">📞 Call 163</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Grounding technique -->
+    <div class="glass" style="padding:32px;border-radius:20px;margin-bottom:28px;">
+      <h2 style="margin-bottom:16px;">🌿 5-4-3-2-1 Grounding Technique</h2>
+      <p style="color:var(--subtext);margin-bottom:20px;line-height:1.7;">When feeling overwhelmed, bring yourself back to the present moment:</p>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="padding:14px 18px;background:rgba(96,165,250,0.08);border-left:3px solid #60a5fa;border-radius:10px;">👁️ <strong>5 things</strong> you can <strong>see</strong> right now</div>
+        <div style="padding:14px 18px;background:rgba(96,165,250,0.08);border-left:3px solid #818cf8;border-radius:10px;">✋ <strong>4 things</strong> you can <strong>touch</strong></div>
+        <div style="padding:14px 18px;background:rgba(96,165,250,0.08);border-left:3px solid #a855f7;border-radius:10px;">👂 <strong>3 things</strong> you can <strong>hear</strong></div>
+        <div style="padding:14px 18px;background:rgba(96,165,250,0.08);border-left:3px solid #ec4899;border-radius:10px;">👃 <strong>2 things</strong> you can <strong>smell</strong></div>
+        <div style="padding:14px 18px;background:rgba(96,165,250,0.08);border-left:3px solid #f97316;border-radius:10px;">👅 <strong>1 thing</strong> you can <strong>taste</strong></div>
+      </div>
+    </div>
+
+    <div style="text-align:center;">
+      <a href="breathing.html" class="btn">🫁 Try Breathing Exercise</a>
+    </div>
+
+  </main>
+
+  <footer><p>© 2025 MindCare AI Premium</p></footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="script.js"></script>
+  <script src="subscription.js"></script>
+</body>
+</html>

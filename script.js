@@ -44,7 +44,7 @@ const loginForm = document.getElementById("loginForm");
 if (loginForm) {
   loginForm.addEventListener("submit", e => {
     e.preventDefault();
-    alert("Login Successful");
+    showToast("Login Successful! Welcome back 👋", "success");
     window.location.href = "dashboard.html";
   });
 }
@@ -63,12 +63,12 @@ if (signupForm) {
     const confirm = document.getElementById("confirmPassword").value;
 
     if (password !== confirm) {
-      alert("Passwords do not match");
+      showToast("Passwords do not match ❌", "error");
       return;
     }
 
-    alert("Account Created Successfully");
-    window.location.href = "dashboard.html";
+    showToast("Account Created Successfully 🎉", "success");
+    setTimeout(() => { window.location.href = "dashboard.html"; }, 1000);
   });
 }
 
@@ -76,33 +76,81 @@ if (signupForm) {
 // AI CHAT
 // =====================
 
-function sendMessage() {
-  const input = document.getElementById("messageInput");
-  const messages = document.getElementById("messages");
+// Chat history for context
+const chatHistory = [];
 
+async function sendMessage() {
+  const input    = document.getElementById("messageInput");
+  const messages = document.getElementById("messages");
   if (!input || !messages) return;
 
   const text = input.value.trim();
   if (text === "") return;
 
-  messages.innerHTML += `<p><strong>You:</strong> ${text}</p>`;
-
-  setTimeout(() => {
-    const replies = [
-      "Thank you for sharing that with me.",
-      "I'm here to listen. Tell me more.",
-      "Your feelings matter.",
-      "That sounds important. How are you feeling about it?",
-      "Taking time to reflect is a positive step."
-    ];
-
-    const reply = replies[Math.floor(Math.random() * replies.length)];
-    messages.innerHTML += `<p><strong>MindCare AI:</strong> ${reply}</p>`;
-    messages.scrollTop = messages.scrollHeight;
-  }, 1000);
+  // Show user message
+  messages.innerHTML += `
+    <div class="chat-bubble user-bubble">
+      <span class="bubble-label">You</span>
+      <p>${text}</p>
+    </div>`;
+  messages.scrollTop = messages.scrollHeight;
+  input.value = "";
 
   detectRisk(text);
-  input.value = "";
+
+  // Add to history
+  chatHistory.push({ role: "user", content: text });
+
+  // Typing indicator
+  const typingId = "typing-" + Date.now();
+  messages.innerHTML += `
+    <div class="chat-bubble ai-bubble" id="${typingId}">
+      <span class="bubble-label">MindCare AI</span>
+      <p class="typing-dots"><span></span><span></span><span></span></p>
+    </div>`;
+  messages.scrollTop = messages.scrollHeight;
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        system: `You are MindCare AI, a warm, empathetic mental wellness companion. 
+Your role is to provide emotional support, active listening, and gentle guidance.
+Keep responses concise (2-4 sentences), compassionate, and focused on the user's emotional wellbeing.
+Never diagnose. Always encourage professional help for serious issues.
+The user's current mood is: ${localStorage.getItem("currentMood") || "unknown"}.`,
+        messages: chatHistory.slice(-10)
+      })
+    });
+
+    const data = await response.json();
+    const reply = data.content?.[0]?.text || "I'm here for you. Could you tell me more?";
+
+    // Remove typing indicator
+    document.getElementById(typingId)?.remove();
+
+    // Add AI reply to history
+    chatHistory.push({ role: "assistant", content: reply });
+
+    messages.innerHTML += `
+      <div class="chat-bubble ai-bubble">
+        <span class="bubble-label">MindCare AI 🧠</span>
+        <p>${reply}</p>
+      </div>`;
+    messages.scrollTop = messages.scrollHeight;
+
+  } catch (err) {
+    document.getElementById(typingId)?.remove();
+    messages.innerHTML += `
+      <div class="chat-bubble ai-bubble">
+        <span class="bubble-label">MindCare AI 🧠</span>
+        <p>I'm here for you. Sometimes words are hard to find — take your time. 💙</p>
+      </div>`;
+    messages.scrollTop = messages.scrollHeight;
+  }
 }
 
 function detectRisk(message) {
@@ -110,9 +158,7 @@ function detectRisk(message) {
   const risk = warningWords.some(word => message.toLowerCase().includes(word));
 
   if (risk) {
-    alert(
-      "Please reach out to a trusted adult, counselor, mental health professional, or local emergency service if you feel unsafe."
-    );
+    showToast("💙 You matter. Please reach out to a counselor or call a crisis line if you feel unsafe.", "warning", 8000);
   }
 }
 
@@ -180,7 +226,7 @@ function saveJournal() {
   localStorage.setItem("mindcareJournal", JSON.stringify(existing));
 
   loadJournal();
-  alert("Journal Saved");
+  showToast("Journal entry saved 📔", "success");
 }
 
 function loadJournal() {
@@ -219,7 +265,7 @@ function saveProfile() {
   };
 
   localStorage.setItem("profile", JSON.stringify(profile));
-  alert("Profile Updated");
+  showToast("Profile updated ✅", "success");
 }
 
 function loadProfile() {
@@ -636,6 +682,7 @@ function showEmotion(emotion) {
 
   localStorage.setItem("selectedEmotion", emotion);
   localStorage.setItem("currentMood", emotion);
+  saveMoodHistory(emotion);
 }
 
 function loadCurrentEmotion() {
@@ -885,7 +932,7 @@ const VoiceAI = (() => {
 
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
-      alert("Voice recognition is not supported. Please use Chrome or Edge.");
+      showToast("Voice recognition is not supported. Please use Chrome or Edge.", "error");
       return;
     }
 
@@ -1018,4 +1065,364 @@ const VoiceAI = (() => {
 // Init only on voice page
 if (document.getElementById("voiceOrb")) {
   window.addEventListener("load", () => VoiceAI.init());
+}
+
+
+// =====================
+// TOAST NOTIFICATIONS
+// =====================
+
+function showToast(message, type = "success", duration = 4000) {
+  const container = document.getElementById("toastContainer") || createToastContainer();
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `
+    <span>${message}</span>
+    <button onclick="this.parentElement.remove()" style="
+      background:none; border:none; color:inherit;
+      font-size:1.1rem; cursor:pointer; padding:0 0 0 10px; opacity:0.7;">✕</button>
+  `;
+
+  container.appendChild(toast);
+
+  // Animate in
+  setTimeout(() => toast.classList.add("toast-show"), 10);
+
+  // Auto remove
+  setTimeout(() => {
+    toast.classList.remove("toast-show");
+    setTimeout(() => toast.remove(), 400);
+  }, duration);
+}
+
+function createToastContainer() {
+  const div = document.createElement("div");
+  div.id = "toastContainer";
+  div.style.cssText = `
+    position: fixed; bottom: 24px; right: 24px;
+    display: flex; flex-direction: column; gap: 10px;
+    z-index: 9999; max-width: 360px;
+  `;
+  document.body.appendChild(div);
+  return div;
+}
+
+// =====================
+// MOOD HISTORY TRACKER
+// =====================
+
+function saveMoodHistory(emotion) {
+  const history = JSON.parse(localStorage.getItem("moodHistory") || "[]");
+  history.push({
+    emotion,
+    date: new Date().toISOString(),
+    label: new Date().toLocaleDateString()
+  });
+  // Keep last 30 entries
+  if (history.length > 30) history.shift();
+  localStorage.setItem("moodHistory", JSON.stringify(history));
+  updateStreak();
+}
+
+function getMoodHistory() {
+  return JSON.parse(localStorage.getItem("moodHistory") || "[]");
+}
+
+function renderMoodChart() {
+  const canvas = document.getElementById("moodChart");
+  if (!canvas || typeof Chart === "undefined") return;
+
+  const history = getMoodHistory().slice(-7);
+  if (history.length === 0) return;
+
+  const emotionScores = {
+    excited: 10, happy: 9, surprise: 7, grateful: 8,
+    calm: 7, doubt: 5, guilt: 4, fear: 3,
+    stressed: 3, anger: 2, sad: 2, depressed: 1
+  };
+
+  const labels = history.map(h => h.label);
+  const scores = history.map(h => emotionScores[h.emotion] || 5);
+  const colors = scores.map(s =>
+    s >= 8 ? "#6ee7b7" : s >= 5 ? "#fde68a" : "#f87171"
+  );
+
+  // Destroy old chart if exists
+  if (window._moodChart) window._moodChart.destroy();
+
+  window._moodChart = new Chart(canvas, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "Mood Score",
+        data: scores,
+        borderColor: "#60a5fa",
+        backgroundColor: "rgba(96,165,250,0.1)",
+        pointBackgroundColor: colors,
+        pointRadius: 6,
+        pointHoverRadius: 9,
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const e = history[ctx.dataIndex]?.emotion || "";
+              return ` ${e} (${ctx.raw}/10)`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          min: 0, max: 10,
+          ticks: { color: "#94a3b8" },
+          grid: { color: "rgba(255,255,255,0.05)" }
+        },
+        x: {
+          ticks: { color: "#94a3b8" },
+          grid: { color: "rgba(255,255,255,0.05)" }
+        }
+      }
+    }
+  });
+}
+
+// =====================
+// STREAK COUNTER
+// =====================
+
+function updateStreak() {
+  const history = getMoodHistory();
+  if (history.length === 0) return;
+
+  const today = new Date().toDateString();
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+  const dates = [...new Set(history.map(h => new Date(h.date).toDateString()))];
+  const lastDate = dates[dates.length - 1];
+
+  let streak = parseInt(localStorage.getItem("streak") || "0");
+  const lastStreak = localStorage.getItem("lastStreakDate");
+
+  if (lastDate === today && lastStreak !== today) {
+    if (lastStreak === yesterday) streak++;
+    else if (!lastStreak) streak = 1;
+    else streak = 1;
+    localStorage.setItem("streak", streak);
+    localStorage.setItem("lastStreakDate", today);
+
+    // Milestone toasts
+    if (streak === 3)  showToast("🔥 3-day streak! Keep it up!", "success");
+    if (streak === 7)  { showToast("🏆 7-day streak! Amazing dedication!", "success"); launchConfetti(); }
+    if (streak === 30) { showToast("🌟 30-day streak! You are incredible!", "success"); launchConfetti(); }
+  }
+
+  const el = document.getElementById("streakCount");
+  if (el) el.textContent = streak;
+}
+
+function loadStreak() {
+  const el = document.getElementById("streakCount");
+  if (el) el.textContent = localStorage.getItem("streak") || "0";
+}
+
+// =====================
+// CONFETTI
+// =====================
+
+function launchConfetti() {
+  const colors = ["#60a5fa","#a855f7","#f472b6","#fde68a","#6ee7b7","#f97316"];
+  const canvas = document.createElement("canvas");
+  canvas.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;z-index:9998;pointer-events:none;";
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const pieces = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width,
+    y: -10,
+    r: Math.random() * 8 + 4,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    vx: (Math.random() - 0.5) * 4,
+    vy: Math.random() * 4 + 2,
+    rot: Math.random() * 360,
+    vrot: (Math.random() - 0.5) * 8
+  }));
+
+  let frame = 0;
+  const animate = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r);
+      ctx.restore();
+      p.x += p.vx; p.y += p.vy; p.rot += p.vrot; p.vy += 0.1;
+    });
+    frame++;
+    if (frame < 180) requestAnimationFrame(animate);
+    else canvas.remove();
+  };
+  animate();
+}
+
+// =====================
+// DAILY AFFIRMATIONS
+// =====================
+
+const affirmations = [
+  "You are enough, exactly as you are. 💙",
+  "Every day is a new beginning. Take a deep breath and start again.",
+  "Your feelings are valid. You are seen and heard.",
+  "You have survived every hard day so far. You can do this.",
+  "Growth happens one small step at a time. Be patient with yourself.",
+  "You deserve peace, rest, and joy.",
+  "Your mental health matters. Taking care of yourself is brave.",
+  "You are not your worst day. You are so much more.",
+  "It's okay to ask for help. Strength is knowing when to reach out.",
+  "Today, choose yourself. You are worth it.",
+  "Small progress is still progress. Be proud of how far you've come.",
+  "You bring value to the world simply by being you.",
+  "Breathe. This moment will pass. You are safe.",
+  "You are worthy of love, connection, and happiness.",
+  "Healing is not linear. Every step counts."
+];
+
+function loadAffirmation() {
+  const el = document.getElementById("dailyAffirmation");
+  if (!el) return;
+  // Same affirmation all day, changes daily
+  const dayIndex = Math.floor(Date.now() / 86400000) % affirmations.length;
+  el.textContent = affirmations[dayIndex];
+}
+
+// =====================
+// AI JOURNAL ANALYSIS
+// =====================
+
+async function analyzeJournalWithAI() {
+  const entry = document.getElementById("journalEntry")?.value?.trim();
+  const mood  = document.getElementById("mood")?.value;
+  const resultEl = document.getElementById("journalAIInsight");
+
+  if (!entry || entry.length < 20) {
+    showToast("Write at least a sentence before analyzing 📝", "warning");
+    return;
+  }
+
+  if (resultEl) {
+    resultEl.innerHTML = `<div class="typing-dots"><span></span><span></span><span></span></div>`;
+    resultEl.style.display = "block";
+  }
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 300,
+        messages: [{
+          role: "user",
+          content: `You are a compassionate mental wellness AI. Analyze this journal entry and provide a warm, insightful 2-3 sentence emotional reflection. Identify the core emotion, validate the feeling, and offer one gentle encouragement. Be concise and human.
+
+Mood selected: ${mood}
+Journal entry: "${entry}"`
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const insight = data.content?.[0]?.text || "Your feelings are valid and worth exploring. Keep writing.";
+
+    if (resultEl) {
+      resultEl.innerHTML = `
+        <div style="display:flex; align-items:flex-start; gap:10px;">
+          <span style="font-size:1.4rem;">🧠</span>
+          <div>
+            <div style="font-size:0.75rem; font-weight:700; color:var(--secondary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">AI Insight</div>
+            <p style="line-height:1.7; color:var(--text);">${insight}</p>
+          </div>
+        </div>`;
+    }
+
+  } catch(err) {
+    if (resultEl) resultEl.innerHTML = `<p style="color:var(--subtext);">Could not analyze right now. Your feelings are always valid. 💙</p>`;
+  }
+}
+
+// =====================
+// PAGE TRANSITIONS
+// =====================
+
+function navigateTo(url) {
+  document.body.classList.add("page-exit");
+  setTimeout(() => { window.location.href = url; }, 300);
+}
+
+// Fade in on load
+document.addEventListener("DOMContentLoaded", () => {
+  document.body.classList.add("page-enter");
+  setTimeout(() => document.body.classList.remove("page-enter"), 500);
+
+  // Init features
+  loadAffirmation();
+  loadStreak();
+  renderMoodChart();
+});
+
+// =====================
+// WEEKLY WELLNESS REPORT
+// =====================
+
+function generateWeeklyReport() {
+  const history = getMoodHistory().slice(-7);
+  const el = document.getElementById("weeklyReport");
+  if (!el || history.length === 0) return;
+
+  const emotionCounts = {};
+  history.forEach(h => {
+    emotionCounts[h.emotion] = (emotionCounts[h.emotion] || 0) + 1;
+  });
+
+  const topEmotion = Object.entries(emotionCounts).sort((a,b) => b[1]-a[1])[0];
+  const totalEntries = history.length;
+  const positiveEmotions = ["happy","excited","surprise","grateful"];
+  const positiveCount = history.filter(h => positiveEmotions.includes(h.emotion)).length;
+  const positiveRate = Math.round((positiveCount / totalEntries) * 100);
+
+  el.innerHTML = `
+    <div class="report-grid">
+      <div class="report-stat">
+        <div class="report-num">${totalEntries}</div>
+        <div class="report-label">Check-ins this week</div>
+      </div>
+      <div class="report-stat">
+        <div class="report-num">${positiveRate}%</div>
+        <div class="report-label">Positive mood rate</div>
+      </div>
+      <div class="report-stat">
+        <div class="report-num">${topEmotion ? topEmotion[0] : "—"}</div>
+        <div class="report-label">Most felt emotion</div>
+      </div>
+    </div>
+    <p style="color:var(--subtext); font-size:0.9rem; margin-top:16px; line-height:1.6;">
+      ${positiveRate >= 60
+        ? "✨ You had a great week emotionally! Keep nurturing what brings you joy."
+        : positiveRate >= 40
+        ? "💙 It was a mixed week. Remember — every emotion is valid and part of growth."
+        : "🌧 It looks like a tough week. Be gentle with yourself. Better days are coming."}
+    </p>
+  `;
 }

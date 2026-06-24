@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Breathing | MindCare AI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="bg"></div>
+  <div id="loader"><div class="loader-text">🧠 MindCare AI</div></div>
+
+  <nav class="navbar">
+    <div class="logo">🧠 MindCare AI</div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="breathing.html">Breathing</a></li>
+      <li><a href="crisis.html">Crisis Help</a></li>
+      <li><button onclick="toggleDarkMode()" style="padding:8px 16px;font-size:0.85rem;">🌙 Dark Mode</button></li>
+    </ul>
+  </nav>
+
+  <main style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 20px 60px;text-align:center;gap:32px;">
+
+    <div>
+      <h1 style="font-size:2.2rem;margin-bottom:10px;">🫁 Breathing Exercise</h1>
+      <p style="color:var(--subtext);max-width:420px;margin:0 auto;">
+        The 4-7-8 technique calms your nervous system in minutes. Follow the circle.
+      </p>
+    </div>
+
+    <div class="breath-circle" id="breathCircle">Tap Start</div>
+
+    <div id="breathPhase" style="font-size:1.3rem;font-weight:700;color:var(--secondary);min-height:32px;"></div>
+    <div id="breathCount" style="font-size:3rem;font-weight:800;color:var(--text);min-height:64px;"></div>
+
+    <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;">
+      <button onclick="startBreathing()" class="btn">▶ Start</button>
+      <button onclick="stopBreathing()" class="btn" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#f87171;">⏹ Stop</button>
+    </div>
+
+    <div class="glass" style="padding:20px 28px;border-radius:18px;max-width:360px;">
+      <div style="display:flex;justify-content:space-between;gap:20px;font-size:0.85rem;color:var(--subtext);">
+        <div><strong style="color:#60a5fa;">4s</strong><br>Inhale</div>
+        <div><strong style="color:#a855f7;">7s</strong><br>Hold</div>
+        <div><strong style="color:#6ee7b7;">8s</strong><br>Exhale</div>
+      </div>
+    </div>
+
+    <div id="cycleCount" style="color:var(--subtext);font-size:0.9rem;">Cycles completed: 0</div>
+
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="script.js"></script>
+  <script src="subscription.js"></script>
+  <script>
+    let breathTimer = null;
+    let cycles = 0;
+
+    function startBreathing() {
+      stopBreathing();
+      cycles = 0;
+      runCycle();
+    }
+
+    function stopBreathing() {
+      clearTimeout(breathTimer);
+      const circle = document.getElementById("breathCircle");
+      circle.className = "breath-circle";
+      circle.textContent = "Tap Start";
+      document.getElementById("breathPhase").textContent = "";
+      document.getElementById("breathCount").textContent = "";
+    }
+
+    function runCycle() {
+      const circle = document.getElementById("breathCircle");
+      const phase  = document.getElementById("breathPhase");
+      const count  = document.getElementById("breathCount");
+
+      // INHALE — 4s
+      circle.className = "breath-circle inhale";
+      phase.textContent = "Inhale";
+      phase.style.color = "#60a5fa";
+      countdown(4, count, () => {
+
+        // HOLD — 7s
+        circle.className = "breath-circle hold";
+        phase.textContent = "Hold";
+        phase.style.color = "#a855f7";
+        countdown(7, count, () => {
+
+          // EXHALE — 8s
+          circle.className = "breath-circle exhale";
+          phase.textContent = "Exhale";
+          phase.style.color = "#6ee7b7";
+          countdown(8, count, () => {
+            cycles++;
+            document.getElementById("cycleCount").textContent = `Cycles completed: ${cycles}`;
+            if (cycles >= 4) {
+              phase.textContent = "✅ Session Complete!";
+              count.textContent = "";
+              circle.className = "breath-circle";
+              circle.textContent = "Done 🌟";
+              showToast("Breathing session complete! You did great 🌿", "success");
+            } else {
+              runCycle();
+            }
+          });
+        });
+      });
+    }
+
+    function countdown(seconds, el, onDone) {
+      let s = seconds;
+      el.textContent = s;
+      const tick = () => {
+        s--;
+        if (s <= 0) { el.textContent = ""; onDone(); return; }
+        el.textContent = s;
+        breathTimer = setTimeout(tick, 1000);
+      };
+      breathTimer = setTimeout(tick, 1000);
+    }
+  </script>
+</body>
+</html>

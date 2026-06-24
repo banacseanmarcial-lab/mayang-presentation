@@ -1,158 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard | MindCare AI Premium</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
 
-  <!-- 3D Background -->
   <div id="bg"></div>
-
-  <!-- Loader -->
-  <div id="loader">
-    <div class="loader-text">🧠 MindCare AI</div>
-  </div>
-
-  <!-- AI Orb — links to chat on click -->
+  <div id="loader"><div class="loader-text">🧠 MindCare AI</div></div>
   <div class="ai-orb" onclick="window.location.href='ai-chat.html'" title="Open AI Chat"></div>
 
-  <!-- Navigation -->
   <nav class="navbar">
-
     <div class="logo">🧠 MindCare AI</div>
-
     <ul class="nav-links">
       <li><a href="dashboard.html">Dashboard</a></li>
       <li><a href="emotion-feed.html">Emotion Feed</a></li>
       <li><a href="voice.html">🎙️ Voice AI</a></li>
       <li><a href="ai-chat.html">AI Chat</a></li>
-      <li><a href="assessment.html">Assessment</a></li>
       <li><a href="journal.html">Journal</a></li>
-      <li><a href="profile.html">Profile</a></li>
-      <li><a href="settings.html">Settings</a></li>
-      <!-- Dark mode toggle -->
-      <li>
-        <button
-          onclick="toggleDarkMode()"
-          style="padding:8px 16px; font-size:0.85rem;">
-          🌙 Dark Mode
-        </button>
-      </li>
-      <!-- Logout goes back to index -->
+      <li><a href="breathing.html">🫁 Breathing</a></li>
+      <li><a href="crisis.html">💙 Crisis Help</a></li>
+      <li><a href="subscription.html">💎 Premium</a></li>
+      <li><button onclick="toggleDarkMode()" style="padding:8px 16px;font-size:0.85rem;">🌙 Dark Mode</button></li>
       <li><a href="logout.html">Logout</a></li>
     </ul>
-
   </nav>
+
+  <!-- Onboarding overlay (shown on first visit) -->
+  <div class="onboarding-overlay" id="onboardingOverlay" style="display:none;">
+    <div class="glass onboarding-card">
+      <div class="step-dots">
+        <div class="step-dot active" id="dot0"></div>
+        <div class="step-dot" id="dot1"></div>
+        <div class="step-dot" id="dot2"></div>
+      </div>
+
+      <!-- Step 1 -->
+      <div id="step0">
+        <div style="font-size:3rem;margin-bottom:14px;">👋</div>
+        <h2 style="margin-bottom:10px;">Welcome to MindCare AI</h2>
+        <p style="color:var(--subtext);margin-bottom:24px;">Your personal mental wellness companion. Let's set things up in 3 quick steps.</p>
+        <input type="text" id="onboardName" placeholder="What's your name?" style="margin-bottom:16px;">
+        <button class="btn" style="width:100%;" onclick="nextStep(1)">Continue →</button>
+      </div>
+
+      <!-- Step 2 -->
+      <div id="step1" style="display:none;">
+        <div style="font-size:3rem;margin-bottom:14px;">🎯</div>
+        <h2 style="margin-bottom:10px;">What's your main goal?</h2>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+          <button class="btn" style="background:rgba(255,255,255,0.08);border:1px solid var(--border);color:var(--text);" onclick="selectGoal(this,'Manage stress & anxiety')">😰 Manage stress & anxiety</button>
+          <button class="btn" style="background:rgba(255,255,255,0.08);border:1px solid var(--border);color:var(--text);" onclick="selectGoal(this,'Improve mood & happiness')">😊 Improve mood & happiness</button>
+          <button class="btn" style="background:rgba(255,255,255,0.08);border:1px solid var(--border);color:var(--text);" onclick="selectGoal(this,'Build emotional resilience')">💪 Build emotional resilience</button>
+          <button class="btn" style="background:rgba(255,255,255,0.08);border:1px solid var(--border);color:var(--text);" onclick="selectGoal(this,'Track & understand emotions')">📊 Track & understand emotions</button>
+        </div>
+        <button class="btn" style="width:100%;" onclick="nextStep(2)">Continue →</button>
+      </div>
+
+      <!-- Step 3 -->
+      <div id="step2" style="display:none;">
+        <div style="font-size:3rem;margin-bottom:14px;">💙</div>
+        <h2 style="margin-bottom:10px;">How are you feeling right now?</h2>
+        <div class="emotion-grid" style="margin-bottom:24px;">
+          <button onclick="selectFirstEmotion('happy')">😊 Happy</button>
+          <button onclick="selectFirstEmotion('sad')">😔 Sad</button>
+          <button onclick="selectFirstEmotion('stressed')">😰 Stressed</button>
+          <button onclick="selectFirstEmotion('excited')">🤩 Excited</button>
+          <button onclick="selectFirstEmotion('fear')">😨 Fear</button>
+          <button onclick="selectFirstEmotion('depressed')">🌧 Depressed</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <main>
 
-    <!-- Hero Dashboard -->
+    <!-- Hero -->
     <section class="hero-dashboard">
-      <h1>Welcome Back 👋</h1>
-      <p>Your mental wellness journey starts here. Track emotions, reflect daily, and grow stronger.</p>
+      <h1 id="dashGreeting">Welcome Back 👋</h1>
+      <p style="color:var(--subtext);max-width:600px;margin:0 auto 16px;">Your mental wellness journey continues here.</p>
+      <!-- Daily Affirmation -->
+      <div class="affirmation-card" style="max-width:600px;margin:0 auto 16px;" id="dailyAffirmation">
+        Loading your daily affirmation...
+      </div>
+      <!-- Streak -->
+      <div class="streak-badge" style="margin:0 auto;">
+        🔥 <span id="streakCount">0</span>-day check-in streak
+      </div>
     </section>
 
-    <!-- Dashboard Cards -->
-    <section class="dashboard" aria-label="Wellness overview">
+    <!-- Stats Grid -->
+    <section class="dashboard">
 
-      <!-- Emotion Analytics — #currentEmotion populated by JS -->
       <div class="card glass">
-        <h2>📊 Emotion Analytics</h2>
+        <h2>📊 Current Emotion</h2>
         <span id="currentEmotion" class="stat-number">😊 Happy</span>
-        <p>Most selected emotion</p>
-      </div>
-
-      <!-- Emotion Feed -->
-      <div class="card glass">
-        <h2>💖 Emotion Feed</h2>
-        <p>Explore quotes, playlists, AI prompts, and emotional insights.</p>
+        <p>Most recent selection</p>
         <br>
-        <a href="emotion-feed.html" class="btn">Open Feed</a>
+        <a href="emotion-feed.html" class="btn" style="padding:10px 20px;font-size:0.85rem;">Check In</a>
       </div>
 
-      <!-- Mood Score -->
       <div class="card glass">
-        <h2>😊 Mood Score</h2>
-        <span class="stat-number">82%</span>
-        <p>Positive emotional state</p>
+        <h2>🔥 Streak</h2>
+        <span class="stat-number"><span id="streakCount2">0</span> days</span>
+        <p>Consecutive check-ins</p>
       </div>
 
-      <!-- Wellness Score -->
-      <div class="card glass">
-        <h2>🧘 Wellness Score</h2>
-        <span class="stat-number">91%</span>
-        <p>Healthy emotional balance</p>
-      </div>
-
-      <!-- Stress Level -->
-      <div class="card glass">
-        <h2>😌 Stress Level</h2>
-        <span class="stat-number">Low</span>
-        <p>Keep maintaining balance</p>
-      </div>
-
-      <!-- AI Sessions -->
-      <div class="card glass">
-        <h2>🤖 AI Sessions</h2>
-        <span class="stat-number">35</span>
-        <p>Total AI conversations</p>
-      </div>
-
-      <!-- Journal Entries -->
       <div class="card glass">
         <h2>📔 Journal Entries</h2>
-        <span class="stat-number">18</span>
-        <p>Personal reflections saved</p>
+        <span class="stat-number" id="journalCount">0</span>
+        <p>Total reflections saved</p>
       </div>
 
-      <!-- Growth -->
       <div class="card glass">
-        <h2>📈 Growth</h2>
-        <span class="stat-number">+12%</span>
-        <p>Improved from last month</p>
+        <h2>💖 Emotion Feed</h2>
+        <p>Explore quotes, playlists and AI prompts.</p>
+        <br>
+        <a href="emotion-feed.html" class="btn" style="padding:10px 20px;font-size:0.85rem;">Open Feed</a>
+      </div>
+
+      <div class="card glass">
+        <h2>🫁 Breathing</h2>
+        <p>4-7-8 guided breathing exercise to calm your mind.</p>
+        <br>
+        <a href="breathing.html" class="btn" style="padding:10px 20px;font-size:0.85rem;">Start Session</a>
+      </div>
+
+      <div class="card glass">
+        <h2>🎙️ Voice AI</h2>
+        <p>Speak your emotions and get an instant Siri-style response.</p>
+        <br>
+        <a href="voice.html" class="btn" style="padding:10px 20px;font-size:0.85rem;">Open Voice AI</a>
+      </div>
+
+      <div class="card glass">
+        <h2>🤖 AI Chat</h2>
+        <p>Real AI-powered emotional support, available 24/7.</p>
+        <br>
+        <a href="ai-chat.html" class="btn" style="padding:10px 20px;font-size:0.85rem;">Start Chat</a>
+      </div>
+
+      <div class="card glass">
+        <h2>💙 Crisis Help</h2>
+        <p>Hotlines, grounding techniques, and immediate support.</p>
+        <br>
+        <a href="crisis.html" class="btn" style="padding:10px 20px;font-size:0.85rem;background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.3);">Get Help</a>
       </div>
 
     </section>
 
-    <!-- Premium Features -->
-    <section class="premium-section" aria-label="Premium tools">
-      <h2>🚀 Premium Wellness Tools</h2>
-
-      <div class="premium-grid">
-
-        <div class="card glass">
-          <h3>🤖 AI Companion</h3>
-          <p>24/7 emotional support and reflection.</p>
+    <!-- Mood Chart -->
+    <section class="premium-section">
+      <h2>📈 7-Day Mood History</h2>
+      <div class="glass" style="padding:30px;border-radius:20px;margin-top:20px;">
+        <div class="chart-container">
+          <canvas id="moodChart"></canvas>
         </div>
-
-        <div class="card glass">
-          <h3>💖 Emotion Feed</h3>
-          <p>TikTok-style emotional discovery feed.</p>
-        </div>
-
-        <div class="card glass">
-          <h3>📔 Smart Journal</h3>
-          <p>Track moods and emotional growth.</p>
-        </div>
-
-        <div class="card glass">
-          <h3>📊 Analytics</h3>
-          <p>View emotional trends over time.</p>
-        </div>
-
+        <p id="noChartData" style="color:var(--subtext);text-align:center;padding:40px 0;display:none;">
+          No mood data yet. Start tracking by selecting an emotion in the Emotion Feed!
+        </p>
       </div>
     </section>
 
-    <!-- Daily Check-In -->
+    <!-- Weekly Report -->
+    <section class="premium-section">
+      <h2>📋 Weekly Wellness Report</h2>
+      <div class="glass" style="padding:30px;border-radius:20px;margin-top:20px;" id="weeklyReport">
+        <p style="color:var(--subtext);text-align:center;">Check in a few times this week to generate your report.</p>
+      </div>
+    </section>
+
+    <!-- Daily Check-in -->
     <section class="daily-checkin-wrapper">
       <div class="daily-checkin glass">
         <h2>🌟 Daily Check-In</h2>
-        <p>How are you feeling today?</p>
+        <p style="color:var(--subtext);margin-top:8px;">How are you feeling right now?</p>
         <br>
         <a href="emotion-feed.html" class="btn">Select Emotion</a>
       </div>
@@ -160,15 +185,97 @@
 
   </main>
 
-  <!-- Footer -->
-  <footer>
-    <p>© 2025 MindCare AI Premium</p>
-  </footer>
+  <footer><p>© 2025 MindCare AI Premium</p></footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <!-- script.js -->
   <script src="script.js"></script>
-
   <script src="subscription.js"></script>
+
+  <script>
+    // Onboarding
+    let selectedGoal = "";
+
+    function checkOnboarding() {
+      if (!localStorage.getItem("onboardingDone")) {
+        document.getElementById("onboardingOverlay").style.display = "flex";
+      } else {
+        setGreeting();
+      }
+    }
+
+    function nextStep(step) {
+      if (step === 1) {
+        const name = document.getElementById("onboardName").value.trim();
+        if (name) {
+          const profile = JSON.parse(localStorage.getItem("profile") || "{}");
+          profile.name = name;
+          localStorage.setItem("profile", JSON.stringify(profile));
+        }
+      }
+      document.getElementById("step" + (step-1)).style.display = "none";
+      document.getElementById("step" + step).style.display = "block";
+      document.querySelectorAll(".step-dot").forEach((d,i) => d.classList.toggle("active", i === step));
+    }
+
+    function selectGoal(btn, goal) {
+      selectedGoal = goal;
+      document.querySelectorAll("#step1 .btn").forEach(b => b.style.background = "rgba(255,255,255,0.08)");
+      btn.style.background = "rgba(96,165,250,0.2)";
+      btn.style.borderColor = "var(--secondary)";
+      localStorage.setItem("wellnessGoal", goal);
+    }
+
+    function selectFirstEmotion(emotion) {
+      localStorage.setItem("currentMood", emotion);
+      localStorage.setItem("selectedEmotion", emotion);
+      saveMoodHistory(emotion);
+      localStorage.setItem("onboardingDone", "true");
+      document.getElementById("onboardingOverlay").style.display = "none";
+      showToast("Welcome to MindCare AI! 🎉", "success");
+      launchConfetti();
+      setGreeting();
+    }
+
+    function setGreeting() {
+      const profile = JSON.parse(localStorage.getItem("profile") || "{}");
+      const name = profile.name;
+      const hour = new Date().getHours();
+      const time = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+      const el = document.getElementById("dashGreeting");
+      if (el) el.textContent = `${time}${name ? ", " + name : ""} 👋`;
+    }
+
+    // Sync streak badge
+    function syncStreak() {
+      const s = localStorage.getItem("streak") || "0";
+      const el2 = document.getElementById("streakCount2");
+      if (el2) el2.textContent = s;
+    }
+
+    // Journal count
+    function updateJournalCount() {
+      const entries = JSON.parse(localStorage.getItem("mindcareJournal") || "[]");
+      const el = document.getElementById("journalCount");
+      if (el) el.textContent = entries.length;
+    }
+
+    // Chart empty state
+    function checkChartData() {
+      const history = JSON.parse(localStorage.getItem("moodHistory") || "[]");
+      if (history.length === 0) {
+        document.getElementById("noChartData").style.display = "block";
+        document.getElementById("moodChart").style.display = "none";
+      }
+    }
+
+    window.addEventListener("load", () => {
+      checkOnboarding();
+      syncStreak();
+      updateJournalCount();
+      checkChartData();
+      generateWeeklyReport();
+    });
+  </script>
+
 </body>
 </html>

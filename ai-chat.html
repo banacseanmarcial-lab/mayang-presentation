@@ -5,6 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Chat | MindCare AI</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Typing indicator dots */
+    .typing-dots {
+      display: inline-flex;
+      gap: 4px;
+      vertical-align: middle;
+      margin-left: 4px;
+    }
+    .typing-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--secondary);
+      animation: typingBounce 1.2s infinite ease-in-out;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+      30% { transform: translateY(-5px); opacity: 1; }
+    }
+    .chat-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .clear-chat-btn {
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--subtext);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .clear-chat-btn:hover { color: var(--text); }
+  </style>
 </head>
 <body>
 
@@ -34,10 +74,15 @@
 
   <main>
     <div class="chat-container glass">
-      <h2>🤖 MindCare AI Chat</h2>
-      <p style="color:var(--subtext); margin-bottom:20px;">
-        Talk to your AI wellness companion. Share anything on your mind.
-      </p>
+      <div class="chat-header-row">
+        <div>
+          <h2>🤖 MindCare AI Chat</h2>
+          <p style="color:var(--subtext); margin-bottom:20px;">
+            Talk to your AI wellness companion. Share anything on your mind.
+          </p>
+        </div>
+        <button class="clear-chat-btn" onclick="clearChat()">🗑 Clear Chat</button>
+      </div>
 
       <div id="messages">
         <p><strong>MindCare AI:</strong> Hello! I'm here to support you. How are you feeling today? 💙</p>
@@ -58,5 +103,261 @@
   <script src="script.js"></script>
   <script src="subscription.js"></script>
   <script>MindCareSub.guard();</script>
+
+  <script>
+    // ============================================================
+    // SMARTER DEMO AI CHAT — no backend, no API key.
+    // Detects the emotion in what you typed, replies from a large
+    // pool of varied lines per emotion, and never repeats a line
+    // until the whole pool has been used once (then reshuffles).
+    // ============================================================
+
+    const emotionKeywords = {
+      happy:    ["happy", "joy", "joyful", "great", "good", "wonderful", "amazing", "fantastic", "cheerful", "grateful"],
+      sad:      ["sad", "unhappy", "cry", "crying", "tears", "heartbroken", "lonely", "miss", "grief", "down", "low", "blue"],
+      stressed: ["stressed", "stress", "overwhelmed", "anxious", "anxiety", "pressure", "too much", "can't cope", "burnout", "exhausted"],
+      doubt:    ["doubt", "unsure", "uncertain", "confused", "don't know", "not sure", "unclear", "hesitant"],
+      guilt:    ["guilty", "guilt", "regret", "sorry", "ashamed", "shame", "my fault", "blame myself"],
+      fear:     ["scared", "fear", "afraid", "terrified", "nervous", "frightened", "panic", "worried", "worry"],
+      anger:    ["angry", "anger", "mad", "furious", "frustrated", "irritated", "annoyed", "upset"],
+      disgust:  ["disgusted", "disgust", "gross", "revolted", "appalled"],
+      surprise: ["surprised", "shocked", "unexpected", "wow", "unbelievable", "astonished"],
+      excited:  ["excited", "thrilled", "pumped", "can't wait", "looking forward", "energized"],
+      depressed:["depressed", "depression", "hopeless", "worthless", "empty", "numb", "no point", "give up"]
+    };
+
+    const emotionReplies = {
+      happy: [
+        "I love hearing that! What's contributing most to that good feeling right now?",
+        "That's wonderful — savor this moment. What's been the highlight of your day?",
+        "It's great that you're feeling happy. What's been going right lately?",
+        "That energy is contagious 💛 What sparked it?"
+      ],
+      sad: [
+        "I'm sorry you're feeling sad. Do you want to tell me what's been weighing on you?",
+        "That sounds heavy to carry. How long have you been feeling this way?",
+        "I hear you. Sadness deserves space — what's been on your mind?",
+        "Thank you for telling me that. Is there something specific that triggered it?"
+      ],
+      stressed: [
+        "That sounds like a lot to handle at once. What's the biggest source of the pressure right now?",
+        "Feeling overwhelmed is exhausting. Have you had a chance to take a real break today?",
+        "Stress like that builds up fast. What's one thing on your plate you could put down, even briefly?",
+        "I hear how much you're carrying. Want to talk through what's causing it?"
+      ],
+      doubt: [
+        "Uncertainty is uncomfortable, but it's also normal. What decision is on your mind?",
+        "It's okay not to have it all figured out. What's making you feel unsure?",
+        "Doubt often shows up when something matters to you. What's at stake here?",
+        "What would it look like if you trusted yourself a little more on this?"
+      ],
+      guilt: [
+        "Guilt can be really heavy to sit with. What happened?",
+        "It sounds like you're being hard on yourself. What would you say to a friend in this situation?",
+        "Everyone makes mistakes — what matters is what you do next. What's on your mind?",
+        "I hear that you feel responsible. Do you want to talk through it?"
+      ],
+      fear: [
+        "Fear can be so consuming. What's making you feel afraid right now?",
+        "That sounds scary to sit with. Is this about something specific, or more general?",
+        "I'm here with you. What's the worst part of what you're afraid of?",
+        "Worry has a way of growing in our heads. Want to break it down together?"
+      ],
+      anger: [
+        "That frustration makes sense. What set it off?",
+        "Anger usually means something important got crossed. What happened?",
+        "It's okay to feel mad. Do you want to vent, or talk through what to do next?",
+        "I hear how frustrated you are. What's the core of it?"
+      ],
+      disgust: [
+        "That sounds like a strong reaction. What happened?",
+        "I can tell that really didn't sit right with you. Want to talk about it?",
+        "That's a tough feeling to carry. What triggered it?"
+      ],
+      surprise: [
+        "That sounds unexpected! How are you processing it?",
+        "Surprises can really throw us off. Good surprise or bad one?",
+        "Wow — tell me more about what happened."
+      ],
+      excited: [
+        "I can feel your excitement! What's coming up?",
+        "That's awesome — what are you most looking forward to?",
+        "Love this energy. Tell me more!"
+      ],
+      depressed: [
+        "I'm really glad you told me that. That sounds incredibly heavy to carry alone.",
+        "Thank you for trusting me with that. Have you been able to talk to anyone close to you about how you're feeling?",
+        "That sounds really painful. You don't have to go through this by yourself.",
+        "I hear you, and what you're feeling matters. Is there someone you trust that you could reach out to today?"
+      ]
+    };
+
+    const greetingReplies = [
+      "Hi there 💙 How are you feeling today?",
+      "Hello! I'm glad you're here. What's on your mind?",
+      "Hey! How has your day been treating you?",
+      "Hi! What's going on with you today?"
+    ];
+
+    const gratitudeReplies = [
+      "You're always welcome here. I'm glad I could help.",
+      "Anytime 💙 That's what I'm here for.",
+      "I'm really glad that helped. How are you feeling now?",
+      "You don't have to thank me — just keep checking in with yourself too."
+    ];
+
+    const generalReplies = [
+      "I'm listening — tell me more about what's going on.",
+      "Thank you for sharing that with me. What do you think triggered it?",
+      "I hear you. Is there anything specific that's been on your mind today?",
+      "That makes sense. How long has this been on your mind?",
+      "I'm here for you. What would help most right now?",
+      "Tell me a bit more — I want to understand what you're going through."
+    ];
+
+    const followUps = [
+      "How does that feel for you, physically or emotionally?",
+      "Have you been able to talk to anyone else about this?",
+      "What's one small thing that's helped you feel even slightly better recently?",
+      "Is there something you need right now — comfort, advice, or just someone to listen?",
+      "On a scale of mild to overwhelming, where would you put this?"
+    ];
+
+    // ---- anti-repeat pools: shuffles each list, pops one at a time, reshuffles when empty ----
+    const usedPools = {};
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    function pickUnique(poolName, sourceArray) {
+      if (!usedPools[poolName] || usedPools[poolName].length === 0) {
+        usedPools[poolName] = shuffle(sourceArray);
+      }
+      return usedPools[poolName].pop();
+    }
+
+    function detectEmotion(text) {
+      const lower = text.toLowerCase();
+      for (const [emotion, keywords] of Object.entries(emotionKeywords)) {
+        if (keywords.some(k => lower.includes(k))) return emotion;
+      }
+      return null;
+    }
+
+    let lastEmotion = localStorage.getItem("mc_lastChatEmotion") || null;
+    let turnCount = 0;
+
+    function generateReply(text) {
+      const lower = text.toLowerCase().trim();
+      turnCount++;
+
+      if (/^(hi|hello|hey|good morning|good evening|good afternoon)\b/.test(lower)) {
+        return pickUnique("greeting", greetingReplies);
+      }
+      if (/(thank you|thanks|appreciate it)/.test(lower)) {
+        return pickUnique("gratitude", gratitudeReplies);
+      }
+
+      const emotion = detectEmotion(lower);
+
+      if (emotion) {
+        lastEmotion = emotion;
+        localStorage.setItem("mc_lastChatEmotion", emotion);
+        const bank = emotionReplies[emotion] || generalReplies;
+        return pickUnique("emotion_" + emotion, bank);
+      }
+
+      // Occasionally reference the last known emotion to feel more continuous
+      if (lastEmotion && turnCount % 4 === 0 && Math.random() < 0.5) {
+        return `Earlier you mentioned feeling ${lastEmotion}. Has that shifted at all, or still about the same?`;
+      }
+
+      const pool = Math.random() < 0.5 ? generalReplies : followUps;
+      const poolName = pool === generalReplies ? "general" : "followup";
+      return pickUnique(poolName, pool);
+    }
+
+    // ---- chat UI plumbing (unchanged from before) ----
+    let chatHistory = JSON.parse(localStorage.getItem("mc_chatHistory") || "[]");
+
+    function escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    (function restoreChat() {
+      const messages = document.getElementById("messages");
+      if (!messages || chatHistory.length === 0) return;
+      messages.innerHTML = "";
+      chatHistory.forEach(m => {
+        const who = m.role === "user" ? "You" : "MindCare AI";
+        messages.innerHTML += `<p><strong>${who}:</strong> ${escapeHtml(m.content)}</p>`;
+      });
+      messages.scrollTop = messages.scrollHeight;
+    })();
+
+    function showTypingIndicator() {
+      const messages = document.getElementById("messages");
+      if (!messages) return;
+      const el = document.createElement("p");
+      el.id = "typingIndicator";
+      el.innerHTML = `<strong>MindCare AI:</strong> <span class="typing-dots"><span></span><span></span><span></span></span>`;
+      messages.appendChild(el);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+      document.getElementById("typingIndicator")?.remove();
+    }
+
+    function clearChat() {
+      if (!confirm("Clear this conversation? This can't be undone.")) return;
+      chatHistory = [];
+      localStorage.removeItem("mc_chatHistory");
+      localStorage.removeItem("mc_lastChatEmotion");
+      lastEmotion = null;
+      turnCount = 0;
+      const messages = document.getElementById("messages");
+      messages.innerHTML = `<p><strong>MindCare AI:</strong> Hello again! How are you feeling today? 💙</p>`;
+    }
+
+    // Overrides the original sendMessage() from script.js. The Enter-key
+    // listener in script.js calls "sendMessage()" by name, so it will
+    // automatically use this new version too.
+    window.sendMessage = function () {
+      const input = document.getElementById("messageInput");
+      const messages = document.getElementById("messages");
+      if (!input || !messages) return;
+
+      const text = input.value.trim();
+      if (!text) return;
+
+      messages.innerHTML += `<p><strong>You:</strong> ${escapeHtml(text)}</p>`;
+      messages.scrollTop = messages.scrollHeight;
+      input.value = "";
+
+      chatHistory.push({ role: "user", content: text });
+      showTypingIndicator();
+
+      // Variable delay so it doesn't feel robotic — slightly longer for longer messages
+      const delay = 600 + Math.min(text.length * 15, 1200) + Math.random() * 400;
+
+      setTimeout(() => {
+        removeTypingIndicator();
+        const reply = generateReply(text);
+        messages.innerHTML += `<p><strong>MindCare AI:</strong> ${escapeHtml(reply)}</p>`;
+        messages.scrollTop = messages.scrollHeight;
+
+        chatHistory.push({ role: "assistant", content: reply });
+        localStorage.setItem("mc_chatHistory", JSON.stringify(chatHistory));
+      }, delay);
+    };
+  </script>
+
 </body>
 </html>
