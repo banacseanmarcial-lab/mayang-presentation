@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Appointments | MindCare AI</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .appt-page { padding: 100px 28px 60px; max-width: 860px; margin: 0 auto; }
+    .appt-tab {
+      padding: 9px 20px; border-radius: 24px; font-size: .85rem; font-weight: 700;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+      color: var(--subtext, #94a3b8); cursor: pointer; transition: .2s;
+    }
+    .appt-tab.active {
+      background: rgba(96,165,250,.15); border-color: #60a5fa; color: #60a5fa;
+    }
+    :root {
+      --primary: #3b82f6; --secondary: #60a5fa; --accent: #a855f7;
+      --bg: #0f172a; --card: rgba(255,255,255,.07); --text: #f1f5f9;
+      --subtext: #94a3b8; --border: rgba(255,255,255,.1); --nav-h: 72px;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
+    body.dark { --bg: #000; background: #000; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 20px; }
+    .navbar {
+      position: fixed; top: 0; width: 100%; height: 72px; padding: 0 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(15,23,42,.9); backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border); z-index: 1000;
+    }
+    .logo { font-size: 1.1rem; font-weight: 800; background: linear-gradient(135deg,#60a5fa,#a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-links { display: flex; align-items: center; gap: 6px; list-style: none; flex-wrap: wrap; }
+    .nav-links a { text-decoration: none; color: var(--subtext); font-size: .82rem; font-weight: 600; padding: 6px 12px; border-radius: 10px; transition: .2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); background: rgba(255,255,255,.07); }
+    .btn { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg,#3b82f6,#a855f7); color: white; padding: 11px 22px; border: none; border-radius: 13px; cursor: pointer; text-decoration: none; font-size: .88rem; font-weight: 700; transition: .2s; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(59,130,246,.4); }
+    #toastContainer { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 9999; max-width: 360px; }
+    .toast { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; border-radius: 13px; font-size: .85rem; font-weight: 600; border: 1px solid rgba(255,255,255,.1); opacity: 0; transform: translateX(40px); transition: .35s; }
+    .toast-show { opacity: 1; transform: translateX(0); }
+    .toast-success { background: rgba(16,185,129,.15); border-color: rgba(16,185,129,.3); color: #6ee7b7; }
+    .toast-error   { background: rgba(239,68,68,.15);  border-color: rgba(239,68,68,.3);  color: #f87171; }
+    .toast-info    { background: rgba(96,165,250,.15); border-color: rgba(96,165,250,.3); color: #93c5fd; }
+    .toast-warning { background: rgba(245,158,11,.15); border-color: rgba(245,158,11,.3); color: #fde68a; }
+    #bg { position: fixed; inset: 0; z-index: -2; }
+  </style>
+</head>
+<body>
+
+<div id="bg"></div>
+<div id="loader" style="position:fixed;inset:0;background:#0f172a;display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .8s;">
+  <div style="font-size:2rem;font-weight:800;animation:pulse 2s infinite;">🧠 MindCare AI</div>
+  <style>@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}</style>
+</div>
+
+<nav class="navbar">
+  <div class="logo">🧠 MindCare AI</div>
+  <ul class="nav-links">
+    <li><a href="dashboard.html">🏠 Home</a></li>
+    <li><a href="doctors.html">🩺 Doctors</a></li>
+    <li><a href="my-appointments.html" class="active">📅 Appointments</a></li>
+    <li><a href="ai-chat.html">🤖 AI Chat</a></li>
+    <li><a href="subscription.html">💎 Premium</a></li>
+    <li><button onclick="toggleDarkMode()" style="padding:6px 12px;font-size:.78rem;border-radius:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#94a3b8;cursor:pointer;">🌙</button></li>
+  </ul>
+</nav>
+
+<main class="appt-page">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:24px;">
+    <div>
+      <h1 style="font-size:1.9rem;font-weight:900;margin-bottom:4px;">📅 My Appointments</h1>
+      <p style="color:var(--subtext);">Track and manage your doctor bookings.</p>
+    </div>
+    <a href="doctors.html" class="btn">🩺 Book New</a>
+  </div>
+
+  <!-- Stats -->
+  <div id="apptStats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:14px;margin-bottom:26px;"></div>
+
+  <!-- Filter Tabs -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;">
+    <button class="appt-tab active" onclick="filterApptsByStatus(this,'all')">All</button>
+    <button class="appt-tab" onclick="filterApptsByStatus(this,'pending')">⏳ Pending</button>
+    <button class="appt-tab" onclick="filterApptsByStatus(this,'confirmed')">✅ Confirmed</button>
+    <button class="appt-tab" onclick="filterApptsByStatus(this,'completed')">🏁 Completed</button>
+    <button class="appt-tab" onclick="filterApptsByStatus(this,'cancelled')">❌ Cancelled</button>
+  </div>
+
+  <!-- List -->
+  <div id="apptList">
+    <div style="text-align:center;padding:60px 20px;color:var(--subtext);">
+      <div style="font-size:3rem;margin-bottom:16px;">📅</div>
+      <p>Loading your appointments...</p>
+    </div>
+  </div>
+
+</main>
+
+<div id="toastContainer"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="script.js"></script>
+<script src="subscription.js"></script>
+<script>
+  // Loader
+  window.addEventListener("load", () => {
+    const loader = document.getElementById("loader");
+    if (loader) { setTimeout(() => { loader.style.opacity = "0"; setTimeout(() => loader.style.display = "none", 800); }, 800); }
+  });
+
+  // Dark mode
+  function toggleDarkMode() {
+    document.body.classList.toggle("dark");
+    localStorage.setItem("theme", document.body.classList.contains("dark") ? "true" : "false");
+  }
+  if (localStorage.getItem("theme") === "true") document.body.classList.add("dark");
+</script>
+</body>
+</html>

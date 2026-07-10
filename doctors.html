@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find a Doctor | MindCare AI</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+
+    /* ── PAGE ── */
+    .doctors-page { padding: calc(var(--nav-h) + 32px) 28px 60px; max-width: 1200px; margin: 0 auto; }
+
+    /* ── SEARCH BAR ── */
+    .search-bar {
+      display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px;
+    }
+    .search-bar input {
+      flex: 1; min-width: 200px; margin: 0;
+      background: rgba(255,255,255,.07);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 13px 18px; color: var(--text); font-size: .95rem;
+    }
+    .filter-btn {
+      padding: 10px 18px; border-radius: 24px; font-size: .82rem; font-weight: 700;
+      background: rgba(255,255,255,.06); border: 1px solid var(--border);
+      color: var(--subtext); cursor: pointer; transition: .2s; white-space: nowrap;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: rgba(96,165,250,.15); border-color: var(--secondary); color: var(--secondary);
+    }
+
+    /* ── DOCTOR GRID ── */
+    .doctor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 22px;
+    }
+
+    /* ── DOCTOR CARD ── */
+    .doctor-card {
+      border-radius: 20px; overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--card);
+      backdrop-filter: blur(20px);
+      transition: transform .3s, box-shadow .3s;
+      cursor: pointer;
+    }
+    .doctor-card:hover { transform: translateY(-5px); box-shadow: 0 16px 48px rgba(0,0,0,.35); }
+
+    .doctor-cover {
+      height: 90px;
+      background: linear-gradient(135deg, var(--c1,#3b82f6), var(--c2,#a855f7));
+      position: relative;
+    }
+
+    .doctor-avatar {
+      width: 76px; height: 76px; border-radius: 50%;
+      border: 3px solid var(--bg);
+      position: absolute; bottom: -36px; left: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      background: linear-gradient(135deg, var(--c1,#3b82f6), var(--c2,#a855f7));
+      box-shadow: 0 4px 16px rgba(0,0,0,.3);
+    }
+
+    .verified-badge {
+      position: absolute; top: 8px; right: 10px;
+      background: rgba(16,185,129,.85); color: white;
+      font-size: .68rem; font-weight: 800; padding: 3px 10px;
+      border-radius: 20px; letter-spacing: .04em;
+    }
+
+    .premium-badge {
+      position: absolute; top: 8px; left: 10px;
+      background: linear-gradient(135deg,#f59e0b,#f97316);
+      color: white; font-size: .68rem; font-weight: 800;
+      padding: 3px 10px; border-radius: 20px;
+    }
+
+    .doctor-body { padding: 46px 20px 20px; }
+
+    .doctor-name { font-size: 1.05rem; font-weight: 800; margin-bottom: 3px; }
+    .doctor-title { font-size: .8rem; color: var(--secondary); font-weight: 700; margin-bottom: 6px; }
+    .doctor-spec { font-size: .78rem; color: var(--subtext); margin-bottom: 12px; }
+
+    .doctor-stats {
+      display: flex; gap: 16px; margin-bottom: 14px; flex-wrap: wrap;
+    }
+    .doc-stat { text-align: center; }
+    .doc-stat-num { font-size: 1rem; font-weight: 800; color: var(--text); }
+    .doc-stat-lbl { font-size: .68rem; color: var(--subtext); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+
+    .doctor-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .doc-tag { padding: 4px 11px; border-radius: 20px; font-size: .72rem; font-weight: 700;
+      background: rgba(96,165,250,.1); border: 1px solid rgba(96,165,250,.2); color: var(--secondary); }
+
+    .stars { color: #fde68a; font-size: .9rem; margin-bottom: 3px; }
+    .rating-text { font-size: .75rem; color: var(--subtext); }
+
+    .doctor-actions { display: flex; gap: 8px; }
+    .btn-book { flex: 1; padding: 11px 0; border-radius: 12px; font-size: .85rem; font-weight: 700;
+      background: linear-gradient(135deg,var(--primary),var(--accent)); color: white;
+      border: none; cursor: pointer; transition: .2s; }
+    .btn-book:hover { opacity: .88; transform: translateY(-1px); }
+    .btn-profile { padding: 11px 16px; border-radius: 12px; font-size: .85rem; font-weight: 700;
+      background: rgba(255,255,255,.07); border: 1px solid var(--border); color: var(--text);
+      cursor: pointer; transition: .2s; }
+    .btn-profile:hover { background: rgba(255,255,255,.12); }
+
+    /* ── MODAL OVERLAY ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 9000;
+      background: rgba(0,0,0,.75); backdrop-filter: blur(10px);
+      display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+
+    /* ── DOCTOR PROFILE MODAL ── */
+    .doc-modal {
+      max-width: 680px; width: 100%; max-height: 90vh; overflow-y: auto;
+      border-radius: 24px; background: #1e293b; border: 1px solid var(--border);
+      box-shadow: 0 24px 80px rgba(0,0,0,.5);
+      animation: modalIn .3s ease;
+    }
+    @keyframes modalIn { from{opacity:0;transform:scale(.94) translateY(20px)} to{opacity:1;transform:none} }
+
+    .doc-modal-cover {
+      height: 130px; position: relative;
+      border-radius: 24px 24px 0 0;
+    }
+    .doc-modal-avatar {
+      width: 90px; height: 90px; border-radius: 50%;
+      border: 4px solid #1e293b;
+      position: absolute; bottom: -44px; left: 28px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.4rem; box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    }
+    .doc-modal-close {
+      position: absolute; top: 12px; right: 14px;
+      background: rgba(0,0,0,.4); border: none; color: white;
+      font-size: 1.2rem; width: 34px; height: 34px; border-radius: 50%;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .doc-modal-body { padding: 56px 28px 28px; }
+    .doc-modal-name { font-size: 1.4rem; font-weight: 900; margin-bottom: 4px; }
+    .doc-modal-tabs {
+      display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin: 20px 0;
+    }
+    .doc-tab {
+      padding: 10px 18px; font-size: .85rem; font-weight: 700; cursor: pointer;
+      border: none; background: none; color: var(--subtext);
+      border-bottom: 2px solid transparent; margin-bottom: -1px; transition: .2s;
+    }
+    .doc-tab.active { color: var(--secondary); border-bottom-color: var(--secondary); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── BOOKING FORM ── */
+    .time-slots { display: grid; grid-template-columns: repeat(auto-fill,minmax(100px,1fr)); gap: 10px; margin: 14px 0; }
+    .time-slot {
+      padding: 10px 8px; border-radius: 10px; text-align: center; font-size: .82rem;
+      font-weight: 700; border: 1px solid var(--border); background: rgba(255,255,255,.05);
+      cursor: pointer; transition: .2s; color: var(--text);
+    }
+    .time-slot:hover, .time-slot.selected {
+      background: rgba(96,165,250,.15); border-color: var(--secondary); color: var(--secondary);
+    }
+    .time-slot.unavailable { opacity: .35; cursor: not-allowed; text-decoration: line-through; }
+
+    /* ── REVIEWS ── */
+    .review-item { padding: 16px; background: rgba(255,255,255,.04); border-radius: 14px;
+      border: 1px solid var(--border); margin-bottom: 12px; }
+    .review-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .review-avatar { width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg,#3b82f6,#a855f7);
+      display: flex; align-items: center; justify-content: center; font-size: .9rem; flex-shrink:0; }
+    .review-name { font-weight: 700; font-size: .88rem; }
+    .review-date { font-size: .72rem; color: var(--subtext); }
+
+    /* ── BOOKINGS LIST ── */
+    .booking-item {
+      padding: 16px 20px; border-radius: 14px; background: rgba(255,255,255,.04);
+      border: 1px solid var(--border); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    }
+    .booking-status { padding: 4px 12px; border-radius: 20px; font-size: .72rem; font-weight: 800; }
+    .status-pending  { background:rgba(245,158,11,.15); color:#fde68a; border:1px solid rgba(245,158,11,.3); }
+    .status-confirmed{ background:rgba(16,185,129,.15); color:#6ee7b7; border:1px solid rgba(16,185,129,.3); }
+    .status-cancelled{ background:rgba(239,68,68,.15);  color:#f87171; border:1px solid rgba(239,68,68,.3); }
+
+    @media(max-width:600px){
+      .doctor-grid { grid-template-columns: 1fr; }
+      .doc-modal-body { padding: 52px 18px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="bg"></div>
+<div id="loader"><div class="loader-text">🧠 MindCare AI</div></div>
+
+<nav class="navbar">
+  <div class="logo">🧠 MindCare AI</div>
+  <ul class="nav-links">
+    <li><a href="dashboard.html">🏠</a></li>
+    <li><a href="doctors.html" class="active">🩺 Doctors</a></li>
+    <li><a href="my-appointments.html">📅 My Appointments</a></li>
+    <li><a href="ai-chat.html">🤖</a></li>
+    <li><a href="subscription.html">💎</a></li>
+    <li><button onclick="toggleDarkMode()" style="padding:6px 12px;font-size:.78rem;border-radius:10px;background:rgba(255,255,255,.07);border:1px solid var(--border);color:var(--text);cursor:pointer;">🌙</button></li>
+  </ul>
+</nav>
+
+<main class="doctors-page">
+
+  <!-- Header -->
+  <div style="margin-bottom:28px;">
+    <h1 style="font-size:2rem;font-weight:900;margin-bottom:6px;">🩺 Find a Doctor</h1>
+    <p style="color:var(--subtext);">Browse verified mental health professionals and book your appointment online.</p>
+  </div>
+
+  <!-- Search + Filters -->
+  <div class="search-bar">
+    <input type="text" id="doctorSearch" placeholder="🔍 Search by name, specialty, or hospital..." oninput="filterDoctors()">
+    <button class="filter-btn active" onclick="setFilter(this,'all')">All</button>
+    <button class="filter-btn" onclick="setFilter(this,'psychiatrist')">Psychiatrist</button>
+    <button class="filter-btn" onclick="setFilter(this,'psychologist')">Psychologist</button>
+    <button class="filter-btn" onclick="setFilter(this,'counselor')">Counselor</button>
+    <button class="filter-btn" onclick="setFilter(this,'therapist')">Therapist</button>
+  </div>
+
+  <!-- Stats bar -->
+  <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:24px;">
+    <div style="font-size:.85rem;color:var(--subtext);">Showing <span id="docCount" style="color:var(--secondary);font-weight:700;">12</span> doctors</div>
+    <div style="font-size:.85rem;color:var(--subtext);">✅ All verified professionals</div>
+    <div style="font-size:.85rem;color:var(--subtext);">📅 Real-time booking available</div>
+  </div>
+
+  <!-- Doctor Grid -->
+  <div class="doctor-grid" id="doctorGrid"></div>
+
+</main>
+
+<!-- Doctor Profile + Booking Modal -->
+<div class="modal-overlay" id="docModal">
+  <div class="doc-modal" id="docModalContent">
+    <!-- filled by JS -->
+  </div>
+</div>
+
+<!-- Booking Confirmation Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="glass" style="max-width:440px;width:100%;padding:40px;border-radius:24px;text-align:center;">
+    <div style="font-size:3rem;margin-bottom:14px;">🎉</div>
+    <h2 style="margin-bottom:10px;">Appointment Booked!</h2>
+    <p style="color:var(--subtext);margin-bottom:8px;" id="confirmText"></p>
+    <p style="font-size:.8rem;color:var(--subtext);margin-bottom:24px;">A confirmation has been saved to My Appointments. The doctor's team will reach out to confirm.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <a href="my-appointments.html" class="btn">📅 View Appointments</a>
+      <button class="btn btn-ghost" onclick="document.getElementById('confirmModal').classList.remove('open')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="script.js"></script>
+<script src="subscription.js"></script>
+<script>
+
+// ── DOCTOR DATA ──
+const doctors = [
+  {
+    id:1, name:"Dr. Maria Santos", emoji:"👩‍⚕️",
+    title:"MD, Psychiatrist", spec:"Mental Health • Anxiety • Depression",
+    hospital:"St. Luke's Medical Center, Quezon City",
+    experience:"12 years", patients:"1,200+", rating:4.9, reviews:148,
+    fee:"₱1,500 / session", online:true, premium:true,
+    c1:"#6366f1",c2:"#a855f7",
+    tags:["Anxiety","Depression","PTSD","Medication Management"],
+    about:"Dr. Santos is a board-certified psychiatrist specializing in mood disorders, anxiety, and trauma. She takes an integrative approach combining medication management with psychotherapy techniques.",
+    education:["MD — University of Santo Tomas (2012)","Residency — Philippine General Hospital","Fellowship — Johns Hopkins University"],
+    schedule:{ Mon:["9:00 AM","10:00 AM","2:00 PM","3:00 PM"],Tue:["9:00 AM","11:00 AM"],Wed:["10:00 AM","2:00 PM","4:00 PM"],Thu:["9:00 AM","1:00 PM"],Fri:["10:00 AM","11:00 AM"] },
+    reviewList:[
+      {name:"Ana L.",emoji:"😊",stars:5,text:"Dr. Santos is incredibly compassionate. She truly listens and her approach has helped me manage my anxiety so much better.",date:"June 2025"},
+      {name:"Marco R.",emoji:"👨",stars:5,text:"Best psychiatrist I've consulted. She explains everything clearly and never makes you feel judged.",date:"May 2025"},
+      {name:"Trisha V.",emoji:"👩",stars:4,text:"Very professional and knowledgeable. Appointments run on time. Highly recommended.",date:"April 2025"},
+    ]
+  },
+  {
+    id:2, name:"Dr. Jose Reyes", emoji:"👨‍⚕️",
+    title:"PhD, Clinical Psychologist", spec:"Cognitive Behavioral Therapy • Trauma",
+    hospital:"Makati Medical Center, Makati City",
+    experience:"9 years", patients:"800+", rating:4.8, reviews:96,
+    fee:"₱1,200 / session", online:true, premium:true,
+    c1:"#0ea5e9",c2:"#3b82f6",
+    tags:["CBT","Trauma","Stress","Relationship Issues"],
+    about:"Dr. Reyes is a licensed clinical psychologist with expertise in Cognitive Behavioral Therapy (CBT). He helps clients overcome anxiety, depression, and relationship challenges using evidence-based techniques.",
+    education:["BS Psychology — Ateneo de Manila University","MA Clinical Psychology — De La Salle University","PhD Psychology — University of the Philippines"],
+    schedule:{ Mon:["8:00 AM","10:00 AM","3:00 PM"],Wed:["9:00 AM","11:00 AM","2:00 PM"],Fri:["8:00 AM","10:00 AM","1:00 PM"] },
+    reviewList:[
+      {name:"Paolo M.",emoji:"👨",stars:5,text:"Dr. Reyes changed my life. His CBT sessions helped me understand and rewire my thought patterns.",date:"July 2025"},
+      {name:"Sheila C.",emoji:"👩",stars:5,text:"So warm and professional. I felt safe opening up about my trauma. Thank you, Doc!",date:"June 2025"},
+    ]
+  },
+  {
+    id:3, name:"Dr. Grace Lim", emoji:"👩‍⚕️",
+    title:"RPm, Counseling Psychologist", spec:"Grief Counseling • Life Transitions • Self-Esteem",
+    hospital:"Cebu Doctors' University Hospital, Cebu City",
+    experience:"7 years", patients:"600+", rating:4.7, reviews:72,
+    fee:"₱900 / session", online:true, premium:false,
+    c1:"#10b981",c2:"#06b6d4",
+    tags:["Grief","Self-Esteem","Life Coaching","Family Issues"],
+    about:"Dr. Lim is a Registered Psychometrician and Counseling Psychologist who specializes in helping people navigate grief, major life changes, and self-worth challenges. She offers a warm, non-judgmental space.",
+    education:["BS Psychology — University of San Carlos","MA Counseling — Xavier University"],
+    schedule:{ Tue:["9:00 AM","10:00 AM","2:00 PM"],Thu:["9:00 AM","11:00 AM","3:00 PM"],Sat:["8:00 AM","9:00 AM","10:00 AM"] },
+    reviewList:[
+      {name:"Karla B.",emoji:"👩",stars:5,text:"Dr. Lim helped me through the hardest time of my life after losing my mom. Forever grateful.",date:"May 2025"},
+      {name:"Ryan S.",emoji:"👨",stars:4,text:"Very empathetic counselor. Sessions feel like talking to a wise friend.",date:"April 2025"},
+    ]
+  },
+  {
+    id:4, name:"Dr. Ramon Cruz", emoji:"👨‍⚕️",
+    title:"MD, Neuropsychiatrist", spec:"ADHD • Bipolar Disorder • Schizophrenia",
+    hospital:"Philippine General Hospital, Manila",
+    experience:"15 years", patients:"2,000+", rating:4.9, reviews:210,
+    fee:"₱2,000 / session", online:false, premium:true,
+    c1:"#f59e0b",c2:"#ef4444",
+    tags:["ADHD","Bipolar","Schizophrenia","Neurodevelopmental"],
+    about:"Dr. Cruz is one of the Philippines' leading neuropsychiatrists with 15 years of experience. He specializes in complex psychiatric conditions requiring both neurological and psychiatric expertise.",
+    education:["MD — University of the Philippines (2010)","Residency Psychiatry — PGH","Fellowship Neuropsychiatry — USA"],
+    schedule:{ Mon:["1:00 PM","2:00 PM","3:00 PM"],Wed:["1:00 PM","2:00 PM"],Fri:["1:00 PM","3:00 PM","4:00 PM"] },
+    reviewList:[
+      {name:"Familia D.",emoji:"👨‍👩‍👧",stars:5,text:"Dr. Cruz correctly diagnosed my son's condition after 3 years of searching for answers. He is exceptional.",date:"June 2025"},
+      {name:"Lorna P.",emoji:"👩",stars:5,text:"Thorough, patient, and brilliant. He takes time to explain everything in terms you understand.",date:"May 2025"},
+    ]
+  },
+  {
+    id:5, name:"Dr. Pia Mendoza", emoji:"👩‍⚕️",
+    title:"RPsy, Registered Psychologist", spec:"Child & Adolescent Psychology • Learning Disabilities",
+    hospital:"The Medical City, Pasig City",
+    experience:"8 years", patients:"500+", rating:4.8, reviews:88,
+    fee:"₱1,100 / session", online:true, premium:false,
+    c1:"#ec4899",c2:"#a855f7",
+    tags:["Child Psychology","Teens","Learning","Parenting"],
+    about:"Dr. Mendoza specializes in children and adolescents, helping young people navigate developmental challenges, learning disabilities, and emotional difficulties. She also works closely with parents.",
+    education:["BS Psychology — Miriam College","MA Child Psychology — Ateneo de Manila"],
+    schedule:{ Mon:["9:00 AM","10:00 AM","11:00 AM"],Wed:["9:00 AM","10:00 AM"],Sat:["8:00 AM","9:00 AM","10:00 AM","11:00 AM"] },
+    reviewList:[
+      {name:"Mommy Jen",emoji:"👩",stars:5,text:"Dr. Mendoza is so patient with my 8-year-old. She made him feel comfortable from the very first session.",date:"July 2025"},
+      {name:"Teacher M.",emoji:"👩‍🏫",stars:5,text:"She helped us identify my student's learning needs. Very insightful.",date:"June 2025"},
+    ]
+  },
+  {
+    id:6, name:"Dr. Angelo Bautista", emoji:"👨‍⚕️",
+    title:"LMFT, Marriage & Family Therapist", spec:"Couples Therapy • Family Conflict • Communication",
+    hospital:"Online Practice (Nationwide)",
+    experience:"10 years", patients:"700+", rating:4.7, reviews:104,
+    fee:"₱1,300 / session", online:true, premium:true,
+    c1:"#14b8a6",c2:"#0ea5e9",
+    tags:["Couples","Family","Communication","Divorce Support"],
+    about:"Dr. Bautista is a Licensed Marriage and Family Therapist helping couples and families rebuild trust, improve communication, and heal from conflict. He offers both in-person and online sessions.",
+    education:["AB Communication — UST","MA Marriage & Family Therapy — Philippine Normal University"],
+    schedule:{ Tue:["6:00 PM","7:00 PM"],Thu:["6:00 PM","7:00 PM"],Sat:["10:00 AM","11:00 AM","1:00 PM","2:00 PM"] },
+    reviewList:[
+      {name:"Couple A & B",emoji:"💑",stars:5,text:"We were on the verge of divorce. Dr. Bautista's sessions brought us back together. We are so grateful.",date:"June 2025"},
+      {name:"Helen C.",emoji:"👩",stars:4,text:"He helped our whole family communicate better. Worth every session.",date:"May 2025"},
+    ]
+  },
+  {
+    id:7, name:"Dr. Sofia Tan", emoji:"👩‍⚕️",
+    title:"MD, Psychiatrist", spec:"Women's Mental Health • Postpartum • Eating Disorders",
+    hospital:"Asian Hospital, Muntinlupa City",
+    experience:"11 years", patients:"950+", rating:4.9, reviews:132,
+    fee:"₱1,800 / session", online:true, premium:true,
+    c1:"#f472b6",c2:"#ec4899",
+    tags:["Women's Health","Postpartum","Eating Disorders","Hormonal"],
+    about:"Dr. Tan focuses on women's mental health across all life stages — from adolescence to menopause. She has deep expertise in postpartum depression, eating disorders, and hormone-related mood conditions.",
+    education:["MD — Far Eastern University","Residency — Philippine Children's Medical Center","Fellowship Women's Mental Health — Australia"],
+    schedule:{ Mon:["9:00 AM","10:00 AM"],Tue:["2:00 PM","3:00 PM","4:00 PM"],Thu:["9:00 AM","10:00 AM","2:00 PM"] },
+    reviewList:[
+      {name:"New Mom R.",emoji:"👶",stars:5,text:"Dr. Tan helped me through severe postpartum depression. She is a lifesaver literally.",date:"July 2025"},
+      {name:"Dianna F.",emoji:"👩",stars:5,text:"Finally a doctor who truly understands women's issues. I feel so heard.",date:"June 2025"},
+    ]
+  },
+  {
+    id:8, name:"Dr. Mark Villanueva", emoji:"👨‍⚕️",
+    title:"RPsy, Psychologist", spec:"Addiction Recovery • Substance Abuse • Behavioral Change",
+    hospital:"National Center for Mental Health, Mandaluyong",
+    experience:"13 years", patients:"1,100+", rating:4.8, reviews:156,
+    fee:"₱1,000 / session", online:false, premium:false,
+    c1:"#8b5cf6",c2:"#6366f1",
+    tags:["Addiction","Recovery","Behavioral","Relapse Prevention"],
+    about:"Dr. Villanueva is a specialist in addiction psychology with over a decade of experience in substance abuse recovery programs. He uses motivational interviewing and CBT to support lasting behavioral change.",
+    education:["BS Psychology — Adamson University","MA Clinical Psychology — De La Salle University","Certification Addiction Counseling — ASAM"],
+    schedule:{ Mon:["8:00 AM","9:00 AM","10:00 AM"],Wed:["8:00 AM","9:00 AM"],Fri:["8:00 AM","9:00 AM","10:00 AM"] },
+    reviewList:[
+      {name:"Anonymous",emoji:"🙏",stars:5,text:"Dr. Villanueva helped me get clean after 7 years of addiction. I owe him my life.",date:"June 2025"},
+      {name:"Family of P.",emoji:"👨‍👩‍👦",stars:5,text:"He worked with our whole family through my brother's recovery. So professional and kind.",date:"May 2025"},
+    ]
+  },
+  {
+    id:9, name:"Dr. Karen Flores", emoji:"👩‍⚕️",
+    title:"RPm, Guidance Counselor & Therapist", spec:"Career Counseling • Academic Stress • Young Adults",
+    hospital:"University of Santo Tomas, Manila",
+    experience:"6 years", patients:"400+", rating:4.6, reviews:58,
+    fee:"₱700 / session", online:true, premium:false,
+    c1:"#22d3ee",c2:"#3b82f6",
+    tags:["Students","Career","Academic Stress","Young Adults"],
+    about:"Dr. Flores specializes in helping students and young professionals manage academic pressure, career indecision, and life transitions. Her sessions are practical, goal-oriented, and affordable.",
+    education:["BS Guidance & Counseling — UST","MA Counseling — Polytechnic University of the Philippines"],
+    schedule:{ Mon:["1:00 PM","2:00 PM","3:00 PM"],Wed:["1:00 PM","2:00 PM","3:00 PM"],Fri:["1:00 PM","2:00 PM"] },
+    reviewList:[
+      {name:"College student",emoji:"🎓",stars:5,text:"She helped me figure out my career path and manage board exam anxiety. So practical!",date:"July 2025"},
+    ]
+  },
+  {
+    id:10, name:"Dr. Luis Garcia", emoji:"👨‍⚕️",
+    title:"MD, Geriatric Psychiatrist", spec:"Elderly Mental Health • Dementia • Depression in Seniors",
+    hospital:"Cardinal Santos Medical Center, San Juan",
+    experience:"14 years", patients:"900+", rating:4.9, reviews:120,
+    fee:"₱1,600 / session", online:false, premium:true,
+    c1:"#64748b",c2:"#475569",
+    tags:["Elderly","Dementia","Senior Depression","Geriatric"],
+    about:"Dr. Garcia is the Philippines' foremost geriatric psychiatrist, specializing in mental health conditions affecting seniors including dementia, late-onset depression, and cognitive decline.",
+    education:["MD — San Beda College Alabang","Residency — Cardinal Santos","Fellowship Geriatric Psychiatry — Singapore"],
+    schedule:{ Tue:["10:00 AM","11:00 AM"],Thu:["10:00 AM","11:00 AM","2:00 PM"],Sat:["9:00 AM","10:00 AM"] },
+    reviewList:[
+      {name:"Child of patient",emoji:"👧",stars:5,text:"Dr. Garcia diagnosed my father's early dementia and created a beautiful care plan. Truly exceptional.",date:"June 2025"},
+    ]
+  },
+  {
+    id:11, name:"Dr. Rachel Aguilar", emoji:"👩‍⚕️",
+    title:"PhD, Trauma Specialist", spec:"PTSD • Sexual Abuse Survivors • EMDR Therapy",
+    hospital:"UP-PGH Department of Psychiatry, Manila",
+    experience:"10 years", patients:"650+", rating:4.9, reviews:94,
+    fee:"₱1,400 / session", online:true, premium:true,
+    c1:"#dc2626",c2:"#9f1239",
+    tags:["PTSD","Trauma","EMDR","Abuse Survivors"],
+    about:"Dr. Aguilar is a trauma-focused therapist certified in EMDR (Eye Movement Desensitization and Reprocessing). She creates a deeply safe environment for survivors of trauma and abuse.",
+    education:["BS Psychology — UP Diliman","MA Clinical Psychology — UP","PhD Trauma Studies — Melbourne University"],
+    schedule:{ Mon:["2:00 PM","3:00 PM","4:00 PM"],Wed:["2:00 PM","3:00 PM"],Fri:["2:00 PM","3:00 PM","4:00 PM"] },
+    reviewList:[
+      {name:"Survivor",emoji:"💜",stars:5,text:"Dr. Aguilar helped me process years of trauma I never thought I could face. She is a beacon of light.",date:"July 2025"},
+    ]
+  },
+  {
+    id:12, name:"Dr. Ben Morales", emoji:"👨‍⚕️",
+    title:"RPsy, Sports & Performance Psychologist", spec:"Athletic Performance • Burnout • Mental Toughness",
+    hospital:"Online Practice (Nationwide)",
+    experience:"8 years", patients:"450+", rating:4.7, reviews:76,
+    fee:"₱1,100 / session", online:true, premium:false,
+    c1:"#16a34a",c2:"#15803d",
+    tags:["Sports","Performance","Burnout","Athletes"],
+    about:"Dr. Morales works with athletes, professionals, and high-performers dealing with burnout, performance anxiety, and mental blocks. He helps people unlock their peak potential through mental conditioning.",
+    education:["BS Sports Science — University of Santo Tomas","MA Psychology — Ateneo","Certification Sports Psychology — AASP"],
+    schedule:{ Mon:["5:00 PM","6:00 PM","7:00 PM"],Wed:["5:00 PM","6:00 PM","7:00 PM"],Sat:["7:00 AM","8:00 AM","9:00 AM"] },
+    reviewList:[
+      {name:"Pro Athlete J.",emoji:"🏆",stars:5,text:"Dr. Morales helped me overcome my performance anxiety before the SEA Games. Gold medal winner!",date:"June 2025"},
+    ]
+  }
+];
+
+let currentFilter = "all";
+let selectedDoctor = null;
+let selectedDay = null;
+let selectedTime = null;
+
+// ── RENDER DOCTORS ──
+function renderDoctors(list) {
+  const grid = document.getElementById("doctorGrid");
+  document.getElementById("docCount").textContent = list.length;
+  if (!list.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--subtext);">No doctors found for your search.</div>';
+    return;
+  }
+  grid.innerHTML = list.map(d => `
+    <div class="doctor-card" onclick="openDoctorModal(${d.id})">
+      <div class="doctor-cover" style="--c1:${d.c1};--c2:${d.c2};background:linear-gradient(135deg,${d.c1},${d.c2});">
+        ${d.premium ? '<div class="premium-badge">⭐ PREMIUM</div>' : ''}
+        <div class="verified-badge">✅ VERIFIED</div>
+        <div class="doctor-avatar" style="background:linear-gradient(135deg,${d.c1},${d.c2})">${d.emoji}</div>
+      </div>
+      <div class="doctor-body">
+        <div class="doctor-name">${d.name}</div>
+        <div class="doctor-title">${d.title}</div>
+        <div class="doctor-spec">${d.spec}</div>
+        <div style="font-size:.76rem;color:var(--subtext);margin-bottom:10px;">🏥 ${d.hospital}</div>
+        <div class="stars">${"★".repeat(Math.floor(d.rating))}${"☆".repeat(5-Math.floor(d.rating))}</div>
+        <div class="rating-text">${d.rating} · ${d.reviews} reviews · ${d.experience} exp</div>
+        <div class="doctor-tags" style="margin-top:10px;">${d.tags.slice(0,3).map(t=>`<span class="doc-tag">${t}</span>`).join("")}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+          <span style="font-size:.82rem;font-weight:700;color:var(--secondary);">${d.fee}</span>
+          ${d.online ? '<span style="font-size:.72rem;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);color:#6ee7b7;padding:3px 10px;border-radius:20px;font-weight:700;">💻 Online Available</span>' : '<span style="font-size:.72rem;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--subtext);padding:3px 10px;border-radius:20px;">🏥 In-Person Only</span>'}
+        </div>
+        <div class="doctor-actions">
+          <button class="btn-book" onclick="event.stopPropagation();openDoctorModal(${d.id},true)">📅 Book Now</button>
+          <button class="btn-profile" onclick="event.stopPropagation();openDoctorModal(${d.id})">View Profile</button>
+        </div>
+      </div>
+    </div>`).join("");
+}
+
+// ── FILTER ──
+function setFilter(btn, type) {
+  currentFilter = type;
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  filterDoctors();
+}
+
+function filterDoctors() {
+  const q = document.getElementById("doctorSearch").value.toLowerCase();
+  const filtered = doctors.filter(d => {
+    const matchSpec = currentFilter === "all" ||
+      d.title.toLowerCase().includes(currentFilter) ||
+      d.spec.toLowerCase().includes(currentFilter) ||
+      d.tags.some(t => t.toLowerCase().includes(currentFilter));
+    const matchQ = !q || d.name.toLowerCase().includes(q) ||
+      d.spec.toLowerCase().includes(q) ||
+      d.hospital.toLowerCase().includes(q) ||
+      d.tags.some(t => t.toLowerCase().includes(q));
+    return matchSpec && matchQ;
+  });
+  renderDoctors(filtered);
+}
+
+// ── OPEN DOCTOR MODAL ──
+function openDoctorModal(id, goBook = false) {
+  selectedDoctor = doctors.find(d => d.id === id);
+  if (!selectedDoctor) return;
+  const d = selectedDoctor;
+
+  document.getElementById("docModalContent").innerHTML = `
+    <div class="doc-modal-cover" style="background:linear-gradient(135deg,${d.c1},${d.c2});">
+      <button class="doc-modal-close" onclick="closeModal('docModal')">✕</button>
+      <div class="doc-modal-avatar" style="background:linear-gradient(135deg,${d.c1},${d.c2})">${d.emoji}</div>
+      ${d.premium ? '<div style="position:absolute;top:10px;left:12px;background:linear-gradient(135deg,#f59e0b,#f97316);color:white;font-size:.68rem;font-weight:800;padding:3px 10px;border-radius:20px;">⭐ PREMIUM DOCTOR</div>' : ''}
+    </div>
+    <div class="doc-modal-body">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+        <div>
+          <div class="doc-modal-name">${d.name}</div>
+          <div style="color:var(--secondary);font-weight:700;font-size:.9rem;">${d.title}</div>
+          <div style="color:var(--subtext);font-size:.82rem;margin-top:4px;">🏥 ${d.hospital}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="stars" style="font-size:1rem;">${"★".repeat(Math.floor(d.rating))}</div>
+          <div style="font-size:.78rem;color:var(--subtext);">${d.rating} (${d.reviews} reviews)</div>
+          <div style="font-weight:800;color:var(--secondary);margin-top:6px;">${d.fee}</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px;">
+        <div style="padding:10px 16px;background:rgba(255,255,255,.04);border-radius:12px;text-align:center;flex:1;min-width:80px;">
+          <div style="font-weight:800;color:var(--text);">${d.experience}</div>
+          <div style="font-size:.7rem;color:var(--subtext);">Experience</div>
+        </div>
+        <div style="padding:10px 16px;background:rgba(255,255,255,.04);border-radius:12px;text-align:center;flex:1;min-width:80px;">
+          <div style="font-weight:800;color:var(--text);">${d.patients}</div>
+          <div style="font-size:.7rem;color:var(--subtext);">Patients</div>
+        </div>
+        <div style="padding:10px 16px;background:rgba(255,255,255,.04);border-radius:12px;text-align:center;flex:1;min-width:80px;">
+          <div style="font-weight:800;color:var(--text);">${d.reviews}</div>
+          <div style="font-size:.7rem;color:var(--subtext);">Reviews</div>
+        </div>
+        <div style="padding:10px 16px;background:rgba(255,255,255,.04);border-radius:12px;text-align:center;flex:1;min-width:80px;">
+          <div style="font-weight:800;color:${d.online?'#6ee7b7':'var(--subtext)'};">${d.online?'✅ Yes':'❌ No'}</div>
+          <div style="font-size:.7rem;color:var(--subtext);">Online</div>
+        </div>
+      </div>
+
+      <div class="doctor-tags">${d.tags.map(t=>`<span class="doc-tag">${t}</span>`).join("")}</div>
+
+      <div class="doc-modal-tabs">
+        <button class="doc-tab active" onclick="switchTab(this,'about')">About</button>
+        <button class="doc-tab" onclick="switchTab(this,'book')">📅 Book</button>
+        <button class="doc-tab" onclick="switchTab(this,'reviews')">⭐ Reviews</button>
+      </div>
+
+      <!-- ABOUT TAB -->
+      <div class="tab-panel active" id="tab-about">
+        <p style="line-height:1.8;color:var(--subtext);margin-bottom:20px;">${d.about}</p>
+        <h4 style="margin-bottom:12px;color:var(--text);">🎓 Education & Training</h4>
+        ${d.education.map(e=>`<div style="padding:10px 14px;background:rgba(255,255,255,.04);border-radius:10px;border-left:3px solid var(--accent);margin-bottom:8px;font-size:.88rem;">${e}</div>`).join("")}
+      </div>
+
+      <!-- BOOK TAB -->
+      <div class="tab-panel" id="tab-book">
+        <h4 style="margin-bottom:14px;">Select Day</h4>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+          ${Object.keys(d.schedule).map(day=>`
+            <button class="filter-btn" onclick="selectDay(this,'${day}')" style="min-width:60px;">${day}</button>`).join("")}
+        </div>
+        <div id="timeSlotArea" style="display:none;">
+          <h4 style="margin-bottom:12px;">Select Time</h4>
+          <div class="time-slots" id="timeSlots"></div>
+        </div>
+        <div id="bookingForm" style="display:none;margin-top:20px;">
+          <label>Your Name</label>
+          <input type="text" id="bookName" placeholder="Full name">
+          <label>Phone Number</label>
+          <input type="tel" id="bookPhone" placeholder="09XX XXX XXXX">
+          <label>Reason for Visit</label>
+          <textarea id="bookReason" rows="3" placeholder="Brief description of your concern..."></textarea>
+          <label>Session Type</label>
+          <select id="bookType">
+            ${d.online ? '<option value="online">💻 Online (Video Call)</option>' : ''}
+            <option value="in-person">🏥 In-Person Visit</option>
+          </select>
+          <button class="btn" onclick="confirmBooking()" style="width:100%;margin-top:6px;">✅ Confirm Appointment</button>
+        </div>
+      </div>
+
+      <!-- REVIEWS TAB -->
+      <div class="tab-panel" id="tab-reviews">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding:16px;background:rgba(255,255,255,.04);border-radius:14px;">
+          <div style="text-align:center;">
+            <div style="font-size:2.4rem;font-weight:900;color:var(--secondary);">${d.rating}</div>
+            <div class="stars">${"★".repeat(Math.floor(d.rating))}</div>
+            <div style="font-size:.72rem;color:var(--subtext);">${d.reviews} reviews</div>
+          </div>
+          <div style="flex:1;">
+            ${[5,4,3,2,1].map(n=>{
+              const pct = Math.round((d.reviewList.filter(r=>r.stars===n).length/d.reviewList.length)*100)||[80,15,3,1,1][5-n];
+              return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                <span style="font-size:.75rem;color:var(--subtext);width:12px;">${n}</span>
+                <div style="flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:10px;overflow:hidden;">
+                  <div style="width:${pct}%;height:100%;background:var(--secondary);border-radius:10px;"></div>
+                </div>
+              </div>`;
+            }).join("")}
+          </div>
+        </div>
+        ${d.reviewList.map(r=>`
+          <div class="review-item">
+            <div class="review-top">
+              <div class="review-avatar">${r.emoji}</div>
+              <div>
+                <div class="review-name">${r.name}</div>
+                <div class="stars" style="font-size:.8rem;">${"★".repeat(r.stars)}</div>
+                <div class="review-date">${r.date}</div>
+              </div>
+            </div>
+            <p style="font-size:.88rem;line-height:1.6;color:var(--subtext);">${r.text}</p>
+          </div>`).join("")}
+      </div>
+    </div>
+  `;
+
+  document.getElementById("docModal").classList.add("open");
+  if (goBook) setTimeout(() => switchTab(document.querySelector(".doc-tab:nth-child(2)"), "book"), 100);
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove("open"); }
+
+function switchTab(btn, tab) {
+  document.querySelectorAll(".doc-tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  btn.classList.add("active");
+  document.getElementById("tab-" + tab).classList.add("active");
+}
+
+function selectDay(btn, day) {
+  document.querySelectorAll("#tab-book .filter-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  selectedDay = day;
+  selectedTime = null;
+  const slots = selectedDoctor.schedule[day];
+  const area = document.getElementById("timeSlotArea");
+  const container = document.getElementById("timeSlots");
+  area.style.display = "block";
+  container.innerHTML = slots.map(t => `<button class="time-slot" onclick="selectTime(this,'${t}')">${t}</button>`).join("");
+  document.getElementById("bookingForm").style.display = "none";
+}
+
+function selectTime(btn, time) {
+  document.querySelectorAll(".time-slot").forEach(s => s.classList.remove("selected"));
+  btn.classList.add("selected");
+  selectedTime = time;
+  document.getElementById("bookingForm").style.display = "block";
+  document.getElementById("bookingForm").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function confirmBooking() {
+  const name = document.getElementById("bookName")?.value?.trim();
+  const phone = document.getElementById("bookPhone")?.value?.trim();
+  const reason = document.getElementById("bookReason")?.value?.trim();
+  const type = document.getElementById("bookType")?.value;
+  if (!name || !phone || !reason) { showToast("Please fill all fields 📋", "warning"); return; }
+  if (!selectedDay || !selectedTime) { showToast("Please select a day and time", "warning"); return; }
+
+  const booking = {
+    id: Date.now(),
+    doctorId: selectedDoctor.id,
+    doctorName: selectedDoctor.name,
+    doctorEmoji: selectedDoctor.emoji,
+    doctorSpec: selectedDoctor.spec,
+    patientName: name,
+    phone, reason, type,
+    day: selectedDay,
+    time: selectedTime,
+    fee: selectedDoctor.fee,
+    hospital: selectedDoctor.hospital,
+    status: "pending",
+    bookedOn: new Date().toLocaleString()
+  };
+
+  const bookings = JSON.parse(localStorage.getItem("appointments") || "[]");
+  bookings.unshift(booking);
+  localStorage.setItem("appointments", JSON.stringify(bookings));
+
+  closeModal("docModal");
+  document.getElementById("confirmText").textContent =
+    `Your appointment with ${selectedDoctor.name} is booked for ${selectedDay} at ${selectedTime}.`;
+  document.getElementById("confirmModal").classList.add("open");
+}
+
+// Close on backdrop click
+document.getElementById("docModal").addEventListener("click", e => { if(e.target===e.currentTarget) closeModal("docModal"); });
+document.getElementById("confirmModal").addEventListener("click", e => { if(e.target===e.currentTarget) e.currentTarget.classList.remove("open"); });
+
+// Init
+renderDoctors(doctors);
+</script>
+</body>
+</html>

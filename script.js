@@ -1426,3 +1426,302 @@ function generateWeeklyReport() {
     </p>
   `;
 }
+// =====================
+// SLEEP TRACKER
+// =====================
+function saveSleep() {
+  const hours = document.getElementById("sleepHours")?.value;
+  const quality = localStorage.getItem("sleepStars") || "3";
+  const notes = document.getElementById("sleepNotes")?.value || "";
+  if (!hours) { showToast("Enter sleep hours 😴", "warning"); return; }
+  const logs = JSON.parse(localStorage.getItem("sleepLogs") || "[]");
+  logs.unshift({ hours: parseFloat(hours), quality: parseInt(quality), notes, date: new Date().toLocaleString(), dateISO: new Date().toISOString() });
+  if (logs.length > 30) logs.pop();
+  localStorage.setItem("sleepLogs", JSON.stringify(logs));
+  loadSleepLog();
+  showToast("Sleep logged 😴", "success");
+}
+function setSleepStar(val) {
+  localStorage.setItem("sleepStars", val);
+  document.querySelectorAll(".sleep-star").forEach((s, i) => s.classList.toggle("active", i < val));
+}
+function loadSleepLog() {
+  const el = document.getElementById("sleepLog"); if (!el) return;
+  const logs = JSON.parse(localStorage.getItem("sleepLogs") || "[]");
+  if (!logs.length) { el.innerHTML = '<em style="color:var(--subtext)">No sleep logs yet.</em>'; return; }
+  el.innerHTML = logs.map(l => `
+    <div style="padding:14px 18px;background:rgba(255,255,255,.04);border-radius:12px;border:1px solid rgba(255,255,255,.08);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+      <div><strong>${l.hours}h</strong> — ${"⭐".repeat(l.quality)} <span style="color:var(--subtext);font-size:.82rem;">${l.notes}</span></div>
+      <span style="color:var(--subtext);font-size:.78rem;">${l.date}</span>
+    </div>`).join("");
+}
+function renderSleepChart() {
+  const canvas = document.getElementById("sleepChart");
+  if (!canvas || typeof Chart === "undefined") return;
+  const logs = JSON.parse(localStorage.getItem("sleepLogs") || "[]").slice(0, 7).reverse();
+  if (!logs.length) return;
+  if (window._sleepChart) window._sleepChart.destroy();
+  window._sleepChart = new Chart(canvas, {
+    type: "bar",
+    data: {
+      labels: logs.map(l => new Date(l.dateISO).toLocaleDateString(undefined, { weekday: "short" })),
+      datasets: [{ label: "Hours", data: logs.map(l => l.hours), backgroundColor: logs.map(l => l.hours >= 7 ? "rgba(110,231,183,.6)" : l.hours >= 5 ? "rgba(253,230,138,.6)" : "rgba(248,113,113,.6)"), borderRadius: 8 }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 12, ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,.05)" } }, x: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,.05)" } } } }
+  });
+}
+
+// =====================
+// GOALS TRACKER
+// =====================
+function loadGoals() {
+  const el = document.getElementById("goalList"); if (!el) return;
+  const goals = JSON.parse(localStorage.getItem("goals") || "[]");
+  if (!goals.length) { el.innerHTML = '<em style="color:var(--subtext)">No goals yet. Add one above!</em>'; updateGoalProgress(); return; }
+  el.innerHTML = goals.map((g, i) => `
+    <div style="padding:16px 20px;background:rgba(255,255,255,.04);border-radius:14px;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+      <div onclick="toggleGoal(${i})" style="width:22px;height:22px;border-radius:6px;border:2px solid var(--primary);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s;${g.done ? 'background:var(--primary)' : ''}">${g.done ? "✓" : ""}</div>
+      <div style="flex:1;font-size:.95rem;${g.done ? 'text-decoration:line-through;color:var(--subtext)' : ''}">${g.text}</div>
+      <button onclick="deleteGoal(${i})" style="background:none;border:none;color:var(--subtext);cursor:pointer;font-size:1.1rem;">🗑</button>
+    </div>`).join("");
+  updateGoalProgress();
+}
+function addGoal() {
+  const inp = document.getElementById("goalInput"); if (!inp || !inp.value.trim()) return;
+  const goals = JSON.parse(localStorage.getItem("goals") || "[]");
+  goals.push({ text: inp.value.trim(), done: false });
+  localStorage.setItem("goals", JSON.stringify(goals));
+  inp.value = ""; loadGoals();
+  showToast("Goal added 🎯", "success");
+}
+function toggleGoal(i) {
+  const goals = JSON.parse(localStorage.getItem("goals") || "[]");
+  goals[i].done = !goals[i].done;
+  localStorage.setItem("goals", JSON.stringify(goals));
+  loadGoals();
+  if (goals[i].done) showToast("Goal completed! 🎉", "success");
+}
+function deleteGoal(i) {
+  const goals = JSON.parse(localStorage.getItem("goals") || "[]");
+  goals.splice(i, 1);
+  localStorage.setItem("goals", JSON.stringify(goals));
+  loadGoals();
+}
+function updateGoalProgress() {
+  const goals = JSON.parse(localStorage.getItem("goals") || "[]");
+  const done = goals.filter(g => g.done).length;
+  const pct = goals.length ? Math.round((done / goals.length) * 100) : 0;
+  const bar = document.getElementById("goalProgressBar");
+  const txt = document.getElementById("goalProgressText");
+  if (bar) bar.style.width = pct + "%";
+  if (txt) txt.textContent = `${done}/${goals.length} goals completed (${pct}%)`;
+}
+
+// =====================
+// GRATITUDE JOURNAL
+// =====================
+function loadGratitude() {
+  const el = document.getElementById("gratitudeList"); if (!el) return;
+  const items = JSON.parse(localStorage.getItem("gratitude") || "[]");
+  if (!items.length) { el.innerHTML = '<em style="color:var(--subtext)">Nothing yet. What are you grateful for today?</em>'; return; }
+  el.innerHTML = items.map(g => `
+    <div style="padding:16px 20px;background:rgba(245,158,11,.06);border-radius:14px;border:1px solid rgba(245,158,11,.18);margin-bottom:10px;">
+      <div style="font-size:.93rem;line-height:1.6;">${g.text}</div>
+      <div style="font-size:.72rem;color:var(--subtext);margin-top:4px;">${g.date}</div>
+    </div>`).join("");
+}
+function addGratitude() {
+  const inp = document.getElementById("gratitudeInput"); if (!inp || !inp.value.trim()) return;
+  const items = JSON.parse(localStorage.getItem("gratitude") || "[]");
+  items.unshift({ text: inp.value.trim(), date: new Date().toLocaleString() });
+  if (items.length > 50) items.pop();
+  localStorage.setItem("gratitude", JSON.stringify(items));
+  inp.value = ""; loadGratitude();
+  showToast("Added to gratitude journal 🌻", "success");
+}
+
+// =====================
+// MEMORY NOTES
+// =====================
+function loadMemories() {
+  const el = document.getElementById("memoryList"); if (!el) return;
+  const items = JSON.parse(localStorage.getItem("memories") || "[]");
+  if (!items.length) { el.innerHTML = '<em style="color:var(--subtext)">No memories saved yet.</em>'; return; }
+  el.innerHTML = items.map(m => `
+    <div style="padding:20px 24px;border-radius:16px;margin-bottom:14px;border-left:4px solid var(--accent);background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.15);">
+      <div style="margin-bottom:8px;">${m.text}</div>
+      <div>${(m.tags || []).map(t => `<span style="display:inline-block;padding:3px 10px;border-radius:20px;background:rgba(168,85,247,.15);color:#c084fc;font-size:.72rem;font-weight:700;margin-right:6px;">#${t}</span>`).join("")}</div>
+      <div style="font-size:.72rem;color:var(--subtext);margin-top:8px;">${m.date}</div>
+    </div>`).join("");
+}
+function addMemory() {
+  const inp = document.getElementById("memoryInput");
+  const tagInp = document.getElementById("memoryTags");
+  if (!inp || !inp.value.trim()) return;
+  const tags = tagInp ? tagInp.value.split(",").map(t => t.trim()).filter(Boolean) : [];
+  const items = JSON.parse(localStorage.getItem("memories") || "[]");
+  items.unshift({ text: inp.value.trim(), tags, date: new Date().toLocaleString() });
+  localStorage.setItem("memories", JSON.stringify(items));
+  inp.value = ""; if (tagInp) tagInp.value = "";
+  loadMemories();
+  showToast("Memory saved 💜", "success");
+}
+
+// =====================
+// ACHIEVEMENTS
+// =====================
+function loadAchievements() {
+  const el = document.getElementById("achievementGrid"); if (!el) return;
+  const streak = parseInt(localStorage.getItem("streak") || "0");
+  const journal = JSON.parse(localStorage.getItem("mindcareJournal") || "[]").length;
+  const mood = JSON.parse(localStorage.getItem("moodHistory") || "[]").length;
+  const achievements = [
+    { icon: "🌱", name: "First Step",      desc: "Log your first emotion",           unlocked: mood >= 1 },
+    { icon: "🔥", name: "3-Day Streak",    desc: "Check in 3 days in a row",         unlocked: streak >= 3 },
+    { icon: "📔", name: "Journaler",       desc: "Write 5 journal entries",           unlocked: journal >= 5 },
+    { icon: "🏆", name: "Week Warrior",    desc: "7-day check-in streak",             unlocked: streak >= 7 },
+    { icon: "🧘", name: "Zen Master",      desc: "Complete 5 breathing sessions",     unlocked: parseInt(localStorage.getItem("breathSessions") || "0") >= 5 },
+    { icon: "💬", name: "Chat Explorer",   desc: "Send 10 messages to AI",            unlocked: parseInt(localStorage.getItem("chatCount") || "0") >= 10 },
+    { icon: "🎯", name: "Goal Getter",     desc: "Complete 3 goals",                  unlocked: JSON.parse(localStorage.getItem("goals") || "[]").filter(g => g.done).length >= 3 },
+    { icon: "🌟", name: "30-Day Legend",   desc: "30-day check-in streak",            unlocked: streak >= 30 },
+    { icon: "😴", name: "Sleep Tracker",   desc: "Log sleep 7 times",                 unlocked: JSON.parse(localStorage.getItem("sleepLogs") || "[]").length >= 7 },
+    { icon: "🙏", name: "Grateful Heart",  desc: "Add 10 gratitude entries",          unlocked: JSON.parse(localStorage.getItem("gratitude") || "[]").length >= 10 },
+    { icon: "🎵", name: "Mood Maestro",    desc: "Try all 11 emotions",               unlocked: [...new Set(JSON.parse(localStorage.getItem("moodHistory") || "[]").map(h => h.emotion))].length >= 11 },
+    { icon: "💎", name: "Premium Member",  desc: "Subscribe to MindCare Premium",     unlocked: localStorage.getItem("mc_subscribed") === "true" },
+  ];
+  el.innerHTML = achievements.map(a => `
+    <div style="padding:24px 16px;text-align:center;border-radius:18px;border:1px solid var(--border);background:var(--card);transition:.25s;${a.unlocked ? '' : 'opacity:.4;filter:grayscale(1)'}">
+      <div style="font-size:2.6rem;margin-bottom:10px;">${a.icon}</div>
+      <div style="font-weight:800;font-size:.9rem;margin-bottom:4px;">${a.name}</div>
+      <div style="font-size:.78rem;color:var(--subtext);">${a.desc}</div>
+      <div style="margin-top:8px;font-size:.75rem;font-weight:700;color:${a.unlocked ? '#6ee7b7' : 'var(--subtext)'};">${a.unlocked ? '✅ Unlocked' : '🔒 Locked'}</div>
+    </div>`).join("");
+}
+
+// =====================
+// MOOD ANALYTICS
+// =====================
+function loadMoodAnalytics() {
+  const canvas = document.getElementById("analyticsChart");
+  const history = getMoodHistory();
+  const emotionCounts = {};
+  history.forEach(h => { emotionCounts[h.emotion] = (emotionCounts[h.emotion] || 0) + 1; });
+  const labels = Object.keys(emotionCounts);
+  const data = Object.values(emotionCounts);
+  const colors = ["#facc15","#60a5fa","#f97316","#a78bfa","#94a3b8","#818cf8","#ef4444","#84cc16","#fb923c","#f59e0b","#475569"];
+  if (canvas && typeof Chart !== "undefined" && labels.length) {
+    if (window._analyticsChart) window._analyticsChart.destroy();
+    window._analyticsChart = new Chart(canvas, {
+      type: "doughnut",
+      data: { labels, datasets: [{ data, backgroundColor: colors.slice(0, labels.length), borderWidth: 0 }] },
+      options: { responsive: true, plugins: { legend: { position: "bottom", labels: { color: "#94a3b8", padding: 16, font: { size: 12 } } } } }
+    });
+  }
+  const totalEl = document.getElementById("totalCheckins"); if (totalEl) totalEl.textContent = history.length;
+  const posEl = document.getElementById("positivePct");
+  if (posEl) { const pos = history.filter(h => ["happy","excited","surprise"].includes(h.emotion)).length; posEl.textContent = history.length ? Math.round((pos / history.length) * 100) + "%" : "0%"; }
+  const topEl = document.getElementById("topEmotion");
+  if (topEl && labels.length) { const topIdx = data.indexOf(Math.max(...data)); topEl.textContent = labels[topIdx] || "—"; }
+  const streakEl = document.getElementById("analyticsStreak");
+  if (streakEl) streakEl.textContent = (localStorage.getItem("streak") || "0") + " days";
+}
+
+// =====================
+// APPOINTMENTS
+// =====================
+function getAppointments() {
+  return JSON.parse(localStorage.getItem("appointments") || "[]");
+}
+function saveAppointments(arr) {
+  localStorage.setItem("appointments", JSON.stringify(arr));
+}
+function renderAppointmentStats() {
+  const appts = getAppointments();
+  const statsEl = document.getElementById("apptStats"); if (!statsEl) return;
+  const stats = [
+    { label: "Total", val: appts.length, color: "#60a5fa" },
+    { label: "Pending", val: appts.filter(a => a.status === "pending").length, color: "#fde68a" },
+    { label: "Confirmed", val: appts.filter(a => a.status === "confirmed").length, color: "#6ee7b7" },
+    { label: "Completed", val: appts.filter(a => a.status === "completed").length, color: "#a78bfa" },
+  ];
+  statsEl.innerHTML = stats.map(s => `
+    <div style="padding:16px;border-radius:14px;text-align:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);">
+      <div style="font-size:1.8rem;font-weight:900;color:${s.color};">${s.val}</div>
+      <div style="font-size:.72rem;color:var(--subtext);font-weight:700;text-transform:uppercase;letter-spacing:.04em;">${s.label}</div>
+    </div>`).join("");
+}
+function renderAppointmentList(filter) {
+  const el = document.getElementById("apptList"); if (!el) return;
+  const appts = getAppointments().filter(a => !filter || filter === "all" || a.status === filter);
+  if (!appts.length) {
+    el.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--subtext);">
+      <div style="font-size:3rem;margin-bottom:16px;">📅</div>
+      <p>No ${filter && filter !== "all" ? filter : ""} appointments yet.</p><br>
+      <a href="doctors.html" class="btn">🩺 Find a Doctor</a>
+    </div>`;
+    return;
+  }
+  el.innerHTML = appts.map(a => `
+    <div style="padding:22px 24px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);margin-bottom:16px;display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;transition:.2s;">
+      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#a855f7);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;">${a.doctorEmoji || "👨‍⚕️"}</div>
+      <div style="flex:1;min-width:180px;">
+        <div style="font-size:1rem;font-weight:800;margin-bottom:4px;">${a.doctorName}</div>
+        <div style="font-size:.8rem;color:var(--subtext);margin-bottom:10px;">${a.doctorSpec}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+          <span style="font-size:.78rem;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--subtext);">📅 ${a.day} at ${a.time}</span>
+          <span style="font-size:.78rem;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--subtext);">${a.type === "online" ? "💻 Online" : "🏥 In-Person"}</span>
+          <span style="font-size:.78rem;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--subtext);">💰 ${a.fee}</span>
+        </div>
+        <div style="font-size:.8rem;color:var(--subtext);margin-bottom:12px;">Reason: ${a.reason}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <span style="padding:5px 14px;border-radius:20px;font-size:.75rem;font-weight:800;${
+            a.status === "pending"   ? "background:rgba(245,158,11,.15);color:#fde68a;border:1px solid rgba(245,158,11,.3);" :
+            a.status === "confirmed" ? "background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.3);" :
+            a.status === "completed" ? "background:rgba(96,165,250,.15);color:#93c5fd;border:1px solid rgba(96,165,250,.3);" :
+                                       "background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);"
+          }">${a.status === "pending" ? "⏳ Pending" : a.status === "confirmed" ? "✅ Confirmed" : a.status === "completed" ? "🏁 Completed" : "❌ Cancelled"}</span>
+          ${a.status === "pending" || a.status === "confirmed" ? `
+            <button onclick="markApptDone(${a.id})" style="padding:6px 14px;font-size:.75rem;border-radius:10px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);color:#6ee7b7;cursor:pointer;">✅ Complete</button>
+            <button onclick="cancelAppt(${a.id})" style="padding:6px 14px;font-size:.75rem;border-radius:10px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#f87171;cursor:pointer;">❌ Cancel</button>` : ""}
+          <button onclick="deleteAppt(${a.id})" style="padding:6px 10px;font-size:.75rem;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--subtext);cursor:pointer;">🗑</button>
+        </div>
+        <div style="font-size:.7rem;color:var(--subtext);margin-top:8px;">Booked on ${a.bookedOn}</div>
+      </div>
+    </div>`).join("");
+}
+function markApptDone(id) {
+  const appts = getAppointments();
+  const idx = appts.findIndex(a => a.id === id);
+  if (idx > -1) { appts[idx].status = "completed"; saveAppointments(appts); }
+  renderAppointmentStats(); renderAppointmentList(window._apptFilter || "all");
+  showToast("Marked as completed ✅", "success");
+}
+function cancelAppt(id) {
+  if (!confirm("Cancel this appointment?")) return;
+  const appts = getAppointments();
+  const idx = appts.findIndex(a => a.id === id);
+  if (idx > -1) { appts[idx].status = "cancelled"; saveAppointments(appts); }
+  renderAppointmentStats(); renderAppointmentList(window._apptFilter || "all");
+  showToast("Appointment cancelled", "info");
+}
+function deleteAppt(id) {
+  if (!confirm("Remove this appointment?")) return;
+  saveAppointments(getAppointments().filter(a => a.id !== id));
+  renderAppointmentStats(); renderAppointmentList(window._apptFilter || "all");
+  showToast("Removed", "info");
+}
+function filterApptsByStatus(btn, status) {
+  window._apptFilter = status;
+  document.querySelectorAll(".appt-tab").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderAppointmentList(status);
+}
+
+// Auto-init appointments page
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById("apptList")) {
+    window._apptFilter = "all";
+    renderAppointmentStats();
+    renderAppointmentList("all");
+  }
+});
