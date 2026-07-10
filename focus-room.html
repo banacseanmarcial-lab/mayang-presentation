@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus Room | MindCare AI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="bg"></div>
+  <div id="loader"><div class="loader-text">🧠 MindCare AI</div></div>
+
+  <nav class="navbar">
+    <div class="logo">🧠 MindCare AI</div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="focus-room.html" class="active">🎧 Focus Room</a></li>
+      <li><a href="calm-mode.html">🌊 Calm Mode</a></li>
+      <li><a href="breathing.html">🫁 Breathing</a></li>
+      <li><button onclick="toggleDarkMode()" style="padding:8px 16px;font-size:0.85rem;">🌙 Dark Mode</button></li>
+    </ul>
+  </nav>
+
+  <main class="focus-page">
+
+    <div>
+      <h1 style="font-size:2rem;margin-bottom:8px;">🎧 Focus Room</h1>
+      <p style="color:var(--subtext);max-width:420px;margin:0 auto;">Pomodoro timer with ambient sound to help you lock in.</p>
+    </div>
+
+    <div class="focus-mode-tabs">
+      <button class="focus-mode-tab active" onclick="setFocusMode(this,'focus')">🎯 Focus (25m)</button>
+      <button class="focus-mode-tab" onclick="setFocusMode(this,'short')">☕ Short Break (5m)</button>
+      <button class="focus-mode-tab" onclick="setFocusMode(this,'long')">🛋 Long Break (15m)</button>
+    </div>
+
+    <div class="focus-ring-wrap">
+      <svg viewBox="0 0 260 260">
+        <defs>
+          <linearGradient id="focusGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#3b82f6" />
+            <stop offset="100%" stop-color="#a855f7" />
+          </linearGradient>
+        </defs>
+        <circle class="focus-ring-bg" cx="130" cy="130" r="120"></circle>
+        <circle class="focus-ring-progress" id="focusRingProgress" cx="130" cy="130" r="120"></circle>
+      </svg>
+      <div class="focus-ring-center">
+        <div class="focus-time" id="focusTime">25:00</div>
+        <div class="focus-label" id="focusModeLabel">Focus Session</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;">
+      <button id="focusStartBtn" class="btn" onclick="toggleFocusTimer()">▶ Start</button>
+      <button class="btn" style="background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--text);" onclick="resetFocusTimer()">🔄 Reset</button>
+    </div>
+
+    <label style="display:flex;align-items:center;gap:8px;color:var(--subtext);font-size:.85rem;cursor:pointer;">
+      <input type="checkbox" id="focusAutoStart" style="width:auto;margin:0;">
+      Auto-start next session
+    </label>
+
+    <div style="width:100%;max-width:480px;">
+      <h3 style="font-size:.95rem;margin-bottom:12px;color:var(--subtext);">🔊 Ambient Sound</h3>
+      <div class="sound-grid">
+        <button class="sound-btn" onclick="toggleFocusSound(this,'rain')"><span class="sound-icon">🌧</span>Rain</button>
+        <button class="sound-btn" onclick="toggleFocusSound(this,'forest')"><span class="sound-icon">🌲</span>Forest</button>
+        <button class="sound-btn" onclick="toggleFocusSound(this,'lofi')"><span class="sound-icon">🎵</span>Lo-Fi Hum</button>
+        <button class="sound-btn" onclick="toggleFocusSound(this,'white')"><span class="sound-icon">📻</span>White Noise</button>
+      </div>
+    </div>
+
+    <div class="focus-stats-row">
+      <div class="glass" style="padding:16px 24px;border-radius:16px;text-align:center;">
+        <div style="font-size:1.6rem;font-weight:900;color:#60a5fa;" id="focusSessionCount">0</div>
+        <div style="font-size:.72rem;color:var(--subtext);font-weight:700;text-transform:uppercase;">Sessions</div>
+      </div>
+      <div class="glass" style="padding:16px 24px;border-radius:16px;text-align:center;">
+        <div style="font-size:1.6rem;font-weight:900;color:#a855f7;" id="focusMinutesCount">0</div>
+        <div style="font-size:.72rem;color:var(--subtext);font-weight:700;text-transform:uppercase;">Minutes Focused</div>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="toastContainer"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="script.js"></script>
+  <script src="subscription.js"></script>
+</body>
+</html>

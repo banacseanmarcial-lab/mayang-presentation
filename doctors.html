@@ -690,6 +690,18 @@ function confirmBooking() {
   if (!name || !phone || !reason) { showToast("Please fill all fields 📋", "warning"); return; }
   if (!selectedDay || !selectedTime) { showToast("Please select a day and time", "warning"); return; }
 
+  const existing = JSON.parse(localStorage.getItem("appointments") || "[]");
+  const duplicate = existing.some(a =>
+    a.doctorId === selectedDoctor.id &&
+    a.day === selectedDay &&
+    a.time === selectedTime &&
+    (a.status === "pending" || a.status === "confirmed")
+  );
+  if (duplicate) {
+    showToast("You already have a booking for this doctor at that day/time ⏰", "warning");
+    return;
+  }
+
   const booking = {
     id: Date.now(),
     doctorId: selectedDoctor.id,
@@ -706,9 +718,8 @@ function confirmBooking() {
     bookedOn: new Date().toLocaleString()
   };
 
-  const bookings = JSON.parse(localStorage.getItem("appointments") || "[]");
-  bookings.unshift(booking);
-  localStorage.setItem("appointments", JSON.stringify(bookings));
+  existing.unshift(booking);
+  localStorage.setItem("appointments", JSON.stringify(existing));
 
   closeModal("docModal");
   document.getElementById("confirmText").textContent =

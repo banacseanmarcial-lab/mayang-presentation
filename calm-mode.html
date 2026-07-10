@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calm Mode | MindCare AI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="bg"></div>
+  <div id="loader"><div class="loader-text">🧠 MindCare AI</div></div>
+
+  <a href="dashboard.html" class="calm-exit-btn" onclick="exitCalmMode();return false;">✕ Exit</a>
+
+  <main class="calm-page">
+
+    <div class="calm-orb-wrap" id="calmOrbWrap">
+      <div class="calm-orb"></div>
+    </div>
+
+    <div class="calm-instruction" id="calmInstruction">Breathe in...</div>
+    <div class="calm-quote" id="calmQuote"></div>
+    <div id="calmTimer" style="font-size:1.4rem;font-weight:800;color:var(--secondary);min-height:28px;letter-spacing:.05em;"></div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+      <button class="focus-mode-tab calm-length-btn active" data-min="0" onclick="setCalmDuration(0)">∞ Open-ended</button>
+      <button class="focus-mode-tab calm-length-btn" data-min="2" onclick="setCalmDuration(2)">2 min</button>
+      <button class="focus-mode-tab calm-length-btn" data-min="5" onclick="setCalmDuration(5)">5 min</button>
+      <button class="focus-mode-tab calm-length-btn" data-min="10" onclick="setCalmDuration(10)">10 min</button>
+    </div>
+
+    <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:8px;">
+      <button id="calmPauseBtn" class="btn" onclick="toggleCalmPause()">⏸ Pause</button>
+    </div>
+
+    <div class="calm-sound-row">
+      <button class="sound-btn" onclick="toggleCalmSound(this,'ocean')"><span class="sound-icon">🌊</span>Ocean Waves</button>
+      <button class="sound-btn" onclick="toggleCalmSound(this,'ambient')"><span class="sound-icon">✨</span>Soft Ambient</button>
+    </div>
+
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="script.js"></script>
+  <script src="subscription.js"></script>
+</body>
+</html>

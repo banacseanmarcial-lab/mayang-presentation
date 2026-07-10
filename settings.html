@@ -67,7 +67,7 @@
           <strong>Daily Check-In Reminder</strong>
           <p style="color:var(--subtext); font-size:0.85rem; margin-top:2px;">Get reminded to log your mood daily</p>
         </div>
-        <button style="padding:10px 20px; font-size:0.85rem;" onclick="alert('Notification settings saved!')">
+        <button id="checkinReminderBtn" style="padding:10px 20px; font-size:0.85rem;" onclick="toggleCheckinReminder(this)">
           Enable
         </button>
       </div>
@@ -76,6 +76,21 @@
 
       <!-- Data -->
       <h3 style="margin-bottom:14px; color:var(--secondary);">🗂 Data</h3>
+
+      <div style="
+        display:flex; justify-content:space-between;
+        align-items:center; padding:16px;
+        background:var(--card); border-radius:14px;
+        border:1px solid var(--border); margin-bottom:12px;
+      ">
+        <div>
+          <strong>Export My Data</strong>
+          <p style="color:var(--subtext); font-size:0.85rem; margin-top:2px;">Download a backup of your journal, moods, goals & more</p>
+        </div>
+        <button style="padding:10px 20px; font-size:0.85rem;" onclick="exportAllData()">
+          📦 Export
+        </button>
+      </div>
 
       <div style="
         display:flex; justify-content:space-between;

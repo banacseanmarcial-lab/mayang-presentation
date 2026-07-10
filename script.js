@@ -183,25 +183,42 @@ function calculatePremiumAssessment() {
   const q3 = Number(document.getElementById("q3").value);
   const total = q1 + q2 + q3;
 
+  // Note: this is a short, informal self-reflection check-in — not a validated
+  // clinical screening tool (like PHQ-9/GAD-7). Labels avoid diagnostic language
+  // on purpose, and higher scores always point toward real human support.
   let result = "";
   let recommendation = "";
+  let showSupportLinks = false;
 
   if (total <= 2) {
-    result = "Minimal";
-    recommendation = "Continue healthy self-care habits.";
+    result = "You seem to be doing okay 🌤";
+    recommendation = "Keep up whatever's been working — your current self-care habits seem to be helping.";
   } else if (total <= 4) {
-    result = "Mild";
-    recommendation = "Practice mindfulness and journaling.";
+    result = "A few rough edges this week 🌥";
+    recommendation = "Consider a short mindfulness break or writing in your journal about what's been on your mind.";
   } else if (total <= 6) {
-    result = "Moderate";
-    recommendation = "Monitor stress levels and seek support if needed.";
+    result = "It's been a heavier week 🌧";
+    recommendation = "It might help to talk this through with someone — a friend, or one of our doctors.";
+    showSupportLinks = true;
   } else {
-    result = "High";
-    recommendation = "Consider speaking with a counselor or trusted support person.";
+    result = "This sounds like a lot to carry right now 🌩";
+    recommendation = "Please consider reaching out to a mental health professional or a support line soon — you don't have to handle this alone.";
+    showSupportLinks = true;
   }
 
-  document.getElementById("result").innerText = "Assessment Result: " + result;
-  document.getElementById("recommendation").innerText = recommendation;
+  const resultEl = document.getElementById("result");
+  const recEl = document.getElementById("recommendation");
+  if (resultEl) resultEl.innerText = "How you're doing: " + result;
+  if (recEl) recEl.innerText = recommendation;
+
+  const linksEl = document.getElementById("assessmentSupportLinks");
+  if (linksEl) {
+    linksEl.innerHTML = showSupportLinks ? `
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="doctors.html" class="btn" style="padding:10px 18px;font-size:.85rem;">🩺 Find a Doctor</a>
+        <a href="crisis.html" class="btn" style="padding:10px 18px;font-size:.85rem;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#f87171;">💙 Crisis Support</a>
+      </div>` : "";
+  }
 }
 
 // =====================
@@ -227,6 +244,7 @@ function saveJournal() {
 
   loadJournal();
   showToast("Journal entry saved 📔", "success");
+  if (typeof checkAchievementsUnlocked === "function") checkAchievementsUnlocked();
 }
 
 function loadJournal() {
@@ -1123,6 +1141,7 @@ function saveMoodHistory(emotion) {
   if (history.length > 30) history.shift();
   localStorage.setItem("moodHistory", JSON.stringify(history));
   updateStreak();
+  if (typeof checkAchievementsUnlocked === "function") checkAchievementsUnlocked();
 }
 
 function getMoodHistory() {
@@ -1440,6 +1459,58 @@ function saveSleep() {
   localStorage.setItem("sleepLogs", JSON.stringify(logs));
   loadSleepLog();
   showToast("Sleep logged 😴", "success");
+  if (typeof checkAchievementsUnlocked === "function") checkAchievementsUnlocked();
+}
+
+// --- Bedtime reminder (uses Notification API where available) ---
+function setBedtimeReminder(timeStr) {
+  if (!timeStr) { localStorage.removeItem("bedtimeReminder"); return; }
+  localStorage.setItem("bedtimeReminder", timeStr);
+}
+function getBedtimeReminder() {
+  return localStorage.getItem("bedtimeReminder") || "";
+}
+async function toggleBedtimeReminder(btn) {
+  const input = document.getElementById("bedtimeInput");
+  const enabled = localStorage.getItem("bedtimeReminderOn") === "true";
+
+  if (enabled) {
+    localStorage.setItem("bedtimeReminderOn", "false");
+    if (btn) btn.textContent = "🔔 Enable";
+    showToast("Bedtime reminder turned off", "info");
+    return;
+  }
+
+  if (!input || !input.value) { showToast("Pick a bedtime first 🕘", "warning"); return; }
+  setBedtimeReminder(input.value);
+
+  if ("Notification" in window && Notification.permission !== "granted") {
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") { showToast("Notifications blocked — reminder saved but won't alert you 🔕", "warning"); }
+  }
+
+  localStorage.setItem("bedtimeReminderOn", "true");
+  if (btn) btn.textContent = "🔕 Disable";
+  showToast("Bedtime reminder set for " + input.value + " 🌙", "success");
+}
+function checkBedtimeReminder() {
+  if (localStorage.getItem("bedtimeReminderOn") !== "true") return;
+  const time = getBedtimeReminder();
+  if (!time) return;
+  const now = new Date();
+  const [h, m] = time.split(":").map(Number);
+  const target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
+  const diffMin = (now - target) / 60000;
+  const lastFired = localStorage.getItem("bedtimeReminderFiredOn");
+  const todayStr = now.toISOString().slice(0, 10);
+  if (diffMin >= 0 && diffMin <= 5 && lastFired !== todayStr) {
+    localStorage.setItem("bedtimeReminderFiredOn", todayStr);
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification("🧠 MindCare AI", { body: "It's almost bedtime — wind down and get some rest 😴" });
+    } else {
+      showToast("🌙 It's almost your bedtime — time to wind down.", "info");
+    }
+  }
 }
 function setSleepStar(val) {
   localStorage.setItem("sleepStars", val);
@@ -1474,24 +1545,63 @@ function renderSleepChart() {
 // =====================
 // GOALS TRACKER
 // =====================
+const GOAL_PRIORITY_META = {
+  low:    { label: "Low",    color: "#94a3b8" },
+  medium: { label: "Medium", color: "#fde68a" },
+  high:   { label: "High",   color: "#f87171" }
+};
+
 function loadGoals() {
   const el = document.getElementById("goalList"); if (!el) return;
   const goals = JSON.parse(localStorage.getItem("goals") || "[]");
   if (!goals.length) { el.innerHTML = '<em style="color:var(--subtext)">No goals yet. Add one above!</em>'; updateGoalProgress(); return; }
-  el.innerHTML = goals.map((g, i) => `
-    <div style="padding:16px 20px;background:rgba(255,255,255,.04);border-radius:14px;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+
+  // Sort: not-done first (by priority high>medium>low, then earliest due date), done goals last
+  const order = { high: 0, medium: 1, low: 2 };
+  const indexed = goals.map((g, i) => ({ g, i }));
+  indexed.sort((a, b) => {
+    if (a.g.done !== b.g.done) return a.g.done ? 1 : -1;
+    const pa = order[a.g.priority || "medium"], pb = order[b.g.priority || "medium"];
+    if (pa !== pb) return pa - pb;
+    const da = a.g.dueDate || "9999-12-31", db = b.g.dueDate || "9999-12-31";
+    return da.localeCompare(db);
+  });
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  el.innerHTML = indexed.map(({ g, i }) => {
+    const pr = GOAL_PRIORITY_META[g.priority || "medium"];
+    const overdue = g.dueDate && !g.done && g.dueDate < todayStr;
+    const dueLabel = g.dueDate ? `${overdue ? "⚠️ Overdue: " : "📅 Due "}${new Date(g.dueDate + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : "";
+    return `
+    <div style="padding:16px 20px;background:rgba(255,255,255,.04);border-radius:14px;border:1px solid ${overdue ? "rgba(239,68,68,.35)" : "rgba(255,255,255,.08)"};display:flex;align-items:center;gap:14px;margin-bottom:12px;">
       <div onclick="toggleGoal(${i})" style="width:22px;height:22px;border-radius:6px;border:2px solid var(--primary);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s;${g.done ? 'background:var(--primary)' : ''}">${g.done ? "✓" : ""}</div>
-      <div style="flex:1;font-size:.95rem;${g.done ? 'text-decoration:line-through;color:var(--subtext)' : ''}">${g.text}</div>
+      <div style="flex:1;min-width:120px;">
+        <div style="font-size:.95rem;${g.done ? 'text-decoration:line-through;color:var(--subtext)' : ''}">${g.text}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+          <span style="font-size:.7rem;font-weight:800;padding:2px 10px;border-radius:20px;background:rgba(255,255,255,.06);color:${pr.color};border:1px solid ${pr.color}33;">${pr.label}</span>
+          ${dueLabel ? `<span style="font-size:.7rem;font-weight:700;color:${overdue ? "#f87171" : "var(--subtext)"};">${dueLabel}</span>` : ""}
+        </div>
+      </div>
       <button onclick="deleteGoal(${i})" style="background:none;border:none;color:var(--subtext);cursor:pointer;font-size:1.1rem;">🗑</button>
-    </div>`).join("");
+    </div>`;
+  }).join("");
   updateGoalProgress();
 }
 function addGoal() {
   const inp = document.getElementById("goalInput"); if (!inp || !inp.value.trim()) return;
+  const dueInp = document.getElementById("goalDueDate");
+  const priInp = document.getElementById("goalPriority");
   const goals = JSON.parse(localStorage.getItem("goals") || "[]");
-  goals.push({ text: inp.value.trim(), done: false });
+  goals.push({
+    text: inp.value.trim(),
+    done: false,
+    dueDate: dueInp && dueInp.value ? dueInp.value : null,
+    priority: priInp && priInp.value ? priInp.value : "medium"
+  });
   localStorage.setItem("goals", JSON.stringify(goals));
-  inp.value = ""; loadGoals();
+  inp.value = ""; if (dueInp) dueInp.value = ""; if (priInp) priInp.value = "medium";
+  loadGoals();
   showToast("Goal added 🎯", "success");
 }
 function toggleGoal(i) {
@@ -1499,7 +1609,10 @@ function toggleGoal(i) {
   goals[i].done = !goals[i].done;
   localStorage.setItem("goals", JSON.stringify(goals));
   loadGoals();
-  if (goals[i].done) showToast("Goal completed! 🎉", "success");
+  if (goals[i].done) {
+    showToast("Goal completed! 🎉", "success");
+    if (typeof checkAchievementsUnlocked === "function") checkAchievementsUnlocked();
+  }
 }
 function deleteGoal(i) {
   const goals = JSON.parse(localStorage.getItem("goals") || "[]");
@@ -1536,6 +1649,7 @@ function addGratitude() {
   items.unshift({ text: inp.value.trim(), date: new Date().toLocaleString() });
   if (items.length > 50) items.pop();
   localStorage.setItem("gratitude", JSON.stringify(items));
+  if (typeof checkAchievementsUnlocked === "function") checkAchievementsUnlocked();
   inp.value = ""; loadGratitude();
   showToast("Added to gratitude journal 🌻", "success");
 }
@@ -1570,25 +1684,29 @@ function addMemory() {
 // =====================
 // ACHIEVEMENTS
 // =====================
-function loadAchievements() {
-  const el = document.getElementById("achievementGrid"); if (!el) return;
+function getAchievementDefs() {
   const streak = parseInt(localStorage.getItem("streak") || "0");
   const journal = JSON.parse(localStorage.getItem("mindcareJournal") || "[]").length;
   const mood = JSON.parse(localStorage.getItem("moodHistory") || "[]").length;
-  const achievements = [
-    { icon: "🌱", name: "First Step",      desc: "Log your first emotion",           unlocked: mood >= 1 },
-    { icon: "🔥", name: "3-Day Streak",    desc: "Check in 3 days in a row",         unlocked: streak >= 3 },
-    { icon: "📔", name: "Journaler",       desc: "Write 5 journal entries",           unlocked: journal >= 5 },
-    { icon: "🏆", name: "Week Warrior",    desc: "7-day check-in streak",             unlocked: streak >= 7 },
-    { icon: "🧘", name: "Zen Master",      desc: "Complete 5 breathing sessions",     unlocked: parseInt(localStorage.getItem("breathSessions") || "0") >= 5 },
-    { icon: "💬", name: "Chat Explorer",   desc: "Send 10 messages to AI",            unlocked: parseInt(localStorage.getItem("chatCount") || "0") >= 10 },
-    { icon: "🎯", name: "Goal Getter",     desc: "Complete 3 goals",                  unlocked: JSON.parse(localStorage.getItem("goals") || "[]").filter(g => g.done).length >= 3 },
-    { icon: "🌟", name: "30-Day Legend",   desc: "30-day check-in streak",            unlocked: streak >= 30 },
-    { icon: "😴", name: "Sleep Tracker",   desc: "Log sleep 7 times",                 unlocked: JSON.parse(localStorage.getItem("sleepLogs") || "[]").length >= 7 },
-    { icon: "🙏", name: "Grateful Heart",  desc: "Add 10 gratitude entries",          unlocked: JSON.parse(localStorage.getItem("gratitude") || "[]").length >= 10 },
-    { icon: "🎵", name: "Mood Maestro",    desc: "Try all 11 emotions",               unlocked: [...new Set(JSON.parse(localStorage.getItem("moodHistory") || "[]").map(h => h.emotion))].length >= 11 },
-    { icon: "💎", name: "Premium Member",  desc: "Subscribe to MindCare Premium",     unlocked: localStorage.getItem("mc_subscribed") === "true" },
+  return [
+    { id: "first_step",     icon: "🌱", name: "First Step",      desc: "Log your first emotion",           unlocked: mood >= 1 },
+    { id: "streak_3",       icon: "🔥", name: "3-Day Streak",    desc: "Check in 3 days in a row",         unlocked: streak >= 3 },
+    { id: "journaler",      icon: "📔", name: "Journaler",       desc: "Write 5 journal entries",           unlocked: journal >= 5 },
+    { id: "streak_7",       icon: "🏆", name: "Week Warrior",    desc: "7-day check-in streak",             unlocked: streak >= 7 },
+    { id: "zen_master",     icon: "🧘", name: "Zen Master",      desc: "Complete 5 breathing sessions",     unlocked: parseInt(localStorage.getItem("breathSessions") || "0") >= 5 },
+    { id: "chat_explorer",  icon: "💬", name: "Chat Explorer",   desc: "Send 10 messages to AI",            unlocked: parseInt(localStorage.getItem("chatCount") || "0") >= 10 },
+    { id: "goal_getter",    icon: "🎯", name: "Goal Getter",     desc: "Complete 3 goals",                  unlocked: JSON.parse(localStorage.getItem("goals") || "[]").filter(g => g.done).length >= 3 },
+    { id: "streak_30",      icon: "🌟", name: "30-Day Legend",   desc: "30-day check-in streak",            unlocked: streak >= 30 },
+    { id: "sleep_tracker",  icon: "😴", name: "Sleep Tracker",   desc: "Log sleep 7 times",                 unlocked: JSON.parse(localStorage.getItem("sleepLogs") || "[]").length >= 7 },
+    { id: "grateful_heart", icon: "🙏", name: "Grateful Heart",  desc: "Add 10 gratitude entries",          unlocked: JSON.parse(localStorage.getItem("gratitude") || "[]").length >= 10 },
+    { id: "mood_maestro",   icon: "🎵", name: "Mood Maestro",    desc: "Try all 11 emotions",               unlocked: [...new Set(JSON.parse(localStorage.getItem("moodHistory") || "[]").map(h => h.emotion))].length >= 11 },
+    { id: "premium_member", icon: "💎", name: "Premium Member",  desc: "Subscribe to MindCare Premium",     unlocked: localStorage.getItem("mc_subscribed") === "true" },
   ];
+}
+
+function loadAchievements() {
+  const el = document.getElementById("achievementGrid"); if (!el) return;
+  const achievements = getAchievementDefs();
   el.innerHTML = achievements.map(a => `
     <div style="padding:24px 16px;text-align:center;border-radius:18px;border:1px solid var(--border);background:var(--card);transition:.25s;${a.unlocked ? '' : 'opacity:.4;filter:grayscale(1)'}">
       <div style="font-size:2.6rem;margin-bottom:10px;">${a.icon}</div>
@@ -1596,6 +1714,25 @@ function loadAchievements() {
       <div style="font-size:.78rem;color:var(--subtext);">${a.desc}</div>
       <div style="margin-top:8px;font-size:.75rem;font-weight:700;color:${a.unlocked ? '#6ee7b7' : 'var(--subtext)'};">${a.unlocked ? '✅ Unlocked' : '🔒 Locked'}</div>
     </div>`).join("");
+  // Visiting the page shouldn't silently "consume" achievements without a toast either
+  checkAchievementsUnlocked();
+}
+
+// Compares current unlock state against what was previously recorded and
+// fires a toast + confetti for anything newly unlocked, from anywhere in the app.
+function checkAchievementsUnlocked() {
+  const defs = getAchievementDefs();
+  const prevUnlocked = JSON.parse(localStorage.getItem("unlockedAchievements") || "[]");
+  const nowUnlockedIds = defs.filter(a => a.unlocked).map(a => a.id);
+  const newlyUnlocked = defs.filter(a => a.unlocked && !prevUnlocked.includes(a.id));
+
+  if (newlyUnlocked.length) {
+    newlyUnlocked.forEach((a, idx) => {
+      setTimeout(() => showToast(`🏆 Achievement unlocked: ${a.name}!`, "success"), idx * 400);
+    });
+    if (typeof launchConfetti === "function") launchConfetti();
+  }
+  localStorage.setItem("unlockedAchievements", JSON.stringify(nowUnlockedIds));
 }
 
 // =====================
@@ -1723,5 +1860,478 @@ document.addEventListener("DOMContentLoaded", () => {
     window._apptFilter = "all";
     renderAppointmentStats();
     renderAppointmentList("all");
+  }
+});
+// =====================
+// FOCUS ROOM (Pomodoro + Ambient Sound)
+// =====================
+
+const FOCUS_DURATIONS = { focus: 25 * 60, short: 5 * 60, long: 15 * 60 };
+let focusState = {
+  mode: "focus",
+  secondsLeft: FOCUS_DURATIONS.focus,
+  running: false,
+  timer: null
+};
+let focusAudioCtx = null;
+let focusAudioNodes = null;
+let focusActiveSound = null;
+
+function initFocusRoom() {
+  updateFocusRing();
+  updateFocusDisplay();
+  const totalEl = document.getElementById("focusSessionCount");
+  if (totalEl) totalEl.textContent = localStorage.getItem("focusSessions") || "0";
+  const minEl = document.getElementById("focusMinutesCount");
+  if (minEl) minEl.textContent = localStorage.getItem("focusMinutes") || "0";
+}
+
+let focusCyclesCompleted = 0;
+
+function setFocusMode(btn, mode) {
+  stopFocusTimer();
+  focusState.mode = mode;
+  focusState.secondsLeft = FOCUS_DURATIONS[mode];
+  document.querySelectorAll(".focus-mode-tab").forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  updateFocusDisplay();
+  updateFocusRing();
+}
+
+function isAutoStartOn() {
+  const cb = document.getElementById("focusAutoStart");
+  return cb ? cb.checked : false;
+}
+
+// Switches the tab UI to reflect a mode (used by auto-cycling, which has no button click)
+function activateFocusModeTab(mode) {
+  const tabIndex = mode === "focus" ? 0 : mode === "short" ? 1 : 2;
+  const tabs = document.querySelectorAll(".focus-mode-tab");
+  tabs.forEach(b => b.classList.remove("active"));
+  if (tabs[tabIndex]) tabs[tabIndex].classList.add("active");
+}
+
+function toggleFocusTimer() {
+  if (focusState.running) { pauseFocusTimer(); }
+  else { startFocusTimer(); }
+}
+
+function startFocusTimer() {
+  if (focusState.running) return;
+  focusState.running = true;
+  const btn = document.getElementById("focusStartBtn");
+  if (btn) btn.textContent = "⏸ Pause";
+  focusState.timer = setInterval(() => {
+    focusState.secondsLeft--;
+    if (focusState.secondsLeft <= 0) {
+      completeFocusSession();
+      return;
+    }
+    updateFocusDisplay();
+    updateFocusRing();
+  }, 1000);
+}
+
+function pauseFocusTimer() {
+  focusState.running = false;
+  clearInterval(focusState.timer);
+  const btn = document.getElementById("focusStartBtn");
+  if (btn) btn.textContent = "▶ Start";
+}
+
+function stopFocusTimer() {
+  focusState.running = false;
+  clearInterval(focusState.timer);
+  const btn = document.getElementById("focusStartBtn");
+  if (btn) btn.textContent = "▶ Start";
+}
+
+function resetFocusTimer() {
+  stopFocusTimer();
+  focusState.secondsLeft = FOCUS_DURATIONS[focusState.mode];
+  updateFocusDisplay();
+  updateFocusRing();
+}
+
+function completeFocusSession() {
+  stopFocusTimer();
+  focusState.secondsLeft = 0;
+  updateFocusDisplay();
+  updateFocusRing();
+
+  let nextMode;
+  if (focusState.mode === "focus") {
+    const sessions = parseInt(localStorage.getItem("focusSessions") || "0") + 1;
+    localStorage.setItem("focusSessions", sessions);
+    const minutes = parseInt(localStorage.getItem("focusMinutes") || "0") + 25;
+    localStorage.setItem("focusMinutes", minutes);
+    const totalEl = document.getElementById("focusSessionCount");
+    if (totalEl) totalEl.textContent = sessions;
+    const minEl = document.getElementById("focusMinutesCount");
+    if (minEl) minEl.textContent = minutes;
+    showToast("Focus session complete! Great work 🎉", "success");
+    if (typeof checkAchievementsUnlocked === "function") checkAchievementsUnlocked();
+
+    focusCyclesCompleted++;
+    nextMode = (focusCyclesCompleted % 4 === 0) ? "long" : "short";
+  } else {
+    showToast(focusState.mode === "long" ? "Long break's over — ready for a fresh round? 💪" : "Break's over — ready to focus again? 💪", "info");
+    nextMode = "focus";
+  }
+
+  setTimeout(() => {
+    focusState.mode = nextMode;
+    focusState.secondsLeft = FOCUS_DURATIONS[nextMode];
+    activateFocusModeTab(nextMode);
+    updateFocusDisplay();
+    updateFocusRing();
+    if (isAutoStartOn()) startFocusTimer();
+  }, 900);
+}
+
+function updateFocusDisplay() {
+  const el = document.getElementById("focusTime");
+  if (!el) return;
+  const m = Math.floor(focusState.secondsLeft / 60).toString().padStart(2, "0");
+  const s = (focusState.secondsLeft % 60).toString().padStart(2, "0");
+  el.textContent = `${m}:${s}`;
+  const label = document.getElementById("focusModeLabel");
+  if (label) label.textContent = focusState.mode === "focus" ? "Focus Session" : focusState.mode === "short" ? "Short Break" : "Long Break";
+}
+
+function updateFocusRing() {
+  const circle = document.getElementById("focusRingProgress");
+  if (!circle) return;
+  const total = FOCUS_DURATIONS[focusState.mode];
+  const r = 120;
+  const circumference = 2 * Math.PI * r;
+  const pct = focusState.secondsLeft / total;
+  circle.style.strokeDasharray = circumference;
+  circle.style.strokeDashoffset = circumference * (1 - pct);
+}
+
+function getFocusAudioCtx() {
+  if (!focusAudioCtx) focusAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return focusAudioCtx;
+}
+
+function makeNoiseBuffer(ctx, color) {
+  const bufferSize = 2 * ctx.sampleRate;
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  let lastOut = 0;
+  for (let i = 0; i < bufferSize; i++) {
+    const white = Math.random() * 2 - 1;
+    if (color === "brown") {
+      lastOut = (lastOut + 0.02 * white) / 1.02;
+      data[i] = lastOut * 3.5;
+    } else if (color === "pink") {
+      lastOut = 0.98 * lastOut + white * 0.02;
+      data[i] = (lastOut + white * 0.15) * 1.5;
+    } else {
+      data[i] = white;
+    }
+  }
+  return buffer;
+}
+
+function toggleFocusSound(btn, type) {
+  const ctx = getFocusAudioCtx();
+
+  if (focusActiveSound === type) {
+    stopFocusSound();
+    btn.classList.remove("active");
+    return;
+  }
+
+  stopFocusSound();
+
+  const gain = ctx.createGain();
+  gain.gain.value = 0.12;
+  gain.connect(ctx.destination);
+
+  let source;
+  if (type === "rain" || type === "white") {
+    source = ctx.createBufferSource();
+    source.buffer = makeNoiseBuffer(ctx, "white");
+    source.loop = true;
+  } else if (type === "forest" || type === "pink") {
+    source = ctx.createBufferSource();
+    source.buffer = makeNoiseBuffer(ctx, "pink");
+    source.loop = true;
+  } else if (type === "lofi" || type === "brown") {
+    source = ctx.createBufferSource();
+    source.buffer = makeNoiseBuffer(ctx, "brown");
+    source.loop = true;
+  }
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.value = type === "lofi" ? 800 : type === "forest" ? 2200 : 4000;
+  source.connect(filter);
+  filter.connect(gain);
+  source.start();
+
+  focusAudioNodes = { source, gain, filter };
+  focusActiveSound = type;
+
+  document.querySelectorAll(".sound-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+function stopFocusSound() {
+  if (focusAudioNodes) {
+    try { focusAudioNodes.source.stop(); } catch (e) {}
+    focusAudioNodes = null;
+  }
+  focusActiveSound = null;
+  document.querySelectorAll(".sound-btn").forEach(b => b.classList.remove("active"));
+}
+
+// =====================
+// CALM MODE (Immersive ambient session)
+// =====================
+
+const CALM_QUOTES = [
+  "Breathe in peace, breathe out tension.",
+  "This moment is the only one that matters right now.",
+  "You don't have to fix everything today.",
+  "Slow down. There is no rush here.",
+  "Let your shoulders drop. Let your jaw unclench.",
+  "You are allowed to rest.",
+  "Notice five things you can hear right now.",
+  "Whatever you're carrying, you can set it down for a minute.",
+  "Your breath is always here to anchor you.",
+  "It's okay to just be, without doing."
+];
+
+let calmQuoteInterval = null;
+let calmInstructionInterval = null;
+let calmAudioCtx = null;
+let calmAudioNodes = null;
+let calmSessionInterval = null;
+let calmSecondsLeft = 0;
+
+function initCalmMode() {
+  const quoteEl = document.getElementById("calmQuote");
+  const instrEl = document.getElementById("calmInstruction");
+
+  let qIndex = 0;
+  if (quoteEl) {
+    quoteEl.textContent = CALM_QUOTES[0];
+    calmQuoteInterval = setInterval(() => {
+      qIndex = (qIndex + 1) % CALM_QUOTES.length;
+      quoteEl.style.opacity = 0;
+      setTimeout(() => { quoteEl.textContent = CALM_QUOTES[qIndex]; quoteEl.style.opacity = 1; }, 800);
+    }, 7000);
+  }
+
+  const phases = ["Breathe in...", "Hold...", "Breathe out...", "Rest..."];
+  let pIndex = 0;
+  if (instrEl) {
+    instrEl.textContent = phases[0];
+    calmInstructionInterval = setInterval(() => {
+      pIndex = (pIndex + 1) % phases.length;
+      instrEl.textContent = phases[pIndex];
+    }, 4000);
+  }
+
+  // Default to a free/open-ended session unless a length is chosen
+  setCalmDuration(0);
+}
+
+// minutes = 0 means "open-ended" (no auto-exit, no countdown shown)
+function setCalmDuration(minutes) {
+  clearInterval(calmSessionInterval);
+  calmSecondsLeft = minutes * 60;
+  const timerEl = document.getElementById("calmTimer");
+
+  document.querySelectorAll(".calm-length-btn").forEach(b => b.classList.remove("active"));
+  const activeBtn = document.querySelector(`.calm-length-btn[data-min="${minutes}"]`);
+  if (activeBtn) activeBtn.classList.add("active");
+
+  if (minutes === 0) {
+    if (timerEl) timerEl.textContent = "";
+    return;
+  }
+
+  if (timerEl) timerEl.textContent = formatCalmTime(calmSecondsLeft);
+  calmSessionInterval = setInterval(() => {
+    calmSecondsLeft--;
+    if (timerEl) timerEl.textContent = formatCalmTime(calmSecondsLeft);
+    if (calmSecondsLeft <= 0) {
+      clearInterval(calmSessionInterval);
+      showToast("Session complete. Hope you feel a little lighter 💙", "success");
+      setTimeout(() => exitCalmMode(), 1500);
+    }
+  }, 1000);
+}
+
+function formatCalmTime(totalSeconds) {
+  const m = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
+  const s = (totalSeconds % 60).toString().padStart(2, "0");
+  return `${m}:${s}`;
+}
+
+function toggleCalmPause() {
+  const orb = document.getElementById("calmOrbWrap");
+  const btn = document.getElementById("calmPauseBtn");
+  if (!orb) return;
+  const paused = orb.classList.toggle("paused");
+  if (btn) btn.textContent = paused ? "▶ Resume" : "⏸ Pause";
+}
+
+function toggleCalmSound(btn, type) {
+  const ctx = calmAudioCtx || (calmAudioCtx = new (window.AudioContext || window.webkitAudioContext)());
+
+  if (calmAudioNodes && calmAudioNodes.type === type) {
+    stopCalmSound();
+    btn.classList.remove("active");
+    return;
+  }
+  stopCalmSound();
+
+  const gain = ctx.createGain();
+  gain.gain.value = 0.1;
+  gain.connect(ctx.destination);
+
+  const source = ctx.createBufferSource();
+  source.buffer = makeNoiseBuffer(ctx, type === "ocean" ? "brown" : "pink");
+  source.loop = true;
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.value = type === "ocean" ? 600 : 2000;
+
+  if (type === "ocean") {
+    const lfo = ctx.createOscillator();
+    const lfoGain = ctx.createGain();
+    lfo.frequency.value = 0.15;
+    lfoGain.gain.value = 0.06;
+    lfo.connect(lfoGain);
+    lfoGain.connect(gain.gain);
+    lfo.start();
+    calmAudioNodes = { source, gain, filter, lfo, type };
+  } else {
+    calmAudioNodes = { source, gain, filter, type };
+  }
+
+  source.connect(filter);
+  filter.connect(gain);
+  source.start();
+
+  document.querySelectorAll(".calm-sound-row .sound-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+function stopCalmSound() {
+  if (calmAudioNodes) {
+    try { calmAudioNodes.source.stop(); } catch (e) {}
+    try { calmAudioNodes.lfo && calmAudioNodes.lfo.stop(); } catch (e) {}
+    calmAudioNodes = null;
+  }
+  document.querySelectorAll(".calm-sound-row .sound-btn").forEach(b => b.classList.remove("active"));
+}
+
+function exitCalmMode() {
+  clearInterval(calmQuoteInterval);
+  clearInterval(calmInstructionInterval);
+  clearInterval(calmSessionInterval);
+  stopCalmSound();
+  window.location.href = "dashboard.html";
+}
+
+// Auto-init focus room / calm mode pages
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById("focusTime")) initFocusRoom();
+  if (document.getElementById("calmOrbWrap")) initCalmMode();
+});
+
+// =====================
+// DATA EXPORT (Settings)
+// =====================
+function exportAllData() {
+  const data = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    try { data[key] = JSON.parse(localStorage.getItem(key)); }
+    catch (e) { data[key] = localStorage.getItem(key); }
+  }
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `mindcare-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showToast("Your data was exported 📦", "success");
+}
+
+// =====================
+// DAILY CHECK-IN REMINDER (Settings)
+// =====================
+function isCheckinReminderOn() {
+  return localStorage.getItem("checkinReminderOn") === "true";
+}
+
+async function toggleCheckinReminder(btn) {
+  const enabled = isCheckinReminderOn();
+  if (enabled) {
+    localStorage.setItem("checkinReminderOn", "false");
+    if (btn) btn.textContent = "Enable";
+    showToast("Daily check-in reminder turned off", "info");
+    return;
+  }
+
+  if ("Notification" in window && Notification.permission !== "granted") {
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") {
+      showToast("Notifications blocked — you'll still see an in-app reminder 🔕", "warning");
+    }
+  }
+  localStorage.setItem("checkinReminderOn", "true");
+  if (btn) btn.textContent = "Disable";
+  showToast("Daily check-in reminder enabled 🔔", "success");
+}
+
+// Called on dashboard load — nudges the user once per day if they haven't
+// checked in yet and the reminder is turned on.
+function checkDailyCheckinReminder() {
+  if (!isCheckinReminderOn()) return;
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const history = JSON.parse(localStorage.getItem("moodHistory") || "[]");
+  const checkedInToday = history.some(h => (h.date || "").slice(0, 10) === todayStr);
+  if (checkedInToday) return;
+
+  const lastNudged = localStorage.getItem("checkinReminderFiredOn");
+  if (lastNudged === todayStr) return;
+  localStorage.setItem("checkinReminderFiredOn", todayStr);
+
+  if ("Notification" in window && Notification.permission === "granted") {
+    new Notification("🧠 MindCare AI", { body: "Haven't checked in today — how are you feeling? 💙" });
+  } else {
+    showToast("👋 Haven't checked in today — how are you feeling?", "info");
+  }
+}
+
+// Initialize settings-page toggle labels to match saved state
+document.addEventListener("DOMContentLoaded", () => {
+  const checkinBtn = document.getElementById("checkinReminderBtn");
+  if (checkinBtn) checkinBtn.textContent = isCheckinReminderOn() ? "Disable" : "Enable";
+
+  const bedtimeBtn = document.getElementById("bedtimeReminderBtn");
+  if (bedtimeBtn) {
+    bedtimeBtn.textContent = localStorage.getItem("bedtimeReminderOn") === "true" ? "🔕 Disable" : "🔔 Enable";
+    const bedtimeInput = document.getElementById("bedtimeInput");
+    if (bedtimeInput && getBedtimeReminder()) bedtimeInput.value = getBedtimeReminder();
+  }
+
+  if (document.getElementById("apptStats") || document.getElementById("dashGreeting")) {
+    checkBedtimeReminder();
+  }
+  if (document.getElementById("dashGreeting")) {
+    checkDailyCheckinReminder();
   }
 });

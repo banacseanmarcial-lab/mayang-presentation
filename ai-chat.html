@@ -342,7 +342,15 @@
       messages.scrollTop = messages.scrollHeight;
       input.value = "";
 
+      // Crisis-word safety check (same detection used elsewhere in the app)
+      if (typeof detectRisk === "function") detectRisk(text);
+
       chatHistory.push({ role: "user", content: text });
+
+      const chatCount = parseInt(localStorage.getItem("chatCount") || "0") + 1;
+      localStorage.setItem("chatCount", chatCount);
+      if (typeof checkAchievementsUnlocked === "function") checkAchievementsUnlocked();
+
       showTypingIndicator();
 
       // Variable delay so it doesn't feel robotic — slightly longer for longer messages

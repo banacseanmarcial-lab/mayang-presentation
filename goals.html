@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goals | MindCare AI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="bg"></div>
+  <div id="loader"><div class="loader-text">🧠 MindCare AI</div></div>
+  <div class="ai-orb" onclick="window.location.href='ai-chat.html'" title="AI Chat" style="position:fixed;right:28px;bottom:28px;width:64px;height:64px;border-radius:50%;background:radial-gradient(circle,#60a5fa,#2563eb);box-shadow:0 0 30px #3b82f6;animation:floatOrb 4s infinite ease-in-out;z-index:999;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.6rem;">🤖</div>
+  <style>@keyframes floatOrb{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}</style>
+
+  <nav class="navbar">
+    <div class="logo">🧠 MindCare AI</div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="goals.html" class="active">🎯 Goals</a></li>
+      <li><a href="sleep.html">😴 Sleep</a></li>
+      <li><a href="achievements.html">🏆 Achievements</a></li>
+      <li><a href="ai-chat.html">AI Chat</a></li>
+      <li><button onclick="toggleDarkMode()" style="padding:8px 16px;font-size:0.85rem;">🌙 Dark Mode</button></li>
+    </ul>
+  </nav>
+
+  <main class="goals-page">
+
+    <div style="margin-bottom:24px;">
+      <h1 style="font-size:1.9rem;font-weight:900;margin-bottom:4px;">🎯 My Goals</h1>
+      <p style="color:var(--subtext);">Set small, achievable goals and track your progress.</p>
+    </div>
+
+    <div class="glass" style="padding:24px 28px;border-radius:20px;margin-bottom:22px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <strong style="font-size:.9rem;">Overall Progress</strong>
+        <span id="goalProgressText" style="font-size:.82rem;color:var(--subtext);font-weight:700;">0/0 goals completed (0%)</span>
+      </div>
+      <div class="goal-progress-track">
+        <div class="goal-progress-fill" id="goalProgressBar"></div>
+      </div>
+    </div>
+
+    <div class="glass" style="padding:24px 28px;border-radius:20px;margin-bottom:26px;">
+      <label>Add a new goal</label>
+      <div class="goal-add-row">
+        <input type="text" id="goalInput" placeholder="e.g. Meditate for 10 minutes today" onkeydown="if(event.key==='Enter'){event.preventDefault();addGoal();}">
+        <button class="btn" onclick="addGoal()">➕ Add</button>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;">
+        <div style="flex:1;min-width:160px;">
+          <label style="margin-top:0;">Due date (optional)</label>
+          <input type="date" id="goalDueDate">
+        </div>
+        <div style="flex:1;min-width:160px;">
+          <label style="margin-top:0;">Priority</label>
+          <select id="goalPriority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:14px;font-size:1.05rem;">Your Goals</h3>
+    <div id="goalList">
+      <em style="color:var(--subtext);">No goals yet. Add one above!</em>
+    </div>
+
+  </main>
+
+  <div id="toastContainer"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="script.js"></script>
+  <script src="subscription.js"></script>
+  <script>
+    window.addEventListener("load", () => { loadGoals(); });
+  </script>
+</body>
+</html>

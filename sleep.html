@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sleep | MindCare AI</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div id="bg"></div>
+  <div id="loader"><div class="loader-text">🧠 MindCare AI</div></div>
+  <div class="ai-orb" onclick="window.location.href='ai-chat.html'" title="AI Chat" style="position:fixed;right:28px;bottom:28px;width:64px;height:64px;border-radius:50%;background:radial-gradient(circle,#60a5fa,#2563eb);box-shadow:0 0 30px #3b82f6;animation:floatOrb 4s infinite ease-in-out;z-index:999;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.6rem;">🤖</div>
+  <style>@keyframes floatOrb{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}</style>
+
+  <nav class="navbar">
+    <div class="logo">🧠 MindCare AI</div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="goals.html">🎯 Goals</a></li>
+      <li><a href="sleep.html" class="active">😴 Sleep</a></li>
+      <li><a href="achievements.html">🏆 Achievements</a></li>
+      <li><a href="ai-chat.html">AI Chat</a></li>
+      <li><button onclick="toggleDarkMode()" style="padding:8px 16px;font-size:0.85rem;">🌙 Dark Mode</button></li>
+    </ul>
+  </nav>
+
+  <main class="sleep-page">
+
+    <div style="margin-bottom:24px;">
+      <h1 style="font-size:1.9rem;font-weight:900;margin-bottom:4px;">😴 Sleep Tracker</h1>
+      <p style="color:var(--subtext);">Good sleep is the foundation of mental wellness. Log it nightly.</p>
+    </div>
+
+    <div class="glass" style="padding:24px 28px;border-radius:20px;margin-bottom:22px;">
+      <label>Hours slept</label>
+      <input type="number" id="sleepHours" min="0" max="14" step="0.5" placeholder="e.g. 7.5">
+
+      <label>Sleep quality</label>
+      <div class="sleep-stars" id="sleepStarsRow">
+        <span class="sleep-star active" onclick="setSleepStar(1)">⭐</span>
+        <span class="sleep-star" onclick="setSleepStar(2)">⭐</span>
+        <span class="sleep-star" onclick="setSleepStar(3)">⭐</span>
+        <span class="sleep-star" onclick="setSleepStar(4)">⭐</span>
+        <span class="sleep-star" onclick="setSleepStar(5)">⭐</span>
+      </div>
+
+      <label>Notes (optional)</label>
+      <textarea id="sleepNotes" rows="3" placeholder="Anything affect your sleep? Caffeine, stress, screen time..."></textarea>
+
+      <button class="btn" style="width:100%;margin-top:6px;" onclick="saveSleep()">💾 Log Sleep</button>
+    </div>
+
+    <div class="glass" style="padding:24px 28px;border-radius:20px;margin-bottom:22px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div>
+          <strong>🔔 Bedtime Reminder</strong>
+          <p style="color:var(--subtext);font-size:.85rem;margin-top:2px;">Get nudged when it's time to wind down.</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <input type="time" id="bedtimeInput" style="margin:0;width:auto;">
+          <button id="bedtimeReminderBtn" class="btn" style="padding:10px 18px;font-size:.82rem;white-space:nowrap;" onclick="toggleBedtimeReminder(this)">🔔 Enable</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass" style="padding:24px 28px;border-radius:20px;margin-bottom:22px;">
+      <h3 style="margin-bottom:14px;font-size:1.05rem;">📊 Last 7 Nights</h3>
+      <div class="chart-wrap"><canvas id="sleepChart"></canvas></div>
+    </div>
+
+    <h3 style="margin-bottom:14px;font-size:1.05rem;">🌙 Sleep History</h3>
+    <div id="sleepLog">
+      <em style="color:var(--subtext);">No sleep logs yet.</em>
+    </div>
+
+  </main>
+
+  <div id="toastContainer"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="script.js"></script>
+  <script src="subscription.js"></script>
+  <script>
+    window.addEventListener("load", () => {
+      // reflect saved star rating (default 3) on the stars UI
+      const saved = parseInt(localStorage.getItem("sleepStars") || "3");
+      document.querySelectorAll(".sleep-star").forEach((s, i) => s.classList.toggle("active", i < saved));
+      loadSleepLog();
+      renderSleepChart();
+    });
+  </script>
+</body>
+</html>

@@ -103,7 +103,10 @@
               count.textContent = "";
               circle.className = "breath-circle";
               circle.textContent = "Done 🌟";
+              const sessions = parseInt(localStorage.getItem("breathSessions") || "0") + 1;
+              localStorage.setItem("breathSessions", sessions);
               showToast("Breathing session complete! You did great 🌿", "success");
+              if (typeof checkAchievementsUnlocked === "function") checkAchievementsUnlocked();
             } else {
               runCycle();
             }

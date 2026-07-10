@@ -168,18 +168,13 @@
       const sel=document.getElementById("sleepDash");if(sel)sel.textContent=sleepLogs[0]?sleepLogs[0].hours+"h":"—";
       const history=getMoodHistory();
       const tel=document.getElementById("totalCheckinsHero");if(tel)tel.textContent=history.length;
-      const achievements=[
-        history.length>=1,parseInt(localStorage.getItem("streak")||0)>=3,
-        journals.length>=5,parseInt(localStorage.getItem("streak")||0)>=7,
-        parseInt(localStorage.getItem("breathSessions")||0)>=5,
-        parseInt(localStorage.getItem("chatCount")||0)>=10,
-        done>=3,parseInt(localStorage.getItem("streak")||0)>=30,
-        JSON.parse(localStorage.getItem("sleepLogs")||"[]").length>=7,
-        JSON.parse(localStorage.getItem("gratitude")||"[]").length>=10,
-        [...new Set(history.map(h=>h.emotion))].length>=11,
-        localStorage.getItem("mc_subscribed")==="true"
-      ];
-      const bdel=document.getElementById("badgesDash");if(bdel)bdel.textContent=achievements.filter(Boolean).length;
+      // Single source of truth lives in script.js (getAchievementDefs) — avoids this
+      // list silently drifting out of sync with the real achievements page.
+      const achievementCount = typeof getAchievementDefs === "function"
+        ? getAchievementDefs().filter(a => a.unlocked).length
+        : 0;
+      const bdel=document.getElementById("badgesDash");if(bdel)bdel.textContent=achievementCount;
+      if (typeof checkAchievementsUnlocked === "function") checkAchievementsUnlocked();
       if(!history.length){
         const nc=document.getElementById("noChartData");const mc=document.getElementById("moodChart");
         if(nc)nc.style.display="block";if(mc)mc.style.display="none";
